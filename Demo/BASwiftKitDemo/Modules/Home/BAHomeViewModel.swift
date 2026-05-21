@@ -86,6 +86,13 @@ final class BAHomeViewModel {
                 iconSystemName: "square.grid.3x1.below.line.grid.1x2",
                 gradient: [UIColor(ba_hex: "#9B5BFF")!, UIColor(ba_hex: "#5B6CFF")!],
                 builder: { BATabBarDemoLauncher.make() }
+            ),
+            BADemoItem(
+                title: "基础设施 / Bundle · Window · TopVC",
+                subtitle: "组件化 bundle、当前 VC、UIView 闭包点击 / 长按",
+                iconSystemName: "rectangle.connected.to.line.below",
+                gradient: [UIColor(ba_hex: "#16213E")!, UIColor(ba_hex: "#5B6CFF")!],
+                builder: { BAInfraDemoViewController(viewModel: BAInfraDemoViewModel()) }
             )
         ])
     }

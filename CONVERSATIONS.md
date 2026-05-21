@@ -5,6 +5,40 @@
 
 ---
 
+## 2026-05-21 (第 6 轮)
+
+### 用户输入概要
+
+> 少了 bundle、组件化 bundle、window、currentVC、view 点击事件等封装。
+
+### 本轮完成
+
+**库新增 5 个文件**：
+
+| 类别 | 文件 | 关键 API |
+| --- | --- | --- |
+| 扩展 | `Extensions/Foundation/Bundle+BA.swift` | `ba_appName / ba_appVersion / ba_buildNumber / ba_bundleId / ba_infoValue(forKey:)` + `ba_resourceURL / ba_resourceData / ba_resourceJSON` |
+| 工具 | `Utilities/BAResourceBundle.swift` | 组件化项目专用：`ba_resolve(anchorClass:bundleName:)` 用一个内部类做锚点定位 `.bundle`，`ba_resolve(named:in:)` 直接从 main bundle 找，`ba_image(named:from:)` 读图 |
+| 扩展 | `Extensions/UIKit/UIApplication+BA.swift` | `UIApplication.ba_keyWindow`（iOS 13+ 多 scene 安全）、`ba_topViewController`、`UIWindow.ba_topViewController`、`UIWindow.ba_replaceRootViewController(_:duration:options:)` 带交叉淡入 |
+| 扩展 | `Extensions/UIKit/UIView+Gesture.swift` | 任意 UIView 闭包式手势：`ba_onTap(numberOfTaps:handler:)`、`ba_onLongPress(minimumDuration:handler:)`，自动开启 `isUserInteractionEnabled`，回调内部用 `BAGestureWrapper` 关联对象持有 |
+
+**Demo 新增 1 个模块**：
+
+- `Modules/InfraDemo`：演示卡片 `ba_onTap` → Toast、`ba_onLongPress` → Alert；显示 Bundle 元信息、当前 Top VC 类名、Key Window 信息、组件 bundle 路径，附「刷新」按钮调用 `ba_topViewController`。挂到首页第 11 项。
+
+**实现细节注解**
+
+- `UIApplication.ba_topViewController` 走 navigation/tab/present 三类容器穿透到底层。
+- `UIWindow.ba_replaceRootViewController` 先拿当前 snapshot 贴到新 VC 上做淡出，避免裸切 root 时屏幕黑闪。
+- `BAResourceBundle.ba_resolve(anchorClass:bundleName:)` 失败时 fallback 到 `Bundle(for: anchorClass)`，保证组件代码在 demo 单包场景下也能工作。
+
+### 验证
+
+- `swift build` ✅
+- `xcodegen generate` 后 `xcodebuild -sdk iphonesimulator … build` ✅ **BUILD SUCCEEDED**
+
+---
+
 ## 2026-05-21 (第 5 轮)
 
 ### 用户输入概要

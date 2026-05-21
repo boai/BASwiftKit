@@ -10,12 +10,14 @@ BASwiftKit/
 ├─ Package.swift                  # Swift Package 入口（可直接 SwiftPM 引入）
 ├─ Sources/BASwiftKit/            # 库代码：扩展 + 工具 + UI 组件
 │  ├─ Extensions/
-│  │  ├─ Foundation/              # String / Date / Date+Calendar / Collection / NotificationCenter
-│  │  └─ UIKit/                   # UIColor / UIView / UIView+Animation / UIImage / UIButton /
-│  │                              # UILabel / UIFont / UITextField / UIStackView /
-│  │                              # UIViewController / CALayer
+│  │  ├─ Foundation/              # String / Date / Date+Calendar / Collection /
+│  │  │                           # Bundle / NotificationCenter
+│  │  └─ UIKit/                   # UIColor / UIView / UIView+Animation / UIView+Gesture /
+│  │                              # UIImage / UIButton / UILabel / UIFont / UITextField /
+│  │                              # UIStackView / UIViewController / UIApplication /
+│  │                              # CALayer
 │  ├─ Utilities/                  # Toast / Logger / UserDefaults / Keychain / DeviceInfo /
-│  │                              # LoadingHUD / Localization
+│  │                              # LoadingHUD / Localization / ResourceBundle
 │  └─ UIComponents/               # GradientView / CardView / BadgeView /
 │                                 # NavigationBarStyle / TabBarController
 ├─ Tests/BASwiftKitTests/         # XCTest 单测
@@ -43,6 +45,7 @@ BASwiftKit/
 | `Array` | `ba_unique()` / `ba_chunked(into:)` | 去重 / 分块 |
 | `Collection` | `ba_safe(_:)` | 越界安全下标 |
 | `Dictionary` | `ba_merged(with:)` | 合并 |
+| `Bundle` | `ba_appName` / `ba_appVersion` / `ba_buildNumber` / `ba_bundleId` / `ba_infoValue(forKey:)` / `ba_resourceURL/Data/JSON` | App 元数据 + 资源查找 |
 | `NotificationCenter` | `ba_observeKeyboardWillShow/Hide` | 键盘观察器（封装好 `BAKeyboardInfo`） |
 
 ### UIKit 扩展
@@ -52,6 +55,7 @@ BASwiftKit/
 | `UIColor` | `init?(ba_hex:)` / `ba_rgb` / `ba_random` / `ba_dynamic(light:dark:)` / `ba_hexString` | 颜色一站式 |
 | `UIView` | `ba_x/y/width/height` / `ba_setCornerRadius/Border/Shadow` / `ba_addSubviews(...)` / `ba_snapshotImage()` / `ba_parentViewController` | View 便利 |
 | `UIView` (animation) | `ba_fadeIn/Out` / `ba_shake` / `ba_pulse` / `ba_springAppear` / `ba_slideIn(from:)` / `ba_rotate(by:)` | 常用动画 |
+| `UIView` (gesture) | `ba_onTap { view in ... }` / `ba_onLongPress { view in ... }` | 任意 View 闭包式手势 |
 | `UIImage` | `ba_image(color:size:)` / `ba_resized(to:)` / `ba_roundedToCircle()` / `ba_tinted` / `ba_compressed(toKB:)` | 图像处理 |
 | `UIButton` | `ba_make(...)` / `ba_onTap` | 链式构造 + 闭包点击 |
 | `UILabel` | `ba_make(...)` / `ba_setLineSpacing` / `ba_highlight` | 文本样式 |
@@ -60,6 +64,8 @@ BASwiftKit/
 | `UITextField` | `ba_placeholderColor` / `ba_maxLength` / `ba_toggleSecureEntry` / `ba_leftPadding(_:)` | 文本框便利 |
 | `UIViewController` | `ba_alert` / `ba_actionSheet` / `ba_dismissKeyboard` / `ba_findInNavigation` | 弹窗与导航 |
 | `UINavigationController` | `ba_apply(style:)` | 应用 `BANavigationBarStyle` |
+| `UIApplication` | `ba_keyWindow` / `ba_topViewController` | 多 scene 安全的 keyWindow + 当前顶层 VC |
+| `UIWindow` | `ba_topViewController` / `ba_replaceRootViewController(_:duration:options:)` | Root VC 切换（带交叉淡入） |
 | `CALayer` | `ba_rasterize` / `ba_softShadow` / `ba_border` | layer 便利 |
 
 ### 工具类
@@ -69,6 +75,7 @@ BASwiftKit/
 | `BAToast` | 全局轻提示，4 种风格，自动找 keyWindow |
 | `BALoadingHUD` | 全屏 / 局部阻塞型 loading，支持运行时更新文案 |
 | `BALocalization` | 运行时切换语言，支持运行时字典 + .lproj 双路 |
+| `BAResourceBundle` | 组件化资源 bundle 查找（按 anchor 类 + bundleName 解析），支持 `ba_image(named:from:)` |
 | `BALogger` | 等级化日志，Debug 自动开启 |
 | `BAUserDefault` / `BAUserDefaultCodable` | UserDefaults 属性包装器，支持 Codable |
 | `BAKeychain` | 轻量 Keychain 读写 |
