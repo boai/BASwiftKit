@@ -60,3 +60,13 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# macOS
+.DS_Store
+
+# oh-my-claudecode 工具产物
+.omc/
+
+# XcodeGen 生成的 Xcode 工程：通过 `xcodegen generate` 现产现用，避免提交易冲突的二进制
+Demo/*.xcodeproj/
+
