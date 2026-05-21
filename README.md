@@ -17,13 +17,13 @@ BASwiftKit/
 │  │                              # UIStackView / UIViewController / UIApplication /
 │  │                              # CALayer
 │  ├─ Utilities/                  # Toast / Logger / UserDefaults / Keychain / DeviceInfo /
-│  │                              # LoadingHUD / Localization / ResourceBundle
+│  │                              # LoadingHUD / Localization / ResourceBundle / Cache
 │  └─ UIComponents/               # GradientView / CardView / BadgeView /
 │                                 # NavigationBarStyle / TabBarController
 ├─ Tests/BASwiftKitTests/         # XCTest 单测
 ├─ Demo/                          # MVVM Demo 工程
 │  ├─ project.yml                 # XcodeGen 配置
-│  └─ BASwiftKitDemo/             # App 源码（App / Theme / Common / 10 个 Modules）
+│  └─ BASwiftKitDemo/             # App 源码（App / Theme / Common / 12 个 Modules）
 └─ CONVERSATIONS.md               # 对话与完成项日志
 ```
 
@@ -76,6 +76,8 @@ BASwiftKit/
 | `BALoadingHUD` | 全屏 / 局部阻塞型 loading，支持运行时更新文案 |
 | `BALocalization` | 运行时切换语言，支持运行时字典 + .lproj 双路 |
 | `BAResourceBundle` | 组件化资源 bundle 查找（按 anchor 类 + bundleName 解析），支持 `ba_image(named:from:)` |
+| `BADeviceInfo`（扩展） | `ba_modelName`（机型映射 iPhone 6s ~ 16/iPad）、`ba_userDeviceName`、`ba_isSimulator`、`ba_processorCount`、`ba_physicalMemoryBytes`；电池 `ba_enableBatteryMonitoring()` / `ba_batteryLevel` / `ba_batteryState(+Description)`；存储 `ba_totalDiskBytes / ba_freeDiskBytes / ba_usedDiskBytes`；地域 `ba_localeIdentifier / ba_timeZoneIdentifier / ba_languageCode`；`ba_formatBytes(_:)` |
+| `BACache` | `ba_size(of:)` / `ba_sizeAsync` 统计 Library/Caches + tmp 占用；`ba_clear(directories:)` / `ba_clearAsync` 一键清除 |
 | `BALogger` | 等级化日志，Debug 自动开启 |
 | `BAUserDefault` / `BAUserDefaultCodable` | UserDefaults 属性包装器，支持 Codable |
 | `BAKeychain` | 轻量 Keychain 读写 |

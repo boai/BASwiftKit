@@ -5,6 +5,50 @@
 
 ---
 
+## 2026-05-21 (第 7 轮)
+
+### 用户输入概要
+
+> 当前设备那里 `BADeviceInfo` 要增加下当前设备类型（比如 iPhone 17）、用户设备名称、可参考腾讯手机管家拿到的电池电量 / 存储空间 / 可用 / 剩余等，还要有清除 App 缓存的方法。
+
+### 本轮完成
+
+**库扩展 `BADeviceInfo`（同文件）**
+
+| 维度 | 新增 API |
+| --- | --- |
+| 机型 | `ba_modelName`（identifier → 友好名映射，覆盖 iPhone 6s ~ iPhone 16、iPad 主流型号，Simulator 也识别） |
+| 设备名 | `ba_userDeviceName`（用户自命名，如 "Alice 的 iPhone"） |
+| 环境 | `ba_isSimulator`、`ba_processorCount`、`ba_physicalMemoryBytes` |
+| 电池 | `ba_enableBatteryMonitoring()` / `ba_batteryLevel` / `ba_batteryState` / `ba_batteryStateDescription`（中文：未充电 / 充电中 / 已充满 / 未知） |
+| 存储 | `ba_totalDiskBytes` / `ba_freeDiskBytes` / `ba_usedDiskBytes`（用 `volumeAvailableCapacityForImportantUsageKey` 拿可用容量） |
+| 地域 | `ba_localeIdentifier` / `ba_timeZoneIdentifier` / `ba_languageCode` |
+| 格式化 | `ba_formatBytes(_:)`（自动选 GB / MB / KB） |
+
+兼容性：原 `ba_deviceName` 重命名为 `ba_userDeviceName`，含义更明确。
+
+**库新增 `Utilities/BACache.swift`**
+
+```swift
+BACache.ba_size(of:)           // 同步统计字节
+BACache.ba_sizeAsync { bytes } // 异步统计，回调主线程
+BACache.ba_clear(directories:) // 同步清理
+BACache.ba_clearAsync { ok }   // 异步清理
+```
+
+默认管理 `Library/Caches` + `tmp`，不会动用户 `Documents`。
+
+**Demo 新增 `Modules/DeviceInfoDemo`**
+
+整页 6 大分组：设备 / 系统 / 电池 / 屏幕 / 存储 / App。顶部独立的「App 缓存」卡片实时显示占用，点「清除」会弹原生确认 alert + `BALoadingHUD` 阻塞 + 完成 toast。挂到 Home 第 12 项。
+
+### 验证
+
+- `swift build` ✅
+- `xcodegen generate` 后 `xcodebuild -sdk iphonesimulator … build` ✅ **BUILD SUCCEEDED**
+
+---
+
 ## 2026-05-21 (第 6 轮)
 
 ### 用户输入概要

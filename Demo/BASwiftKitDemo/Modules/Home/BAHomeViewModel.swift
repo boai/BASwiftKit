@@ -93,6 +93,13 @@ final class BAHomeViewModel {
                 iconSystemName: "rectangle.connected.to.line.below",
                 gradient: [UIColor(ba_hex: "#16213E")!, UIColor(ba_hex: "#5B6CFF")!],
                 builder: { BAInfraDemoViewController(viewModel: BAInfraDemoViewModel()) }
+            ),
+            BADemoItem(
+                title: "设备信息 + 清缓存",
+                subtitle: "机型 / 电池 / 存储 / 一键清 Caches & tmp",
+                iconSystemName: "iphone.gen3",
+                gradient: [UIColor(ba_hex: "#1FBFB8")!, UIColor(ba_hex: "#5B6CFF")!],
+                builder: { BADeviceInfoDemoViewController(viewModel: BADeviceInfoDemoViewModel()) }
             )
         ])
     }
