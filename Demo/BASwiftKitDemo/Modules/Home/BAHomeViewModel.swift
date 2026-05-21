@@ -44,6 +44,48 @@ final class BAHomeViewModel {
                 iconSystemName: "square.stack.3d.up.fill",
                 gradient: [UIColor(ba_hex: "#3A8DFF")!, UIColor(ba_hex: "#5B6CFF")!],
                 builder: { BAComponentsDemoViewController(viewModel: BAComponentsDemoViewModel()) }
+            ),
+            BADemoItem(
+                title: "动画 / Animation",
+                subtitle: "Spring、Shake、Pulse、Slide 等常用动画",
+                iconSystemName: "wand.and.stars",
+                gradient: [UIColor(ba_hex: "#FF6BCB")!, UIColor(ba_hex: "#9B5BFF")!],
+                builder: { BAAnimationDemoViewController(viewModel: BAAnimationDemoViewModel()) }
+            ),
+            BADemoItem(
+                title: "字体 / UIFont",
+                subtitle: "系统字重快捷、Dynamic Type、字体注册",
+                iconSystemName: "textformat.size",
+                gradient: [UIColor(ba_hex: "#0EA5E9")!, UIColor(ba_hex: "#5B6CFF")!],
+                builder: { BAFontDemoViewController(viewModel: BAFontDemoViewModel()) }
+            ),
+            BADemoItem(
+                title: "多语言 / BALocalization",
+                subtitle: "运行时切换语言，无需重启 App",
+                iconSystemName: "globe",
+                gradient: [UIColor(ba_hex: "#22C55E")!, UIColor(ba_hex: "#0EA5E9")!],
+                builder: { BAL10nDemoViewController(viewModel: BAL10nDemoViewModel()) }
+            ),
+            BADemoItem(
+                title: "加载 HUD",
+                subtitle: "全屏 / 局部 / 动态更新文案",
+                iconSystemName: "arrow.triangle.2.circlepath",
+                gradient: [UIColor(ba_hex: "#F97316")!, UIColor(ba_hex: "#F2A22C")!],
+                builder: { BALoadingDemoViewController(viewModel: BALoadingDemoViewModel()) }
+            ),
+            BADemoItem(
+                title: "自定义 NavigationBar",
+                subtitle: "实心 / 渐变 / 透明，运行时切换",
+                iconSystemName: "rectangle.dashed",
+                gradient: [UIColor(ba_hex: "#5B6CFF")!, UIColor(ba_hex: "#1FBFB8")!],
+                builder: { BANavBarDemoViewController(viewModel: BANavBarDemoViewModel()) }
+            ),
+            BADemoItem(
+                title: "自定义 TabBar",
+                subtitle: "弹跳动画 + 角标，BATabBarController",
+                iconSystemName: "square.grid.3x1.below.line.grid.1x2",
+                gradient: [UIColor(ba_hex: "#9B5BFF")!, UIColor(ba_hex: "#5B6CFF")!],
+                builder: { BATabBarDemoLauncher.make() }
             )
         ])
     }

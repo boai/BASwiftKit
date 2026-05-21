@@ -57,4 +57,42 @@ final class BASwiftKitTests: XCTestCase {
         let now = Date()
         XCTAssertEqual(now.ba_relativeFromNow, "刚刚")
     }
+
+    // MARK: - Date+Calendar
+
+    func test_dateStartAndEndOfDay() {
+        let d = "2026-05-21 13:45:30".ba_date()!
+        let start = d.ba_startOfDay()
+        let end = d.ba_endOfDay()
+        XCTAssertEqual(start.ba_components.hour, 0)
+        XCTAssertEqual(start.ba_components.minute, 0)
+        XCTAssertEqual(end.ba_components.hour, 23)
+        XCTAssertEqual(end.ba_components.minute, 59)
+    }
+
+    func test_dateAddingDays() {
+        let d = "2026-05-21".ba_date(format: "yyyy-MM-dd")!
+        let next = d.ba_adding(days: 10)
+        XCTAssertEqual(d.ba_daysBetween(next), 10)
+    }
+
+    func test_dateIsToday() {
+        XCTAssertTrue(Date().ba_isToday)
+    }
+
+    // MARK: - Localization
+
+    func test_localizationRoundtrip() {
+        BALocalization.shared.register(["unit_test_key": "Hello"], for: "en")
+        BALocalization.shared.register(["unit_test_key": "你好"], for: "zh-Hans")
+
+        BALocalization.shared.setLanguage("en")
+        XCTAssertEqual("unit_test_key".ba_localized, "Hello")
+
+        BALocalization.shared.setLanguage("zh-Hans")
+        XCTAssertEqual("unit_test_key".ba_localized, "你好")
+
+        // 未注册 key 走兜底
+        XCTAssertEqual("nonexistent_key".ba_localized, "nonexistent_key")
+    }
 }

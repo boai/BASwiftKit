@@ -5,6 +5,55 @@
 
 ---
 
+## 2026-05-21 (第 5 轮)
+
+### 用户输入概要
+
+> 内容还是有点少，继续补充：比如自定义 NaviBar、自定义 TabBarItem、多语言配置、字体、日期、日历、动画等好多都没有。
+
+### 本轮完成
+
+**库新增 11 个文件**：
+
+| 类别 | 文件 | 关键 API |
+| --- | --- | --- |
+| 扩展 | `Extensions/UIKit/UIFont+BA.swift` | `ba_regular/medium/semibold/bold(_:)`、`ba_mono`、`ba_scaled`（Dynamic Type）、`ba_registerFont(named:)` 运行时注册 ttf/otf |
+| 扩展 | `Extensions/UIKit/UIStackView+BA.swift` | `ba_make` 链式构造、`ba_addArrangedSubviews(...)` 变参、`ba_removeAllArrangedSubviews`、`ba_insert(_:after:)` |
+| 扩展 | `Extensions/UIKit/UITextField+BA.swift` | `ba_placeholderColor`、`ba_maxLength`（关联对象 + IME 候选词保护）、`ba_toggleSecureEntry`、`ba_leftPadding` |
+| 扩展 | `Extensions/UIKit/UIView+Animation.swift` | `ba_fadeIn/Out`、`ba_shake`、`ba_pulse / ba_stopPulse`、`ba_springAppear`、`ba_slideIn(from:)`、`ba_rotate(by:)` |
+| 扩展 | `Extensions/UIKit/CALayer+BA.swift` | `ba_rasterize`、`ba_softShadow`、`ba_border` |
+| 扩展 | `Extensions/Foundation/Date+Calendar.swift` | `ba_startOfDay/endOfDay/startOfMonth/endOfMonth`、`ba_adding(days/months/years:)`、`ba_isToday/Yesterday/Tomorrow/Weekend`、`ba_weekdayName(locale:)`、`ba_daysBetween(_:)`、`ba_ageInYears`，附 `String.ba_date(format:)` |
+| 扩展 | `Extensions/Foundation/NotificationCenter+BA.swift` | `ba_observeKeyboardWillShow/Hide`，封装 `BAKeyboardInfo`（endFrame / duration / curve → animationOptions） |
+| 工具 | `Utilities/BALoadingHUD.swift` | `BALoadingHUD.ba_show/hide(in:message:)`，同一容器重复 show 自动更新文案 |
+| 工具 | `Utilities/BALocalization.swift` | 运行时切换语言，运行时字典优先、`.lproj/.strings` 兜底；`String.ba_localized` / `ba_localized(_:)`；语言变更通知 `BALocalization.languageDidChangeNotification` |
+| 组件 | `UIComponents/BANavigationBarStyle.swift` | 样式 struct（solid / gradient / transparent + tint + title + 是否隐藏底线），`UINavigationController.ba_apply(style:)` 一次配齐 standard / scrollEdge / compact |
+| 组件 | `UIComponents/BATabBarController.swift` | `BATabItem` + `ba_setup(items:)`、自动套 UINavigationController、`ba_setBadge(_:at:)`（>99 显示 `99+`）、Tab 切换时图标弹跳动画 |
+
+**Demo 新增 6 个模块**：
+
+- `Modules/AnimationDemo` — 8 种动画在同一个渐变卡片上现场演示
+- `Modules/FontDemo` — 6 行字体样式预览（含 mono 与 Dynamic Type）
+- `Modules/L10nDemo` — Segmented 切换中英文，所有文案运行时刷新
+- `Modules/LoadingDemo` — 全屏 / 局部 / 步进 3 种 HUD 场景
+- `Modules/NavBarDemo` — 4 种导航栏预设运行时切换，离开页面自动还原
+- `Modules/TabBarDemo` — 3 Tab 的 `BATabBarController`，含弹跳动画 + 角标 8 / 99+
+
+更新 `BAHomeViewModel`：首页 4 项 → 10 项，新增 6 个卡片各配独立渐变和 SF Symbol 图标。
+
+**测试**：新增 4 个用例（Date+Calendar 边界 / 加减 / isToday / Localization 切换），库测试合计 14 / 14 通过。
+
+### 本轮修复
+
+- 初版 `BANavigationBarStyle.swift` 用 `internal extension BAGradientView.Direction { var points: ... }` 重复声明，因 `BAGradientView.Direction.points` 已有同名内部属性，编译冲突。改为直接使用现有 `direction.points`，删掉冗余 extension。
+- 初版 `BALocalization.currentLanguage` 漏了 `public`，从 Demo 模块访问报 `inaccessible due to 'internal' protection level`。改为 `public private(set) var`。
+
+### 验证
+
+- `swift test` ✅ 14/14 通过
+- `xcodegen generate` 重生工程后 `xcodebuild -sdk iphonesimulator … build` ✅ **BUILD SUCCEEDED**
+
+---
+
 ## 2026-05-21 (第 4 轮)
 
 ### 用户输入概要
