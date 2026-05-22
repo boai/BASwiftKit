@@ -28,7 +28,6 @@ final class BAHomeViewController: BABaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = viewModel.title
-        navigationController?.navigationBar.prefersLargeTitles = true
 
         setupTable()
         bindViewModel()

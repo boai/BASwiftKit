@@ -18,7 +18,6 @@ class BASceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         let home = BAHomeViewController(viewModel: BAHomeViewModel())
         let nav = UINavigationController(rootViewController: home)
-        nav.navigationBar.prefersLargeTitles = true
         window.rootViewController = nav
         window.makeKeyAndVisible()
         self.window = window

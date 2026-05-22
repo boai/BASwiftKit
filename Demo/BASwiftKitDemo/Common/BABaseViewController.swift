@@ -22,10 +22,6 @@ class BABaseViewController: UIViewController {
             .foregroundColor: BAAppTheme.textPrimary,
             .font: BAAppTheme.titleFont
         ]
-        appearance.largeTitleTextAttributes = [
-            .foregroundColor: BAAppTheme.textPrimary,
-            .font: BAAppTheme.largeTitleFont
-        ]
         appearance.shadowColor = .clear
 
         navigationItem.standardAppearance = appearance

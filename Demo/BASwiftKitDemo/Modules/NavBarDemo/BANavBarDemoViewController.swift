@@ -21,6 +21,12 @@ final class BANavBarDemoViewController: BABaseViewController {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
+    private let defaultStyle = BANavigationBarStyle(
+        background: .solid(BAAppTheme.background),
+        tintColor: BAAppTheme.accent,
+        titleColor: BAAppTheme.textPrimary
+    )
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
@@ -31,15 +37,11 @@ final class BANavBarDemoViewController: BABaseViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         // 退出本页时还原全局导航栏样式，避免污染其他页面
-        navigationController?.ba_apply(style: BANavigationBarStyle(
-            background: .solid(BAAppTheme.background),
-            tintColor: BAAppTheme.accent,
-            titleColor: BAAppTheme.textPrimary
-        ))
+        navigationController?.ba_apply(style: defaultStyle)
     }
 
     private func setupLayout() {
-        hint.text = "点击下面任一按钮，看导航栏样式立即切换。\n离开本页时会自动还原默认外观。"
+        hint.text = "点击下面任一按钮，会跳到预览页展示该导航栏样式。\n最后一项「滑动渐变」演示透明 → 实色过渡。\n返回时自动还原默认外观。"
         hint.font = .ba_medium(13)
         hint.textColor = BAAppTheme.textSecondary
         hint.numberOfLines = 0
@@ -73,9 +75,28 @@ final class BANavBarDemoViewController: BABaseViewController {
                                        cornerRadius: 12)
             btn.heightAnchor.constraint(equalToConstant: 48).isActive = true
             btn.ba_onTap { [weak self] _ in
-                self?.navigationController?.ba_apply(style: p.style)
+                guard let self else { return }
+                let preview = BANavBarPreviewViewController(
+                    presetTitle: p.title,
+                    style: p.style,
+                    restoreStyle: self.defaultStyle
+                )
+                self.navigationController?.pushViewController(preview, animated: true)
             }
             stack.addArrangedSubview(btn)
         }
+
+        let scrollBtn = UIButton.ba_make(title: "滑动渐变 · 透明 → 实色",
+                                         titleColor: .white,
+                                         backgroundColor: BAAppTheme.accentSecondary,
+                                         font: .ba_semibold(15),
+                                         cornerRadius: 12)
+        scrollBtn.heightAnchor.constraint(equalToConstant: 48).isActive = true
+        scrollBtn.ba_onTap { [weak self] _ in
+            guard let self else { return }
+            let scrollDemo = BANavBarScrollGradientViewController(restoreStyle: self.defaultStyle)
+            self.navigationController?.pushViewController(scrollDemo, animated: true)
+        }
+        stack.addArrangedSubview(scrollBtn)
     }
 }
