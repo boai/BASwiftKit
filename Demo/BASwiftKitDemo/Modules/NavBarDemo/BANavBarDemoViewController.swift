@@ -93,9 +93,8 @@ final class BANavBarDemoViewController: BABaseViewController {
                                          cornerRadius: 12)
         scrollBtn.heightAnchor.constraint(equalToConstant: 48).isActive = true
         scrollBtn.ba_onTap { [weak self] _ in
-            guard let self else { return }
-            let scrollDemo = BANavBarScrollGradientViewController(restoreStyle: self.defaultStyle)
-            self.navigationController?.pushViewController(scrollDemo, animated: true)
+            let scrollDemo = BANavBarScrollGradientViewController()
+            self?.navigationController?.pushViewController(scrollDemo, animated: true)
         }
         stack.addArrangedSubview(scrollBtn)
     }
