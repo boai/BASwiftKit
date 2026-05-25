@@ -30,7 +30,7 @@ final class BADeviceInfoDemoViewModel {
         sections.update([
             BADeviceInfoSection(title: "设备", rows: [
                 ("用户设备名",   BADeviceInfo.ba_userDeviceName),
-                ("友好型号",    BADeviceInfo.ba_modelName),
+                ("设备型号",    BADeviceInfo.ba_modelName),
                 ("机型标识",    BADeviceInfo.ba_machineModel),
                 ("Simulator",  BADeviceInfo.ba_isSimulator ? "是" : "否"),
                 ("CPU 核心",    "\(BADeviceInfo.ba_processorCount)"),

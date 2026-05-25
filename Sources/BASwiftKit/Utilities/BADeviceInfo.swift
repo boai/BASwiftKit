@@ -46,10 +46,15 @@ public enum BADeviceInfo {
         return String(id)
     }
 
-    /// 友好型号名（如 "iPhone 15 Pro"）。未知机型直接返回原始 identifier。
+    /// 友好型号名（如 "iPhone 17 Pro"）。未知机型直接返回原始 identifier。
     public static var ba_modelName: String {
         let id = ba_machineModel
         return Self.machineMap[id] ?? id
+    }
+
+    /// 根据机型标识符查询友好名称（如 "iPhone17,1" → "iPhone 16 Pro"）
+    public static func ba_modelName(for identifier: String) -> String {
+        Self.machineMap[identifier] ?? identifier
     }
 
     /// 是否运行在 Simulator
@@ -156,7 +161,7 @@ public enum BADeviceInfo {
         ba_formatBytes(Int64(clamping: bytes), style: style)
     }
 
-    // MARK: - 机型映射表（覆盖 iPhone 6s ~ iPhone 16 / iPad 主流型号）
+    // MARK: - 机型映射表（覆盖 iPhone 6s ~ iPhone 17 / iPad / Apple Watch 主流型号）
 
     private static let machineMap: [String: String] = [
         // iPhone
@@ -196,21 +201,92 @@ public enum BADeviceInfo {
         "iPhone17,4": "iPhone 16 Plus",
         "iPhone17,1": "iPhone 16 Pro",
         "iPhone17,2": "iPhone 16 Pro Max",
+        "iPhone17,5": "iPhone 16e",
+        "iPhone18,1": "iPhone 17 Pro",
+        "iPhone18,2": "iPhone 17 Pro Max",
+        "iPhone18,3": "iPhone 17",
+        "iPhone18,4": "iPhone Air",
+        "iPhone18,5": "iPhone 17e",
 
-        // iPad（常见型号，识别符相对稳定）
+        // iPad
         "iPad7,11": "iPad (7th gen)",  "iPad7,12": "iPad (7th gen)",
         "iPad11,6": "iPad (8th gen)",  "iPad11,7": "iPad (8th gen)",
         "iPad12,1": "iPad (9th gen)",  "iPad12,2": "iPad (9th gen)",
         "iPad13,18": "iPad (10th gen)", "iPad13,19": "iPad (10th gen)",
+        "iPad15,7": "iPad (11th gen)",  "iPad15,8": "iPad (11th gen)",
+        "iPad11,1": "iPad mini (5th gen)", "iPad11,2": "iPad mini (5th gen)",
+        "iPad14,1": "iPad mini (6th gen)", "iPad14,2": "iPad mini (6th gen)",
+        "iPad16,1": "iPad mini (7th gen)", "iPad16,2": "iPad mini (7th gen)",
+        "iPad11,3": "iPad Air (3rd gen)", "iPad11,4": "iPad Air (3rd gen)",
         "iPad13,1": "iPad Air (4th gen)", "iPad13,2": "iPad Air (4th gen)",
         "iPad13,16": "iPad Air (5th gen)", "iPad13,17": "iPad Air (5th gen)",
-        "iPad14,1": "iPad mini (6th gen)", "iPad14,2": "iPad mini (6th gen)",
-        "iPad14,3": "iPad Pro 11-inch (M2)", "iPad14,4": "iPad Pro 11-inch (M2)",
-        "iPad14,5": "iPad Pro 12.9-inch (M2)", "iPad14,6": "iPad Pro 12.9-inch (M2)",
         "iPad14,8": "iPad Air 11-inch (M2)", "iPad14,9": "iPad Air 11-inch (M2)",
         "iPad14,10": "iPad Air 13-inch (M2)", "iPad14,11": "iPad Air 13-inch (M2)",
+        "iPad15,3": "iPad Air 11-inch (M3)", "iPad15,4": "iPad Air 11-inch (M3)",
+        "iPad15,5": "iPad Air 13-inch (M3)", "iPad15,6": "iPad Air 13-inch (M3)",
+        "iPad13,4": "iPad Pro 11-inch (M1)", "iPad13,5": "iPad Pro 11-inch (M1)",
+        "iPad13,6": "iPad Pro 11-inch (M1)", "iPad13,7": "iPad Pro 11-inch (M1)",
+        "iPad13,8": "iPad Pro 12.9-inch (M1)", "iPad13,9": "iPad Pro 12.9-inch (M1)",
+        "iPad13,10": "iPad Pro 12.9-inch (M1)", "iPad13,11": "iPad Pro 12.9-inch (M1)",
+        "iPad14,3": "iPad Pro 11-inch (M2)", "iPad14,4": "iPad Pro 11-inch (M2)",
+        "iPad14,5": "iPad Pro 12.9-inch (M2)", "iPad14,6": "iPad Pro 12.9-inch (M2)",
         "iPad16,3": "iPad Pro 11-inch (M4)", "iPad16,4": "iPad Pro 11-inch (M4)",
         "iPad16,5": "iPad Pro 13-inch (M4)", "iPad16,6": "iPad Pro 13-inch (M4)",
+        "iPad17,1": "iPad Pro 11-inch (M5)", "iPad17,2": "iPad Pro 11-inch (M5)",
+        "iPad17,3": "iPad Pro 13-inch (M5)", "iPad17,4": "iPad Pro 13-inch (M5)",
+
+        // Apple Watch
+        "Watch3,1": "Apple Watch Series 3 38mm (GPS+蜂窝)",
+        "Watch3,2": "Apple Watch Series 3 42mm (GPS+蜂窝)",
+        "Watch3,3": "Apple Watch Series 3 38mm (GPS)",
+        "Watch3,4": "Apple Watch Series 3 42mm (GPS)",
+        "Watch4,1": "Apple Watch Series 4 40mm (GPS)",
+        "Watch4,2": "Apple Watch Series 4 44mm (GPS)",
+        "Watch4,3": "Apple Watch Series 4 40mm (GPS+蜂窝)",
+        "Watch4,4": "Apple Watch Series 4 44mm (GPS+蜂窝)",
+        "Watch5,1": "Apple Watch Series 5 40mm (GPS)",
+        "Watch5,2": "Apple Watch Series 5 44mm (GPS)",
+        "Watch5,3": "Apple Watch Series 5 40mm (GPS+蜂窝)",
+        "Watch5,4": "Apple Watch Series 5 44mm (GPS+蜂窝)",
+        "Watch5,9": "Apple Watch SE (1st gen) 40mm (GPS)",
+        "Watch5,10": "Apple Watch SE (1st gen) 44mm (GPS)",
+        "Watch5,11": "Apple Watch SE (1st gen) 40mm (GPS+蜂窝)",
+        "Watch5,12": "Apple Watch SE (1st gen) 44mm (GPS+蜂窝)",
+        "Watch6,1": "Apple Watch Series 6 40mm (GPS)",
+        "Watch6,2": "Apple Watch Series 6 44mm (GPS)",
+        "Watch6,3": "Apple Watch Series 6 40mm (GPS+蜂窝)",
+        "Watch6,4": "Apple Watch Series 6 44mm (GPS+蜂窝)",
+        "Watch6,6": "Apple Watch Series 7 41mm (GPS)",
+        "Watch6,7": "Apple Watch Series 7 45mm (GPS)",
+        "Watch6,8": "Apple Watch Series 7 41mm (GPS+蜂窝)",
+        "Watch6,9": "Apple Watch Series 7 45mm (GPS+蜂窝)",
+        "Watch6,10": "Apple Watch SE (2nd gen) 40mm (GPS)",
+        "Watch6,11": "Apple Watch SE (2nd gen) 44mm (GPS)",
+        "Watch6,12": "Apple Watch SE (2nd gen) 40mm (GPS+蜂窝)",
+        "Watch6,13": "Apple Watch SE (2nd gen) 44mm (GPS+蜂窝)",
+        "Watch6,14": "Apple Watch Series 8 41mm (GPS)",
+        "Watch6,15": "Apple Watch Series 8 45mm (GPS)",
+        "Watch6,16": "Apple Watch Series 8 41mm (GPS+蜂窝)",
+        "Watch6,17": "Apple Watch Series 8 45mm (GPS+蜂窝)",
+        "Watch6,18": "Apple Watch Ultra",
+        "Watch7,1": "Apple Watch Series 9 41mm (GPS)",
+        "Watch7,2": "Apple Watch Series 9 45mm (GPS)",
+        "Watch7,3": "Apple Watch Series 9 41mm (GPS+蜂窝)",
+        "Watch7,4": "Apple Watch Series 9 45mm (GPS+蜂窝)",
+        "Watch7,5": "Apple Watch Ultra 2",
+        "Watch7,8": "Apple Watch Series 10 42mm (GPS)",
+        "Watch7,9": "Apple Watch Series 10 46mm (GPS)",
+        "Watch7,10": "Apple Watch Series 10 42mm (GPS+蜂窝)",
+        "Watch7,11": "Apple Watch Series 10 46mm (GPS+蜂窝)",
+        "Watch7,12": "Apple Watch Ultra 3",
+        "Watch7,13": "Apple Watch SE (3rd gen) 40mm (GPS)",
+        "Watch7,14": "Apple Watch SE (3rd gen) 44mm (GPS)",
+        "Watch7,15": "Apple Watch SE (3rd gen) 40mm (GPS+蜂窝)",
+        "Watch7,16": "Apple Watch SE (3rd gen) 44mm (GPS+蜂窝)",
+        "Watch7,17": "Apple Watch Series 11 42mm",
+        "Watch7,18": "Apple Watch Series 11 46mm",
+        "Watch7,19": "Apple Watch Series 11 42mm (GPS+蜂窝)",
+        "Watch7,20": "Apple Watch Series 11 46mm (GPS+蜂窝)",
 
         // Simulator
         "i386":      "Simulator (i386)",

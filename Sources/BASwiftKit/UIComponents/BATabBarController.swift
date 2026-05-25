@@ -30,7 +30,7 @@ public struct BATabItem {
 /// - 自动给每个子 VC 套 UINavigationController
 /// - 选中态着色 + 切换时图标轻微弹跳动画
 /// - 支持 `BATabBarItemBadge` 设置数字角标
-public final class BATabBarController: UITabBarController {
+public final class BATabBarController: UITabBarController, UITabBarControllerDelegate {
 
     /// 选中色
     public var ba_selectedColor: UIColor = .systemBlue {
@@ -44,6 +44,11 @@ public final class BATabBarController: UITabBarController {
 
     /// 是否在每个 VC 外面套一层 UINavigationController（默认 true）
     public var ba_embedInNavigation: Bool = true
+
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        delegate = self
+    }
 
     public func ba_setup(items: [BATabItem]) {
         let controllers: [UIViewController] = items.map { item in
@@ -79,14 +84,11 @@ public final class BATabBarController: UITabBarController {
         }
     }
 
-    public override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
-        super.tabBar(tabBar, didSelect: item)
-        // 找到对应的 imageView 做弹跳
-        guard let index = tabBar.items?.firstIndex(of: item),
-              let buttons = tabBar.subviews.filter({ String(describing: type(of: $0)).contains("UITabBarButton") }) as [UIView]?,
-              index < buttons.count else { return }
-        let button = buttons[index]
-        guard let imageView = button.subviews.compactMap({ $0 as? UIImageView }).first else { return }
+    public func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        guard let index = viewControllers?.firstIndex(of: viewController) else { return }
+        let buttons = tabBar.subviews.filter { String(describing: type(of: $0)).contains("UITabBarButton") }
+        guard index < buttons.count else { return }
+        guard let imageView = buttons[index].subviews.compactMap({ $0 as? UIImageView }).first else { return }
         Self.ba_bounce(view: imageView)
     }
 

@@ -67,10 +67,16 @@ final class BAFontDemoViewController: BABaseViewController {
                                       color: BAAppTheme.textSecondary)
             api.translatesAutoresizingMaskIntoConstraints = false
 
-            let preview = UILabel.ba_make(text: "永远相信美好的事情即将发生 · The quick brown fox",
+            let cnLabel = UILabel.ba_make(text: "永远相信美好的事情即将发生",
                                           font: r.font,
                                           color: BAAppTheme.textPrimary,
                                           numberOfLines: 0)
+            let enLabel = UILabel.ba_make(text: "The quick brown fox jumps over the lazy dog",
+                                          font: r.font,
+                                          color: BAAppTheme.textPrimary,
+                                          numberOfLines: 0)
+            let preview = UIStackView.ba_make(axis: .vertical, spacing: 4)
+            preview.ba_addArrangedSubviews(cnLabel, enLabel)
             preview.translatesAutoresizingMaskIntoConstraints = false
 
             card.contentView.ba_addSubviews(api, preview)
