@@ -37,17 +37,21 @@ final class BAHomeViewController: BABaseViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        // UITableView 的 tableHeaderView 不会跟随 table 自动调整宽度，
-        // 需要在父视图布局完成后把宽度同步成 tableView 当前宽度，
-        // 再把 header 重新赋值一次触发高度重新计算 —— 否则 SnapKit
-        // 在 viewDidLoad 阶段拿到的 view.bounds.width 仍是 0，会导致
-        // gradient(left+16/right-16) 与 width==0 互相打架。
-        if let header = tableView.tableHeaderView {
-            let targetWidth = tableView.bounds.width
-            if targetWidth > 0, header.frame.width != targetWidth {
-                header.frame.size.width = targetWidth
-                tableView.tableHeaderView = header
-            }
+        // tableHeaderView 必须在 tableView 真正拿到宽度后再装配。
+        // 若在 viewDidLoad 阶段就赋值，UITableView 会立即对 header
+        // 跑一次布局 pass，那时它自己的 bounds.width 还是 0，会强加
+        // 'UIView-Encapsulated-Layout-Width == 0' 与 gradient 的
+        // left+16/right-16（要求 width >= 32）直接冲突，刷出一长串
+        // 'Unable to simultaneously satisfy constraints'。
+        // 这里在首次拿到宽度时才创建 header，后续宽度变化（旋转）
+        // 则只重设 frame 触发重排，两侧都靠 frame.width 守门避免回环。
+        let width = tableView.bounds.width
+        guard width > 0 else { return }
+        if tableView.tableHeaderView == nil {
+            tableView.tableHeaderView = makeHeader(width: width)
+        } else if let header = tableView.tableHeaderView, header.frame.width != width {
+            header.frame.size.width = width
+            tableView.tableHeaderView = header
         }
     }
 
@@ -60,7 +64,8 @@ final class BAHomeViewController: BABaseViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(BAHomeItemCell.self, forCellReuseIdentifier: BAHomeItemCell.reuseId)
-        tableView.tableHeaderView = makeHeader()
+        // 注意：tableHeaderView 延迟到 viewDidLayoutSubviews 拿到真实宽度后再装配，
+        // 避免 width=0 触发约束冲突。
 
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
@@ -69,8 +74,8 @@ final class BAHomeViewController: BABaseViewController {
         }
     }
 
-    private func makeHeader() -> UIView {
-        let container = UIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 188))
+    private func makeHeader(width: CGFloat) -> UIView {
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: width, height: 188))
 
         let gradient = BAGradientView()
         gradient.ba_colors = BAAppTheme.brandGradient
