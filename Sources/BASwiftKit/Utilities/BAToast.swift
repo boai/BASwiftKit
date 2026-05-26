@@ -7,6 +7,7 @@
 
 #if canImport(UIKit)
 import UIKit
+import SnapKit
 
 /// 全局轻提示。直接调用静态方法即可：
 /// ```swift
@@ -34,15 +35,14 @@ public enum BAToast {
         DispatchQueue.main.async {
             guard let window = keyWindow() else { return }
             let toast = BAToastView(text: message, style: style)
-            toast.translatesAutoresizingMaskIntoConstraints = false
             window.addSubview(toast)
 
-            NSLayoutConstraint.activate([
-                toast.centerXAnchor.constraint(equalTo: window.centerXAnchor),
-                toast.bottomAnchor.constraint(equalTo: window.safeAreaLayoutGuide.bottomAnchor, constant: -80),
-                toast.leadingAnchor.constraint(greaterThanOrEqualTo: window.leadingAnchor, constant: 32),
-                toast.trailingAnchor.constraint(lessThanOrEqualTo: window.trailingAnchor, constant: -32)
-            ])
+            toast.snp.makeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.bottom.equalTo(window.safeAreaLayoutGuide.snp.bottom).offset(-80)
+                make.left.greaterThanOrEqualToSuperview().offset(32)
+                make.right.lessThanOrEqualToSuperview().offset(-32)
+            }
 
             toast.alpha = 0
             toast.transform = CGAffineTransform(translationX: 0, y: 12)
@@ -95,15 +95,12 @@ final class BAToastView: UIView {
         label.textColor = .white
         label.numberOfLines = 0
         label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
 
-        NSLayoutConstraint.activate([
-            label.topAnchor.constraint(equalTo: topAnchor, constant: 12),
-            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
-            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 18),
-            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18)
-        ])
+        label.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview().inset(12)
+            make.left.right.equalToSuperview().inset(18)
+        }
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }

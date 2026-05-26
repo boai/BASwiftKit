@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 /// Home 列表中的一张 Demo 卡片
 final class BAHomeItemCell: UITableViewCell {
@@ -42,59 +43,57 @@ final class BAHomeItemCell: UITableViewCell {
     private func setupHierarchy() {
         contentView.addSubview(card)
         [iconWrap, titleLabel, subtitleLabel, chevron].forEach {
-            $0.translatesAutoresizingMaskIntoConstraints = false
             card.contentView.addSubview($0)
         }
         iconWrap.addSubview(iconView)
-        iconView.translatesAutoresizingMaskIntoConstraints = false
     }
 
     private func setupLayout() {
-        card.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            card.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            card.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
-            card.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            card.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-
-            iconWrap.leadingAnchor.constraint(equalTo: card.contentView.leadingAnchor, constant: 14),
-            iconWrap.centerYAnchor.constraint(equalTo: card.contentView.centerYAnchor),
-            iconWrap.widthAnchor.constraint(equalToConstant: 46),
-            iconWrap.heightAnchor.constraint(equalToConstant: 46),
-
-            iconView.centerXAnchor.constraint(equalTo: iconWrap.centerXAnchor),
-            iconView.centerYAnchor.constraint(equalTo: iconWrap.centerYAnchor),
-            iconView.widthAnchor.constraint(equalToConstant: 22),
-            iconView.heightAnchor.constraint(equalToConstant: 22),
-
-            titleLabel.topAnchor.constraint(equalTo: card.contentView.topAnchor, constant: 18),
-            titleLabel.leadingAnchor.constraint(equalTo: iconWrap.trailingAnchor, constant: 14),
-            titleLabel.trailingAnchor.constraint(equalTo: chevron.leadingAnchor, constant: -8),
-
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
-            subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            subtitleLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            subtitleLabel.bottomAnchor.constraint(equalTo: card.contentView.bottomAnchor, constant: -18),
-
-            chevron.centerYAnchor.constraint(equalTo: card.contentView.centerYAnchor),
-            chevron.trailingAnchor.constraint(equalTo: card.contentView.trailingAnchor, constant: -14),
-            chevron.widthAnchor.constraint(equalToConstant: 12),
-            chevron.heightAnchor.constraint(equalToConstant: 18)
-        ])
+        card.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview().inset(7)
+            make.left.right.equalToSuperview().inset(16)
+        }
+        iconWrap.snp.makeConstraints { make in
+            make.left.equalToSuperview().offset(16)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(50)
+        }
+        iconView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.size.equalTo(24)
+        }
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(19)
+            make.left.equalTo(iconWrap.snp.right).offset(15)
+            make.right.equalTo(chevron.snp.left).offset(-8)
+        }
+        subtitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(4)
+            make.left.right.equalTo(titleLabel)
+            make.bottom.equalToSuperview().offset(-18)
+        }
+        chevron.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.right.equalToSuperview().offset(-14)
+            make.width.equalTo(12)
+            make.height.equalTo(18)
+        }
     }
 
     private func setupStyle() {
-        card.ba_cardColor = BAAppTheme.card
-        card.ba_cornerRadius = BAAppTheme.cornerRadius
+        card.ba_cardColor = BAAppTheme.cardHighlight
+        card.ba_cornerRadius = 20
 
         iconWrap.ba_direction = .leadingDiagonal
-        iconWrap.layer.cornerRadius = 12
+        iconWrap.layer.cornerRadius = 16
+        iconWrap.layer.cornerCurve = .continuous
         iconWrap.layer.masksToBounds = true
 
         iconView.tintColor = .white
         iconView.contentMode = .scaleAspectFit
+        iconView.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold)
 
-        titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        titleLabel.font = .systemFont(ofSize: 16, weight: .bold)
         titleLabel.textColor = BAAppTheme.textPrimary
 
         subtitleLabel.font = .systemFont(ofSize: 13)

@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 /// 演示：进入时导航栏透明，向下滚动时背景与标题渐变到实色。
 ///
@@ -100,36 +101,26 @@ final class BANavBarScrollGradientViewController: UIViewController, UIScrollView
     // MARK: - 布局
 
     private func setupScrollView() {
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.delegate = self
         // 让内容从屏幕最顶端开始，橙色渐变才能延伸到 nav 后面
         scrollView.contentInsetAdjustmentBehavior = .never
         scrollView.alwaysBounceVertical = true
         view.addSubview(scrollView)
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
 
-        contentStack.translatesAutoresizingMaskIntoConstraints = false
         contentStack.alignment = .fill
         scrollView.addSubview(contentStack)
-        NSLayoutConstraint.activate([
-            contentStack.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentStack.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentStack.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentStack.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentStack.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
-        ])
+        contentStack.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalTo(scrollView)
+        }
     }
 
     private func setupHeader() {
         let header = UIView()
-        header.translatesAutoresizingMaskIntoConstraints = false
 
-        headerGradient.translatesAutoresizingMaskIntoConstraints = false
         headerGradient.ba_colors = [
             UIColor(ba_hex: "#F2A22C") ?? .systemOrange,
             UIColor(ba_hex: "#EF4F4F") ?? .systemRed
@@ -145,85 +136,76 @@ final class BANavBarScrollGradientViewController: UIViewController, UIScrollView
                                        font: .systemFont(ofSize: 13, weight: .medium),
                                        color: UIColor.white.withAlphaComponent(0.85),
                                        numberOfLines: 0)
-        bigTitle.translatesAutoresizingMaskIntoConstraints = false
-        subtitle.translatesAutoresizingMaskIntoConstraints = false
         headerGradient.addSubview(bigTitle)
         headerGradient.addSubview(subtitle)
 
-        NSLayoutConstraint.activate([
-            headerGradient.topAnchor.constraint(equalTo: header.topAnchor),
-            headerGradient.leadingAnchor.constraint(equalTo: header.leadingAnchor),
-            headerGradient.trailingAnchor.constraint(equalTo: header.trailingAnchor),
-            headerGradient.bottomAnchor.constraint(equalTo: header.bottomAnchor),
-            header.heightAnchor.constraint(equalToConstant: 320),
-
-            bigTitle.leadingAnchor.constraint(equalTo: headerGradient.leadingAnchor, constant: 24),
-            bigTitle.trailingAnchor.constraint(equalTo: headerGradient.trailingAnchor, constant: -24),
-            bigTitle.bottomAnchor.constraint(equalTo: subtitle.topAnchor, constant: -8),
-
-            subtitle.leadingAnchor.constraint(equalTo: bigTitle.leadingAnchor),
-            subtitle.trailingAnchor.constraint(equalTo: bigTitle.trailingAnchor),
-            subtitle.bottomAnchor.constraint(equalTo: headerGradient.bottomAnchor, constant: -28)
-        ])
+        header.snp.makeConstraints { make in
+            make.height.equalTo(320)
+        }
+        headerGradient.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        subtitle.snp.makeConstraints { make in
+            make.left.right.equalToSuperview().inset(24)
+            make.bottom.equalToSuperview().offset(-28)
+        }
+        bigTitle.snp.makeConstraints { make in
+            make.left.right.equalTo(subtitle)
+            make.bottom.equalTo(subtitle.snp.top).offset(-8)
+        }
         contentStack.addArrangedSubview(header)
     }
 
     private func setupPushRow() {
         let wrapper = UIView()
-        wrapper.translatesAutoresizingMaskIntoConstraints = false
 
         let btn = UIButton.ba_make(title: "进入三级页面（普通 push）",
                                    titleColor: .white,
                                    backgroundColor: BAAppTheme.accent,
                                    font: .ba_semibold(15),
-                                   cornerRadius: 12)
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.heightAnchor.constraint(equalToConstant: 48).isActive = true
+                                   cornerRadius: BAAppTheme.smallCornerRadius)
         btn.ba_onTap { [weak self] _ in
             let next = BANavBarLevel3ViewController()
             self?.navigationController?.pushViewController(next, animated: true)
         }
         wrapper.addSubview(btn)
-        NSLayoutConstraint.activate([
-            btn.topAnchor.constraint(equalTo: wrapper.topAnchor, constant: 16),
-            btn.leadingAnchor.constraint(equalTo: wrapper.leadingAnchor, constant: 20),
-            btn.trailingAnchor.constraint(equalTo: wrapper.trailingAnchor, constant: -20),
-            btn.bottomAnchor.constraint(equalTo: wrapper.bottomAnchor)
-        ])
+        btn.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.left.right.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview()
+            make.height.equalTo(BAAppTheme.controlHeight)
+        }
         contentStack.addArrangedSubview(wrapper)
     }
 
     private func setupBodyContent() {
         let wrapper = UIView()
-        wrapper.translatesAutoresizingMaskIntoConstraints = false
         let inner = UIStackView.ba_make(axis: .vertical, spacing: 12)
-        inner.translatesAutoresizingMaskIntoConstraints = false
         wrapper.addSubview(inner)
-        NSLayoutConstraint.activate([
-            inner.topAnchor.constraint(equalTo: wrapper.topAnchor, constant: 8),
-            inner.leadingAnchor.constraint(equalTo: wrapper.leadingAnchor, constant: 20),
-            inner.trailingAnchor.constraint(equalTo: wrapper.trailingAnchor, constant: -20),
-            inner.bottomAnchor.constraint(equalTo: wrapper.bottomAnchor, constant: -32)
-        ])
+        inner.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(8)
+            make.left.right.equalToSuperview().inset(20)
+            make.bottom.equalToSuperview().offset(-32)
+        }
 
         for i in 1...12 {
             let card = UIView()
-            card.backgroundColor = BAAppTheme.card
-            card.layer.cornerRadius = 14
-            card.translatesAutoresizingMaskIntoConstraints = false
-            card.heightAnchor.constraint(equalToConstant: 72).isActive = true
+            card.backgroundColor = BAAppTheme.cardHighlight
+            card.layer.cornerRadius = BAAppTheme.smallCornerRadius
+            card.layer.cornerCurve = .continuous
+            card.snp.makeConstraints { make in
+                make.height.equalTo(72)
+            }
 
             let label = UILabel.ba_make(text: "示例内容 #\(i) · 用来让页面足够长以触发滚动",
                                         font: .ba_medium(14),
                                         color: BAAppTheme.textPrimary,
                                         numberOfLines: 2)
-            label.translatesAutoresizingMaskIntoConstraints = false
             card.addSubview(label)
-            NSLayoutConstraint.activate([
-                label.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 16),
-                label.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -16),
-                label.centerYAnchor.constraint(equalTo: card.centerYAnchor)
-            ])
+            label.snp.makeConstraints { make in
+                make.left.right.equalToSuperview().inset(16)
+                make.centerY.equalToSuperview()
+            }
             inner.addArrangedSubview(card)
         }
         contentStack.addArrangedSubview(wrapper)
@@ -267,13 +249,10 @@ final class BANavBarLevel3ViewController: BABaseViewController {
             alignment: .center,
             numberOfLines: 0
         )
-        label.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(label)
-        NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24)
-        ])
+        label.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.left.right.equalToSuperview().inset(24)
+        }
     }
 }

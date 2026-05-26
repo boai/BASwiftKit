@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 final class BANavBarDemoViewController: BABaseViewController {
 
@@ -47,13 +48,11 @@ final class BANavBarDemoViewController: BABaseViewController {
         hint.numberOfLines = 0
         stack.addArrangedSubview(hint)
 
-        stack.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
+        stack.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(20)
+            make.left.right.equalToSuperview().inset(20)
+        }
     }
 
     private func bindViewModel() {
@@ -72,8 +71,8 @@ final class BANavBarDemoViewController: BABaseViewController {
                                        titleColor: .white,
                                        backgroundColor: BAAppTheme.accent,
                                        font: .ba_semibold(15),
-                                       cornerRadius: 12)
-            btn.heightAnchor.constraint(equalToConstant: 48).isActive = true
+                                       cornerRadius: BAAppTheme.smallCornerRadius)
+            btn.snp.makeConstraints { make in make.height.equalTo(BAAppTheme.controlHeight) }
             btn.ba_onTap { [weak self] _ in
                 guard let self else { return }
                 let preview = BANavBarPreviewViewController(
@@ -90,8 +89,8 @@ final class BANavBarDemoViewController: BABaseViewController {
                                          titleColor: .white,
                                          backgroundColor: BAAppTheme.accentSecondary,
                                          font: .ba_semibold(15),
-                                         cornerRadius: 12)
-        scrollBtn.heightAnchor.constraint(equalToConstant: 48).isActive = true
+                                         cornerRadius: BAAppTheme.smallCornerRadius)
+        scrollBtn.snp.makeConstraints { make in make.height.equalTo(BAAppTheme.controlHeight) }
         scrollBtn.ba_onTap { [weak self] _ in
             let scrollDemo = BANavBarScrollGradientViewController()
             self?.navigationController?.pushViewController(scrollDemo, animated: true)

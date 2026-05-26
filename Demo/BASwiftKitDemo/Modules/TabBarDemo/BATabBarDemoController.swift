@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 /// 演示 `BATabBarController`：
 /// - 三个 Tab，进入时自动 push 在 BATabBarController 上方
@@ -73,21 +74,19 @@ final class BATabPlaceholderViewController: BABaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         let card = BACardView()
-        card.ba_cardColor = BAAppTheme.card
-        card.ba_cornerRadius = BAAppTheme.cornerRadius
-        card.translatesAutoresizingMaskIntoConstraints = false
+        card.ba_cardColor = BAAppTheme.cardHighlight
+        card.ba_cornerRadius = 24
 
         let gradient = BAGradientView()
         gradient.ba_colors = [tint, tint.withAlphaComponent(0.7)]
         gradient.ba_direction = .leadingDiagonal
-        gradient.layer.cornerRadius = 16
+        gradient.layer.cornerRadius = 22
+        gradient.layer.cornerCurve = .continuous
         gradient.layer.masksToBounds = true
-        gradient.translatesAutoresizingMaskIntoConstraints = false
 
         let icon = UIImageView(image: UIImage(systemName: "sparkles"))
         icon.tintColor = .white
         icon.contentMode = .scaleAspectFit
-        icon.translatesAutoresizingMaskIntoConstraints = false
         gradient.addSubview(icon)
 
         let titleLabel = UILabel.ba_make(text: title,
@@ -99,35 +98,31 @@ final class BATabPlaceholderViewController: BABaseViewController {
                                    color: BAAppTheme.textSecondary,
                                    alignment: .center,
                                    numberOfLines: 0)
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        body.translatesAutoresizingMaskIntoConstraints = false
 
         card.contentView.ba_addSubviews(gradient, titleLabel, body)
         view.addSubview(card)
 
-        NSLayoutConstraint.activate([
-            card.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            card.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            card.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-
-            gradient.topAnchor.constraint(equalTo: card.contentView.topAnchor, constant: 24),
-            gradient.centerXAnchor.constraint(equalTo: card.contentView.centerXAnchor),
-            gradient.widthAnchor.constraint(equalToConstant: 80),
-            gradient.heightAnchor.constraint(equalToConstant: 80),
-
-            icon.centerXAnchor.constraint(equalTo: gradient.centerXAnchor),
-            icon.centerYAnchor.constraint(equalTo: gradient.centerYAnchor),
-            icon.widthAnchor.constraint(equalToConstant: 36),
-            icon.heightAnchor.constraint(equalToConstant: 36),
-
-            titleLabel.topAnchor.constraint(equalTo: gradient.bottomAnchor, constant: 14),
-            titleLabel.leadingAnchor.constraint(equalTo: card.contentView.leadingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: card.contentView.trailingAnchor, constant: -16),
-
-            body.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            body.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            body.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            body.bottomAnchor.constraint(equalTo: card.contentView.bottomAnchor, constant: -24)
-        ])
+        card.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.left.right.equalToSuperview().inset(24)
+        }
+        gradient.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(24)
+            make.centerX.equalToSuperview()
+            make.size.equalTo(80)
+        }
+        icon.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.size.equalTo(36)
+        }
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalTo(gradient.snp.bottom).offset(14)
+            make.left.right.equalToSuperview().inset(16)
+        }
+        body.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(8)
+            make.left.right.equalTo(titleLabel)
+            make.bottom.equalToSuperview().offset(-24)
+        }
     }
 }

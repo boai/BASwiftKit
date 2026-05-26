@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 final class BAL10nDemoViewController: BABaseViewController {
 
@@ -59,18 +60,17 @@ final class BAL10nDemoViewController: BABaseViewController {
         ctaButton.titleLabel?.font = .ba_semibold(15)
         ctaButton.backgroundColor = BAAppTheme.accent
         ctaButton.setTitleColor(.white, for: .normal)
-        ctaButton.layer.cornerRadius = 12
-        ctaButton.translatesAutoresizingMaskIntoConstraints = false
-        ctaButton.heightAnchor.constraint(equalToConstant: 48).isActive = true
+        ctaButton.layer.cornerRadius = BAAppTheme.smallCornerRadius
+        ctaButton.layer.cornerCurve = .continuous
+        ctaButton.ba_setShadow(color: BAAppTheme.accent, opacity: 0.22, radius: 12, offset: CGSize(width: 0, height: 6))
+        ctaButton.snp.makeConstraints { make in make.height.equalTo(BAAppTheme.controlHeight) }
 
         stack.ba_addArrangedSubviews(titleLabel, greetingLabel, segment, langCaption, langValue, ctaButton)
-        stack.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
+        stack.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(32)
+            make.left.right.equalToSuperview().inset(20)
+        }
     }
 
     @objc private func segmentChanged() {

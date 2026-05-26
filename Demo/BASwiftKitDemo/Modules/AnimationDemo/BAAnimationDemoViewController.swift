@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 final class BAAnimationDemoViewController: BABaseViewController {
 
@@ -34,44 +35,39 @@ final class BAAnimationDemoViewController: BABaseViewController {
     private func setupLayout() {
         target.ba_colors = BAAppTheme.brandGradient
         target.ba_direction = .leadingDiagonal
-        target.layer.cornerRadius = 16
-        target.layer.masksToBounds = true
-        target.translatesAutoresizingMaskIntoConstraints = false
+        target.layer.cornerRadius = 32
+        target.layer.cornerCurve = .continuous
+        target.ba_setShadow(color: BAAppTheme.accent, opacity: 0.28, radius: 24, offset: CGSize(width: 0, height: 14))
 
         icon.tintColor = .white
         icon.contentMode = .scaleAspectFit
-        icon.translatesAutoresizingMaskIntoConstraints = false
         target.addSubview(icon)
 
-        scroll.translatesAutoresizingMaskIntoConstraints = false
         scroll.alwaysBounceVertical = true
         view.addSubview(scroll)
         scroll.addSubview(buttonsStack)
 
         view.addSubview(target)
 
-        NSLayoutConstraint.activate([
-            target.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
-            target.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            target.widthAnchor.constraint(equalToConstant: 120),
-            target.heightAnchor.constraint(equalToConstant: 120),
-
-            icon.centerXAnchor.constraint(equalTo: target.centerXAnchor),
-            icon.centerYAnchor.constraint(equalTo: target.centerYAnchor),
-            icon.widthAnchor.constraint(equalToConstant: 48),
-            icon.heightAnchor.constraint(equalToConstant: 48),
-
-            scroll.topAnchor.constraint(equalTo: target.bottomAnchor, constant: 24),
-            scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scroll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            buttonsStack.topAnchor.constraint(equalTo: scroll.topAnchor),
-            buttonsStack.bottomAnchor.constraint(equalTo: scroll.bottomAnchor, constant: -24),
-            buttonsStack.leadingAnchor.constraint(equalTo: scroll.leadingAnchor, constant: 20),
-            buttonsStack.trailingAnchor.constraint(equalTo: scroll.trailingAnchor, constant: -20),
-            buttonsStack.widthAnchor.constraint(equalTo: scroll.widthAnchor, constant: -40)
-        ])
+        target.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(28)
+            make.centerX.equalToSuperview()
+            make.size.equalTo(132)
+        }
+        icon.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.size.equalTo(48)
+        }
+        scroll.snp.makeConstraints { make in
+            make.top.equalTo(target.snp.bottom).offset(24)
+            make.left.right.bottom.equalToSuperview()
+        }
+        buttonsStack.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-24)
+            make.left.right.equalToSuperview().inset(20)
+            make.width.equalTo(scroll).offset(-40)
+        }
     }
 
     private func bindViewModel() {
@@ -87,8 +83,8 @@ final class BAAnimationDemoViewController: BABaseViewController {
                                        titleColor: .white,
                                        backgroundColor: BAAppTheme.accent,
                                        font: .ba_semibold(15),
-                                       cornerRadius: 12)
-            btn.heightAnchor.constraint(equalToConstant: 44).isActive = true
+                                       cornerRadius: BAAppTheme.smallCornerRadius)
+            btn.snp.makeConstraints { make in make.height.equalTo(BAAppTheme.controlHeight) }
             btn.ba_onTap { [weak self] _ in
                 guard let self = self else { return }
                 s.apply(self.target)

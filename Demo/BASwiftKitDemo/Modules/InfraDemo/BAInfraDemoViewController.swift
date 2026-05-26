@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 final class BAInfraDemoViewController: BABaseViewController {
 
@@ -30,23 +31,20 @@ final class BAInfraDemoViewController: BABaseViewController {
     }
 
     private func setupLayout() {
-        scroll.translatesAutoresizingMaskIntoConstraints = false
         scroll.alwaysBounceVertical = true
         view.addSubview(scroll)
         scroll.addSubview(stack)
 
-        NSLayoutConstraint.activate([
-            scroll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scroll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-            stack.topAnchor.constraint(equalTo: scroll.topAnchor, constant: 20),
-            stack.bottomAnchor.constraint(equalTo: scroll.bottomAnchor, constant: -24),
-            stack.leadingAnchor.constraint(equalTo: scroll.leadingAnchor, constant: 16),
-            stack.trailingAnchor.constraint(equalTo: scroll.trailingAnchor, constant: -16),
-            stack.widthAnchor.constraint(equalTo: scroll.widthAnchor, constant: -32)
-        ])
+        scroll.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.bottom.equalToSuperview()
+        }
+        stack.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(20)
+            make.bottom.equalToSuperview().offset(-24)
+            make.left.right.equalToSuperview().inset(16)
+            make.width.equalTo(scroll).offset(-32)
+        }
 
         stack.ba_addArrangedSubviews(
             sectionTitle("UIView.ba_onTap / ba_onLongPress"),
@@ -65,7 +63,7 @@ final class BAInfraDemoViewController: BABaseViewController {
 
     private func makeTapCard() -> UIView {
         let card = BACardView()
-        card.ba_cardColor = BAAppTheme.card
+        card.ba_cardColor = BAAppTheme.cardHighlight
         card.ba_cornerRadius = BAAppTheme.cornerRadius
 
         let title = UILabel.ba_make(text: "👇 单击我 · 长按我",
@@ -78,14 +76,11 @@ final class BAInfraDemoViewController: BABaseViewController {
                                    alignment: .center)
         let s = UIStackView.ba_make(axis: .vertical, spacing: 4, alignment: .center)
         s.ba_addArrangedSubviews(title, hint)
-        s.translatesAutoresizingMaskIntoConstraints = false
         card.contentView.addSubview(s)
-        NSLayoutConstraint.activate([
-            s.topAnchor.constraint(equalTo: card.contentView.topAnchor, constant: 24),
-            s.bottomAnchor.constraint(equalTo: card.contentView.bottomAnchor, constant: -24),
-            s.leadingAnchor.constraint(equalTo: card.contentView.leadingAnchor, constant: 16),
-            s.trailingAnchor.constraint(equalTo: card.contentView.trailingAnchor, constant: -16)
-        ])
+        s.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview().inset(24)
+            make.left.right.equalToSuperview().inset(16)
+        }
 
         card.ba_onTap { _ in
             BAToast.ba_show("ba_onTap 触发", style: .success)
@@ -103,8 +98,10 @@ final class BAInfraDemoViewController: BABaseViewController {
                                    titleColor: .white,
                                    backgroundColor: BAAppTheme.accent,
                                    font: .ba_semibold(15),
-                                   cornerRadius: 12)
-        btn.heightAnchor.constraint(equalToConstant: 44).isActive = true
+                                   cornerRadius: BAAppTheme.smallCornerRadius)
+        btn.snp.makeConstraints { make in
+            make.height.equalTo(BAAppTheme.controlHeight)
+        }
         btn.ba_onTap { [weak self] _ in
             self?.viewModel.refresh()
             BAToast.ba_show("已刷新")
@@ -122,8 +119,8 @@ final class BAInfraDemoViewController: BABaseViewController {
         rowsStack.ba_removeAllArrangedSubviews()
         for r in rows {
             let card = BACardView()
-            card.ba_cardColor = BAAppTheme.card
-            card.ba_cornerRadius = 12
+            card.ba_cardColor = BAAppTheme.cardHighlight
+            card.ba_cornerRadius = BAAppTheme.smallCornerRadius
 
             let key = UILabel.ba_make(text: r.label,
                                       font: .ba_medium(13),
@@ -132,20 +129,17 @@ final class BAInfraDemoViewController: BABaseViewController {
                                       font: .ba_mono(12, weight: .regular),
                                       color: BAAppTheme.textPrimary,
                                       numberOfLines: 0)
-            key.translatesAutoresizingMaskIntoConstraints = false
-            val.translatesAutoresizingMaskIntoConstraints = false
 
             card.contentView.ba_addSubviews(key, val)
-            NSLayoutConstraint.activate([
-                key.topAnchor.constraint(equalTo: card.contentView.topAnchor, constant: 10),
-                key.leadingAnchor.constraint(equalTo: card.contentView.leadingAnchor, constant: 12),
-                key.trailingAnchor.constraint(equalTo: card.contentView.trailingAnchor, constant: -12),
-
-                val.topAnchor.constraint(equalTo: key.bottomAnchor, constant: 4),
-                val.leadingAnchor.constraint(equalTo: key.leadingAnchor),
-                val.trailingAnchor.constraint(equalTo: key.trailingAnchor),
-                val.bottomAnchor.constraint(equalTo: card.contentView.bottomAnchor, constant: -12)
-            ])
+            key.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(10)
+                make.left.right.equalToSuperview().inset(12)
+            }
+            val.snp.makeConstraints { make in
+                make.top.equalTo(key.snp.bottom).offset(4)
+                make.left.right.equalTo(key)
+                make.bottom.equalToSuperview().offset(-12)
+            }
             rowsStack.addArrangedSubview(card)
         }
     }

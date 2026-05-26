@@ -7,6 +7,7 @@
 
 #if canImport(UIKit)
 import UIKit
+import SnapKit
 
 /// 自适应宽度的小角标。可用作分类标签 / 状态 chip。
 public final class BABadgeView: UIView {
@@ -30,11 +31,11 @@ public final class BABadgeView: UIView {
     }
 
     public var ba_horizontalPadding: CGFloat = 8 {
-        didSet { invalidateIntrinsicContentSize() }
+        didSet { updateInsets() }
     }
 
     public var ba_verticalPadding: CGFloat = 4 {
-        didSet { invalidateIntrinsicContentSize() }
+        didSet { updateInsets() }
     }
 
     public override init(frame: CGRect) {
@@ -53,15 +54,17 @@ public final class BABadgeView: UIView {
         label.font = ba_font
         label.textColor = ba_textColor
         label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
 
-        NSLayoutConstraint.activate([
-            label.topAnchor.constraint(equalTo: topAnchor, constant: ba_verticalPadding),
-            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -ba_verticalPadding),
-            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: ba_horizontalPadding),
-            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -ba_horizontalPadding)
-        ])
+        updateInsets()
+    }
+
+    private func updateInsets() {
+        label.snp.remakeConstraints { make in
+            make.top.bottom.equalToSuperview().inset(ba_verticalPadding)
+            make.left.right.equalToSuperview().inset(ba_horizontalPadding)
+        }
+        invalidateIntrinsicContentSize()
     }
 
     public override func layoutSubviews() {

@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 final class BAStringDemoViewController: BABaseViewController {
 
@@ -38,7 +39,6 @@ final class BAStringDemoViewController: BABaseViewController {
     @objc private func handleTap() { ba_dismissKeyboard() }
 
     private func setupLayout() {
-        scroll.translatesAutoresizingMaskIntoConstraints = false
         scroll.alwaysBounceVertical = true
         scroll.keyboardDismissMode = .interactive
         view.addSubview(scroll)
@@ -46,50 +46,49 @@ final class BAStringDemoViewController: BABaseViewController {
         content.axis = .vertical
         content.spacing = 18
         content.alignment = .fill
-        content.translatesAutoresizingMaskIntoConstraints = false
         scroll.addSubview(content)
 
-        NSLayoutConstraint.activate([
-            scroll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scroll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-            content.topAnchor.constraint(equalTo: scroll.topAnchor, constant: 16),
-            content.bottomAnchor.constraint(equalTo: scroll.bottomAnchor, constant: -24),
-            content.leadingAnchor.constraint(equalTo: scroll.leadingAnchor, constant: 16),
-            content.trailingAnchor.constraint(equalTo: scroll.trailingAnchor, constant: -16),
-            content.widthAnchor.constraint(equalTo: scroll.widthAnchor, constant: -32)
-        ])
+        scroll.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.bottom.equalToSuperview()
+        }
+        content.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.bottom.equalToSuperview().offset(-24)
+            make.left.right.equalToSuperview().inset(16)
+            make.width.equalTo(scroll).offset(-32)
+        }
 
         // 输入卡
-        inputCard.ba_cardColor = BAAppTheme.card
+        inputCard.ba_cardColor = BAAppTheme.cardHighlight
         inputCard.ba_cornerRadius = BAAppTheme.cornerRadius
 
-        textField.font = .systemFont(ofSize: 15)
+        textField.font = .systemFont(ofSize: 15, weight: .medium)
         textField.textColor = BAAppTheme.textPrimary
         textField.placeholder = "随便输入点什么"
         textField.borderStyle = .none
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
-        textField.translatesAutoresizingMaskIntoConstraints = false
         textField.addTarget(self, action: #selector(textChanged(_:)), for: .editingChanged)
 
         let icon = UIImageView(image: UIImage(systemName: "pencil.tip.crop.circle"))
         icon.tintColor = BAAppTheme.accent
-        icon.translatesAutoresizingMaskIntoConstraints = false
+        icon.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
 
         inputCard.contentView.ba_addSubviews(icon, textField)
-        NSLayoutConstraint.activate([
-            inputCard.heightAnchor.constraint(equalToConstant: 64),
-            icon.leadingAnchor.constraint(equalTo: inputCard.contentView.leadingAnchor, constant: 14),
-            icon.centerYAnchor.constraint(equalTo: inputCard.contentView.centerYAnchor),
-            icon.widthAnchor.constraint(equalToConstant: 26),
-            icon.heightAnchor.constraint(equalToConstant: 26),
-            textField.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 10),
-            textField.trailingAnchor.constraint(equalTo: inputCard.contentView.trailingAnchor, constant: -14),
-            textField.centerYAnchor.constraint(equalTo: inputCard.contentView.centerYAnchor)
-        ])
+        inputCard.snp.makeConstraints { make in
+            make.height.equalTo(68)
+        }
+        icon.snp.makeConstraints { make in
+            make.left.equalToSuperview().offset(14)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(26)
+        }
+        textField.snp.makeConstraints { make in
+            make.left.equalTo(icon.snp.right).offset(10)
+            make.right.equalToSuperview().offset(-14)
+            make.centerY.equalToSuperview()
+        }
 
         content.addArrangedSubview(inputCard)
 
@@ -122,31 +121,29 @@ final class BAStringDemoViewController: BABaseViewController {
 
     private func makeResultRow(_ r: BAStringDemoResult) -> UIView {
         let card = BACardView()
-        card.ba_cardColor = BAAppTheme.card
-        card.ba_cornerRadius = 12
+        card.ba_cardColor = BAAppTheme.cardHighlight
+        card.ba_cornerRadius = BAAppTheme.smallCornerRadius
 
         let badge = BABadgeView()
         badge.ba_text = r.title
         badge.ba_badgeColor = BAAppTheme.accent.withAlphaComponent(0.14)
         badge.ba_textColor = BAAppTheme.accent
-        badge.translatesAutoresizingMaskIntoConstraints = false
 
         let value = UILabel.ba_make(text: r.value,
                                     font: .monospacedSystemFont(ofSize: 13, weight: .regular),
                                     color: BAAppTheme.textPrimary,
                                     numberOfLines: 0)
-        value.translatesAutoresizingMaskIntoConstraints = false
 
         card.contentView.ba_addSubviews(badge, value)
-        NSLayoutConstraint.activate([
-            badge.topAnchor.constraint(equalTo: card.contentView.topAnchor, constant: 12),
-            badge.leadingAnchor.constraint(equalTo: card.contentView.leadingAnchor, constant: 12),
-
-            value.topAnchor.constraint(equalTo: badge.bottomAnchor, constant: 8),
-            value.leadingAnchor.constraint(equalTo: card.contentView.leadingAnchor, constant: 12),
-            value.trailingAnchor.constraint(equalTo: card.contentView.trailingAnchor, constant: -12),
-            value.bottomAnchor.constraint(equalTo: card.contentView.bottomAnchor, constant: -14)
-        ])
+        badge.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(12)
+            make.left.equalToSuperview().offset(12)
+        }
+        value.snp.makeConstraints { make in
+            make.top.equalTo(badge.snp.bottom).offset(8)
+            make.left.right.equalToSuperview().inset(12)
+            make.bottom.equalToSuperview().offset(-14)
+        }
         return card
     }
 }

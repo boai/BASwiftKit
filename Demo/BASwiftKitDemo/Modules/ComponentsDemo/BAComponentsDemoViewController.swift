@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 final class BAComponentsDemoViewController: BABaseViewController {
 
@@ -18,6 +19,7 @@ final class BAComponentsDemoViewController: BABaseViewController {
     private let badgesWrap = UIView()
     private let cardSample = BACardView()
     private let deviceCard = BACardView()
+    private var badgesWrapHeight: Constraint?
 
     init(viewModel: BAComponentsDemoViewModel) {
         self.viewModel = viewModel
@@ -35,28 +37,24 @@ final class BAComponentsDemoViewController: BABaseViewController {
     }
 
     private func setupLayout() {
-        scroll.translatesAutoresizingMaskIntoConstraints = false
         scroll.alwaysBounceVertical = true
         view.addSubview(scroll)
 
         content.axis = .vertical
         content.spacing = 22
         content.alignment = .fill
-        content.translatesAutoresizingMaskIntoConstraints = false
         scroll.addSubview(content)
 
-        NSLayoutConstraint.activate([
-            scroll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scroll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-            content.topAnchor.constraint(equalTo: scroll.topAnchor, constant: 16),
-            content.bottomAnchor.constraint(equalTo: scroll.bottomAnchor, constant: -24),
-            content.leadingAnchor.constraint(equalTo: scroll.leadingAnchor, constant: 16),
-            content.trailingAnchor.constraint(equalTo: scroll.trailingAnchor, constant: -16),
-            content.widthAnchor.constraint(equalTo: scroll.widthAnchor, constant: -32)
-        ])
+        scroll.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.bottom.equalToSuperview()
+        }
+        content.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.bottom.equalToSuperview().offset(-24)
+            make.left.right.equalToSuperview().inset(16)
+            make.width.equalTo(scroll).offset(-32)
+        }
 
         // BAGradientView 区
         content.addArrangedSubview(sectionTitle("BAGradientView"))
@@ -67,13 +65,17 @@ final class BAComponentsDemoViewController: BABaseViewController {
         // BABadgeView 区
         content.addArrangedSubview(sectionTitle("BABadgeView"))
         content.addArrangedSubview(badgesWrap)
+        badgesWrap.snp.makeConstraints { make in
+            badgesWrapHeight = make.height.equalTo(0).constraint
+        }
 
         // BACardView 区
         content.addArrangedSubview(sectionTitle("BACardView"))
-        cardSample.ba_cardColor = BAAppTheme.card
+        cardSample.ba_cardColor = BAAppTheme.cardHighlight
         cardSample.ba_cornerRadius = BAAppTheme.cornerRadius
-        cardSample.translatesAutoresizingMaskIntoConstraints = false
-        cardSample.heightAnchor.constraint(equalToConstant: 110).isActive = true
+        cardSample.snp.makeConstraints { make in
+            make.height.equalTo(110)
+        }
 
         let title = UILabel.ba_make(text: "卡片容器",
                                     font: .systemFont(ofSize: 16, weight: .semibold),
@@ -82,24 +84,21 @@ final class BAComponentsDemoViewController: BABaseViewController {
                                    font: .systemFont(ofSize: 13),
                                    color: BAAppTheme.textSecondary,
                                    numberOfLines: 0)
-        title.translatesAutoresizingMaskIntoConstraints = false
-        body.translatesAutoresizingMaskIntoConstraints = false
         cardSample.contentView.ba_addSubviews(title, body)
-        NSLayoutConstraint.activate([
-            title.topAnchor.constraint(equalTo: cardSample.contentView.topAnchor, constant: 16),
-            title.leadingAnchor.constraint(equalTo: cardSample.contentView.leadingAnchor, constant: 16),
-            title.trailingAnchor.constraint(equalTo: cardSample.contentView.trailingAnchor, constant: -16),
-            body.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 6),
-            body.leadingAnchor.constraint(equalTo: title.leadingAnchor),
-            body.trailingAnchor.constraint(equalTo: title.trailingAnchor)
-        ])
+        title.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.left.right.equalToSuperview().inset(16)
+        }
+        body.snp.makeConstraints { make in
+            make.top.equalTo(title.snp.bottom).offset(6)
+            make.left.right.equalTo(title)
+        }
         content.addArrangedSubview(cardSample)
 
         // BADeviceInfo 区
         content.addArrangedSubview(sectionTitle("BADeviceInfo"))
-        deviceCard.ba_cardColor = BAAppTheme.card
+        deviceCard.ba_cardColor = BAAppTheme.cardHighlight
         deviceCard.ba_cornerRadius = BAAppTheme.cornerRadius
-        deviceCard.translatesAutoresizingMaskIntoConstraints = false
         content.addArrangedSubview(deviceCard)
     }
 
@@ -120,35 +119,33 @@ final class BAComponentsDemoViewController: BABaseViewController {
             let g = BAGradientView()
             g.ba_colors = sample.colors
             g.ba_direction = sample.direction
-            g.layer.cornerRadius = 14
+            g.layer.cornerRadius = BAAppTheme.cornerRadius
+            g.layer.cornerCurve = .continuous
             g.layer.masksToBounds = true
-            g.translatesAutoresizingMaskIntoConstraints = false
-            g.heightAnchor.constraint(equalToConstant: 72).isActive = true
+            g.ba_setShadow(color: sample.colors.first ?? BAAppTheme.accent, opacity: 0.16, radius: 14, offset: CGSize(width: 0, height: 6))
+            g.snp.makeConstraints { make in
+                make.height.equalTo(78)
+            }
 
             let label = UILabel.ba_make(text: sample.name,
                                         font: .systemFont(ofSize: 16, weight: .semibold),
                                         color: .white)
-            label.translatesAutoresizingMaskIntoConstraints = false
             g.addSubview(label)
-            NSLayoutConstraint.activate([
-                label.leadingAnchor.constraint(equalTo: g.leadingAnchor, constant: 18),
-                label.centerYAnchor.constraint(equalTo: g.centerYAnchor)
-            ])
+            label.snp.makeConstraints { make in
+                make.left.equalToSuperview().offset(18)
+                make.centerY.equalToSuperview()
+            }
             gradientsStack.addArrangedSubview(g)
         }
     }
 
     private func renderBadges(_ list: [BAComponentsDemoViewModel.BadgeSample]) {
         badgesWrap.ba_removeAllSubviews()
-        // 简易换行 flow 布局
+        // 简易换行 flow 布局（frame 算法换行 + SnapKit 更新容器高度）
         var x: CGFloat = 0
         var y: CGFloat = 0
         let spacing: CGFloat = 8
         let maxWidth = view.bounds.width - 32
-
-        let temp = UIView(frame: .zero)
-        badgesWrap.addSubview(temp)
-        badgesWrap.translatesAutoresizingMaskIntoConstraints = false
 
         for sample in list {
             let badge = BABadgeView()
@@ -165,13 +162,8 @@ final class BAComponentsDemoViewController: BABaseViewController {
             badgesWrap.addSubview(badge)
             x += size.width + spacing
         }
-        temp.removeFromSuperview()
 
-        let totalHeight = y + 30
-        for c in badgesWrap.constraints where c.firstAttribute == .height {
-            badgesWrap.removeConstraint(c)
-        }
-        badgesWrap.heightAnchor.constraint(equalToConstant: totalHeight).isActive = true
+        badgesWrapHeight?.update(offset: y + 30)
     }
 
     private func renderDeviceCard() {
@@ -187,7 +179,6 @@ final class BAComponentsDemoViewController: BABaseViewController {
         let stack = UIStackView()
         stack.axis = .vertical
         stack.spacing = 10
-        stack.translatesAutoresizingMaskIntoConstraints = false
         for r in rows {
             let row = UIStackView()
             row.axis = .horizontal
@@ -205,11 +196,8 @@ final class BAComponentsDemoViewController: BABaseViewController {
             stack.addArrangedSubview(row)
         }
         deviceCard.contentView.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: deviceCard.contentView.topAnchor, constant: 16),
-            stack.bottomAnchor.constraint(equalTo: deviceCard.contentView.bottomAnchor, constant: -16),
-            stack.leadingAnchor.constraint(equalTo: deviceCard.contentView.leadingAnchor, constant: 16),
-            stack.trailingAnchor.constraint(equalTo: deviceCard.contentView.trailingAnchor, constant: -16)
-        ])
+        stack.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(16)
+        }
     }
 }

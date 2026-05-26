@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 final class BAToastDemoViewController: BABaseViewController {
 
@@ -30,7 +31,6 @@ final class BAToastDemoViewController: BABaseViewController {
     private func setupLayout() {
         stack.axis = .vertical
         stack.spacing = 14
-        stack.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stack)
 
         let hint = UILabel.ba_make(
@@ -42,11 +42,10 @@ final class BAToastDemoViewController: BABaseViewController {
         )
         stack.addArrangedSubview(hint)
 
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
+        stack.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(20)
+            make.left.right.equalToSuperview().inset(20)
+        }
     }
 
     private func bindViewModel() {

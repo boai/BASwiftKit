@@ -15,14 +15,29 @@ enum BAAppTheme {
 
     /// 主背景色
     static let background = UIColor.ba_dynamic(
-        light: UIColor(ba_hex: "#F6F7FB") ?? .systemBackground,
-        dark:  UIColor(ba_hex: "#0E1116") ?? .black
+        light: UIColor(ba_hex: "#F4F7FC") ?? .systemBackground,
+        dark:  UIColor(ba_hex: "#0A0D13") ?? .black
+    )
+
+    static let backgroundElevated = UIColor.ba_dynamic(
+        light: UIColor(ba_hex: "#EEF3FA") ?? .secondarySystemBackground,
+        dark:  UIColor(ba_hex: "#111722") ?? .secondarySystemBackground
     )
 
     /// 卡片背景
     static let card = UIColor.ba_dynamic(
         light: .white,
-        dark:  UIColor(ba_hex: "#1B1F27") ?? .secondarySystemBackground
+        dark:  UIColor(ba_hex: "#171D28") ?? .secondarySystemBackground
+    )
+
+    static let cardHighlight = UIColor.ba_dynamic(
+        light: UIColor(ba_hex: "#FBFCFF") ?? .white,
+        dark:  UIColor(ba_hex: "#202838") ?? .tertiarySystemBackground
+    )
+
+    static let separator = UIColor.ba_dynamic(
+        light: UIColor(ba_hex: "#E7ECF4") ?? .separator,
+        dark:  UIColor(ba_hex: "#2A3342") ?? .separator
     )
 
     /// 一级文字
@@ -38,13 +53,22 @@ enum BAAppTheme {
     )
 
     /// 主品牌色
-    static let accent = UIColor(ba_hex: "#5B6CFF") ?? .systemBlue
-    static let accentSecondary = UIColor(ba_hex: "#9B5BFF") ?? .systemPurple
-    static let success = UIColor(ba_hex: "#2BB673") ?? .systemGreen
-    static let warning = UIColor(ba_hex: "#F2A22C") ?? .systemOrange
-    static let danger  = UIColor(ba_hex: "#EF4F4F") ?? .systemRed
+    static let accent = UIColor(ba_hex: "#4F7CFF") ?? .systemBlue
+    static let accentSecondary = UIColor(ba_hex: "#8F5CFF") ?? .systemPurple
+    static let success = UIColor(ba_hex: "#26B67A") ?? .systemGreen
+    static let warning = UIColor(ba_hex: "#F2A53B") ?? .systemOrange
+    static let danger  = UIColor(ba_hex: "#F05260") ?? .systemRed
 
-    static let brandGradient: [UIColor] = [accent, accentSecondary]
+    static let brandGradient: [UIColor] = [
+        UIColor(ba_hex: "#31D7FF") ?? .systemTeal,
+        accent,
+        accentSecondary
+    ]
+    static let warmGradient: [UIColor] = [warning, danger]
+    static let coolGradient: [UIColor] = [
+        UIColor(ba_hex: "#20E3B2") ?? .systemGreen,
+        UIColor(ba_hex: "#2F80ED") ?? .systemBlue
+    ]
 
     // MARK: - 字体
 
@@ -63,5 +87,7 @@ enum BAAppTheme {
 
     // MARK: - 圆角
 
-    static let cornerRadius: CGFloat = 14
+    static let cornerRadius: CGFloat = 18
+    static let smallCornerRadius: CGFloat = 12
+    static let controlHeight: CGFloat = 48
 }

@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 final class BAFontDemoViewController: BABaseViewController {
 
@@ -30,23 +31,20 @@ final class BAFontDemoViewController: BABaseViewController {
     }
 
     private func setupLayout() {
-        scroll.translatesAutoresizingMaskIntoConstraints = false
         scroll.alwaysBounceVertical = true
         view.addSubview(scroll)
         scroll.addSubview(stack)
 
-        NSLayoutConstraint.activate([
-            scroll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scroll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-            stack.topAnchor.constraint(equalTo: scroll.topAnchor, constant: 20),
-            stack.bottomAnchor.constraint(equalTo: scroll.bottomAnchor, constant: -24),
-            stack.leadingAnchor.constraint(equalTo: scroll.leadingAnchor, constant: 16),
-            stack.trailingAnchor.constraint(equalTo: scroll.trailingAnchor, constant: -16),
-            stack.widthAnchor.constraint(equalTo: scroll.widthAnchor, constant: -32)
-        ])
+        scroll.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.bottom.equalToSuperview()
+        }
+        stack.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(20)
+            make.bottom.equalToSuperview().offset(-24)
+            make.left.right.equalToSuperview().inset(16)
+            make.width.equalTo(scroll).offset(-32)
+        }
     }
 
     private func bindViewModel() {
@@ -59,13 +57,12 @@ final class BAFontDemoViewController: BABaseViewController {
         stack.ba_removeAllArrangedSubviews()
         for r in rows {
             let card = BACardView()
-            card.ba_cardColor = BAAppTheme.card
-            card.ba_cornerRadius = 12
+            card.ba_cardColor = BAAppTheme.cardHighlight
+            card.ba_cornerRadius = BAAppTheme.smallCornerRadius
 
             let api = UILabel.ba_make(text: r.label,
                                       font: .ba_mono(11, weight: .medium),
                                       color: BAAppTheme.textSecondary)
-            api.translatesAutoresizingMaskIntoConstraints = false
 
             let cnLabel = UILabel.ba_make(text: "永远相信美好的事情即将发生",
                                           font: r.font,
@@ -77,19 +74,17 @@ final class BAFontDemoViewController: BABaseViewController {
                                           numberOfLines: 0)
             let preview = UIStackView.ba_make(axis: .vertical, spacing: 4)
             preview.ba_addArrangedSubviews(cnLabel, enLabel)
-            preview.translatesAutoresizingMaskIntoConstraints = false
 
             card.contentView.ba_addSubviews(api, preview)
-            NSLayoutConstraint.activate([
-                api.topAnchor.constraint(equalTo: card.contentView.topAnchor, constant: 12),
-                api.leadingAnchor.constraint(equalTo: card.contentView.leadingAnchor, constant: 14),
-                api.trailingAnchor.constraint(equalTo: card.contentView.trailingAnchor, constant: -14),
-
-                preview.topAnchor.constraint(equalTo: api.bottomAnchor, constant: 6),
-                preview.leadingAnchor.constraint(equalTo: api.leadingAnchor),
-                preview.trailingAnchor.constraint(equalTo: api.trailingAnchor),
-                preview.bottomAnchor.constraint(equalTo: card.contentView.bottomAnchor, constant: -14)
-            ])
+            api.snp.makeConstraints { make in
+                make.top.equalToSuperview().offset(12)
+                make.left.right.equalToSuperview().inset(14)
+            }
+            preview.snp.makeConstraints { make in
+                make.top.equalTo(api.snp.bottom).offset(6)
+                make.left.right.equalTo(api)
+                make.bottom.equalToSuperview().offset(-14)
+            }
             stack.addArrangedSubview(card)
         }
     }

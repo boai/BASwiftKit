@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 /// 用来「裸」展示一份 BANavigationBarStyle 的预览页。
 /// 故意不继承 BABaseViewController：基类会写入 navigationItem.standardAppearance，
@@ -40,14 +41,11 @@ final class BANavBarPreviewViewController: UIViewController {
             alignment: .center,
             numberOfLines: 0
         )
-        label.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(label)
-        NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24)
-        ])
+        label.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.left.right.equalToSuperview().inset(24)
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {

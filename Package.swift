@@ -12,9 +12,13 @@ let package = Package(
             targets: ["BASwiftKit"]
         )
     ],
+    dependencies: [
+        .package(url: "https://github.com/SnapKit/SnapKit.git", from: "5.7.0")
+    ],
     targets: [
         .target(
             name: "BASwiftKit",
+            dependencies: ["SnapKit"],
             path: "Sources/BASwiftKit"
         ),
         .testTarget(

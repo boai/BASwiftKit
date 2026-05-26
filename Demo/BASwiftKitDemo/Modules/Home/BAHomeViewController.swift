@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 final class BAHomeViewController: BABaseViewController {
 
@@ -37,7 +38,6 @@ final class BAHomeViewController: BABaseViewController {
     // MARK: - Setup
 
     private func setupTable() {
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
         tableView.showsVerticalScrollIndicator = false
@@ -47,64 +47,64 @@ final class BAHomeViewController: BABaseViewController {
         tableView.tableHeaderView = makeHeader()
 
         view.addSubview(tableView)
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.bottom.equalToSuperview()
+        }
     }
 
     private func makeHeader() -> UIView {
-        let container = UIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 160))
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 188))
 
         let gradient = BAGradientView()
-        gradient.translatesAutoresizingMaskIntoConstraints = false
         gradient.ba_colors = BAAppTheme.brandGradient
         gradient.ba_direction = .leadingDiagonal
-        gradient.layer.cornerRadius = 18
-        gradient.layer.masksToBounds = true
+        gradient.layer.cornerRadius = 28
+        gradient.layer.cornerCurve = .continuous
+        gradient.ba_setShadow(color: BAAppTheme.accent, opacity: 0.26, radius: 24, offset: CGSize(width: 0, height: 14))
 
         let title = UILabel.ba_make(text: viewModel.title,
-                                    font: .systemFont(ofSize: 26, weight: .bold),
+                                    font: .systemFont(ofSize: 30, weight: .heavy),
                                     color: .white)
-        title.translatesAutoresizingMaskIntoConstraints = false
 
         let subtitle = UILabel.ba_make(text: viewModel.subtitle,
-                                       font: .systemFont(ofSize: 13, weight: .medium),
-                                       color: UIColor.white.withAlphaComponent(0.85),
+                                       font: .systemFont(ofSize: 14, weight: .medium),
+                                       color: UIColor.white.withAlphaComponent(0.88),
                                        numberOfLines: 2)
-        subtitle.translatesAutoresizingMaskIntoConstraints = false
 
         let versionBadge = BABadgeView()
         versionBadge.ba_text = "v\(BASwiftKit.version)"
-        versionBadge.ba_badgeColor = UIColor.white.withAlphaComponent(0.22)
+        versionBadge.ba_badgeColor = UIColor.white.withAlphaComponent(0.24)
         versionBadge.ba_textColor = .white
-        versionBadge.translatesAutoresizingMaskIntoConstraints = false
+        versionBadge.ba_font = .systemFont(ofSize: 12, weight: .bold)
+        versionBadge.ba_horizontalPadding = 10
+        versionBadge.ba_verticalPadding = 5
 
         container.addSubview(gradient)
         gradient.addSubview(title)
         gradient.addSubview(subtitle)
         gradient.addSubview(versionBadge)
 
-        NSLayoutConstraint.activate([
-            gradient.topAnchor.constraint(equalTo: container.topAnchor, constant: 8),
-            gradient.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
-            gradient.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            gradient.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16),
-
-            title.leadingAnchor.constraint(equalTo: gradient.leadingAnchor, constant: 20),
-            title.topAnchor.constraint(equalTo: gradient.topAnchor, constant: 24),
-            title.trailingAnchor.constraint(lessThanOrEqualTo: versionBadge.leadingAnchor, constant: -8),
-
-            versionBadge.centerYAnchor.constraint(equalTo: title.centerYAnchor),
-            versionBadge.trailingAnchor.constraint(equalTo: gradient.trailingAnchor, constant: -20),
-
-            subtitle.leadingAnchor.constraint(equalTo: title.leadingAnchor),
-            subtitle.trailingAnchor.constraint(equalTo: gradient.trailingAnchor, constant: -20),
-            subtitle.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 8),
-            subtitle.bottomAnchor.constraint(lessThanOrEqualTo: gradient.bottomAnchor, constant: -20)
-        ])
+        gradient.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(10)
+            make.left.right.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().offset(-20)
+        }
+        title.snp.makeConstraints { make in
+            make.left.equalToSuperview().offset(22)
+            make.top.equalToSuperview().offset(28)
+            make.right.lessThanOrEqualTo(versionBadge.snp.left).offset(-8)
+        }
+        versionBadge.snp.makeConstraints { make in
+            make.centerY.equalTo(title)
+            make.right.equalToSuperview().offset(-20)
+        }
+        subtitle.snp.makeConstraints { make in
+            make.left.equalTo(title)
+            make.right.equalToSuperview().offset(-20)
+            make.top.equalTo(title.snp.bottom).offset(8)
+            make.bottom.lessThanOrEqualToSuperview().offset(-20)
+        }
 
         return container
     }

@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import SnapKit
 
 final class BADeviceInfoDemoViewController: BABaseViewController {
 
@@ -33,28 +34,25 @@ final class BADeviceInfoDemoViewController: BABaseViewController {
     }
 
     private func setupLayout() {
-        scroll.translatesAutoresizingMaskIntoConstraints = false
         scroll.alwaysBounceVertical = true
         view.addSubview(scroll)
         scroll.addSubview(stack)
-        NSLayoutConstraint.activate([
-            scroll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scroll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-            stack.topAnchor.constraint(equalTo: scroll.topAnchor, constant: 16),
-            stack.bottomAnchor.constraint(equalTo: scroll.bottomAnchor, constant: -28),
-            stack.leadingAnchor.constraint(equalTo: scroll.leadingAnchor, constant: 16),
-            stack.trailingAnchor.constraint(equalTo: scroll.trailingAnchor, constant: -16),
-            stack.widthAnchor.constraint(equalTo: scroll.widthAnchor, constant: -32)
-        ])
+        scroll.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.bottom.equalToSuperview()
+        }
+        stack.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.bottom.equalToSuperview().offset(-28)
+            make.left.right.equalToSuperview().inset(16)
+            make.width.equalTo(scroll).offset(-32)
+        }
 
         stack.addArrangedSubview(makeCacheCard())
     }
 
     private func makeCacheCard() -> UIView {
-        cacheCard.ba_cardColor = BAAppTheme.card
+        cacheCard.ba_cardColor = BAAppTheme.cardHighlight
         cacheCard.ba_cornerRadius = BAAppTheme.cornerRadius
 
         let title = UILabel.ba_make(text: "App 缓存",
@@ -65,34 +63,32 @@ final class BADeviceInfoDemoViewController: BABaseViewController {
                                    color: BAAppTheme.textSecondary)
         let leftStack = UIStackView.ba_make(axis: .vertical, spacing: 2)
         leftStack.ba_addArrangedSubviews(title, hint)
-        leftStack.translatesAutoresizingMaskIntoConstraints = false
 
-        cacheValueLabel.translatesAutoresizingMaskIntoConstraints = false
         cacheValueLabel.setContentHuggingPriority(.required, for: .horizontal)
 
         let clearBtn = UIButton.ba_make(title: "清除",
                                         titleColor: .white,
                                         backgroundColor: BAAppTheme.danger,
                                         font: .ba_semibold(13),
-                                        cornerRadius: 8)
+                                        cornerRadius: BAAppTheme.smallCornerRadius)
         clearBtn.contentEdgeInsets = UIEdgeInsets(top: 6, left: 14, bottom: 6, right: 14)
-        clearBtn.translatesAutoresizingMaskIntoConstraints = false
         clearBtn.setContentHuggingPriority(.required, for: .horizontal)
         clearBtn.ba_onTap { [weak self] _ in self?.confirmAndClear() }
 
         cacheCard.contentView.ba_addSubviews(leftStack, cacheValueLabel, clearBtn)
-        NSLayoutConstraint.activate([
-            leftStack.topAnchor.constraint(equalTo: cacheCard.contentView.topAnchor, constant: 14),
-            leftStack.bottomAnchor.constraint(equalTo: cacheCard.contentView.bottomAnchor, constant: -14),
-            leftStack.leadingAnchor.constraint(equalTo: cacheCard.contentView.leadingAnchor, constant: 14),
-
-            cacheValueLabel.centerYAnchor.constraint(equalTo: cacheCard.contentView.centerYAnchor),
-            cacheValueLabel.leadingAnchor.constraint(greaterThanOrEqualTo: leftStack.trailingAnchor, constant: 12),
-            cacheValueLabel.trailingAnchor.constraint(equalTo: clearBtn.leadingAnchor, constant: -12),
-
-            clearBtn.centerYAnchor.constraint(equalTo: cacheCard.contentView.centerYAnchor),
-            clearBtn.trailingAnchor.constraint(equalTo: cacheCard.contentView.trailingAnchor, constant: -14)
-        ])
+        leftStack.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview().inset(14)
+            make.left.equalToSuperview().offset(14)
+        }
+        cacheValueLabel.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.left.greaterThanOrEqualTo(leftStack.snp.right).offset(12)
+            make.right.equalTo(clearBtn.snp.left).offset(-12)
+        }
+        clearBtn.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.right.equalToSuperview().offset(-14)
+        }
         return cacheCard
     }
 
@@ -140,11 +136,10 @@ final class BADeviceInfoDemoViewController: BABaseViewController {
 
     private func makeSectionCard(rows: [(String, String)]) -> UIView {
         let card = BACardView()
-        card.ba_cardColor = BAAppTheme.card
+        card.ba_cardColor = BAAppTheme.cardHighlight
         card.ba_cornerRadius = BAAppTheme.cornerRadius
 
         let inner = UIStackView.ba_make(axis: .vertical, spacing: 10)
-        inner.translatesAutoresizingMaskIntoConstraints = false
         for (k, v) in rows {
             let row = UIStackView.ba_make(axis: .horizontal, spacing: 8, distribution: .equalSpacing)
             let key = UILabel.ba_make(text: k,
@@ -160,12 +155,9 @@ final class BADeviceInfoDemoViewController: BABaseViewController {
             inner.addArrangedSubview(row)
         }
         card.contentView.addSubview(inner)
-        NSLayoutConstraint.activate([
-            inner.topAnchor.constraint(equalTo: card.contentView.topAnchor, constant: 14),
-            inner.bottomAnchor.constraint(equalTo: card.contentView.bottomAnchor, constant: -14),
-            inner.leadingAnchor.constraint(equalTo: card.contentView.leadingAnchor, constant: 14),
-            inner.trailingAnchor.constraint(equalTo: card.contentView.trailingAnchor, constant: -14)
-        ])
+        inner.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(14)
+        }
         return card
     }
 }

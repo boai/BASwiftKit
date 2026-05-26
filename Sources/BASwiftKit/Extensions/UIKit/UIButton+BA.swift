@@ -38,7 +38,11 @@ public extension UIButton {
         btn.titleLabel?.font = font
         btn.backgroundColor = backgroundColor
         btn.layer.cornerRadius = cornerRadius
-        btn.layer.masksToBounds = true
+        btn.layer.cornerCurve = .continuous
+        btn.layer.masksToBounds = false
+        btn.contentEdgeInsets = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
+        btn.tintColor = titleColor
+        btn.ba_setShadow(color: backgroundColor, opacity: 0.22, radius: 12, offset: CGSize(width: 0, height: 6))
         return btn
     }
 }
