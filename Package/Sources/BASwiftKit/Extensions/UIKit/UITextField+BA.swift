@@ -76,5 +76,41 @@ public extension UITextField {
         leftView = view
         leftViewMode = .always
     }
+
+    @discardableResult
+    func ba_text(_ text: String?) -> Self {
+        self.text = text
+        return self
+    }
+
+    @discardableResult
+    func ba_placeholder(_ placeholder: String?) -> Self {
+        self.placeholder = placeholder
+        return self
+    }
+
+    @discardableResult
+    func ba_font(_ font: UIFont) -> Self {
+        self.font = font
+        return self
+    }
+
+    @discardableResult
+    func ba_textColor(_ color: UIColor) -> Self {
+        textColor = color
+        return self
+    }
+
+    @discardableResult
+    func ba_keyboardType(_ type: UIKeyboardType) -> Self {
+        keyboardType = type
+        return self
+    }
+
+    @discardableResult
+    func ba_maxLength(_ length: Int) -> Self {
+        ba_maxLength = length
+        return self
+    }
 }
 #endif

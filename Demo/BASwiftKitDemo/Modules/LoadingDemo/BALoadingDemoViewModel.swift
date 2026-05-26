@@ -42,6 +42,21 @@ final class BALoadingDemoViewModel {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
                     BALoadingHUD.ba_hide()
                 }
+            },
+            BALoadingScenario(title: "ProgressHUD Loading") { _ in
+                BAProgressHUD.show("请求中…")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+                    BAProgressHUD.dismiss()
+                }
+            },
+            BALoadingScenario(title: "ProgressHUD Success") { _ in
+                BAProgressHUD.showSuccess("保存成功")
+            },
+            BALoadingScenario(title: "ProgressHUD Error") { _ in
+                BAProgressHUD.showError("操作失败")
+            },
+            BALoadingScenario(title: "ProgressHUD Info") { _ in
+                BAProgressHUD.showInfo("这是一条提示")
             }
         ])
     }

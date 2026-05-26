@@ -40,6 +40,36 @@ public extension UILabel {
         attributedText = attr
     }
 
+    @discardableResult
+    func ba_font(_ font: UIFont) -> Self {
+        self.font = font
+        return self
+    }
+
+    @discardableResult
+    func ba_textColor(_ color: UIColor) -> Self {
+        textColor = color
+        return self
+    }
+
+    @discardableResult
+    func ba_alignment(_ alignment: NSTextAlignment) -> Self {
+        textAlignment = alignment
+        return self
+    }
+
+    @discardableResult
+    func ba_numberOfLines(_ lines: Int) -> Self {
+        numberOfLines = lines
+        return self
+    }
+
+    @discardableResult
+    func ba_text(_ text: String?) -> Self {
+        self.text = text
+        return self
+    }
+
     /// 高亮指定子串
     func ba_highlight(_ substring: String,
                       color: UIColor,

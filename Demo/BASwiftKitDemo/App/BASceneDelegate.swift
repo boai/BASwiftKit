@@ -16,9 +16,7 @@ class BASceneDelegate: UIResponder, UIWindowSceneDelegate {
                options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
         let window = UIWindow(windowScene: windowScene)
-        let home = BAHomeViewController(viewModel: BAHomeViewModel())
-        let nav = UINavigationController(rootViewController: home)
-        window.rootViewController = nav
+        window.rootViewController = BADemoRootFactory.make()
         window.makeKeyAndVisible()
         self.window = window
     }

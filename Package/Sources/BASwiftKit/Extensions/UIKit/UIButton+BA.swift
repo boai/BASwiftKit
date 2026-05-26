@@ -45,6 +45,37 @@ public extension UIButton {
         btn.ba_setShadow(color: backgroundColor, opacity: 0.22, radius: 12, offset: CGSize(width: 0, height: 6))
         return btn
     }
+
+    @discardableResult
+    func ba_title(_ title: String?, for state: UIControl.State = .normal) -> Self {
+        setTitle(title, for: state)
+        return self
+    }
+
+    @discardableResult
+    func ba_titleColor(_ color: UIColor, for state: UIControl.State = .normal) -> Self {
+        setTitleColor(color, for: state)
+        return self
+    }
+
+    @discardableResult
+    func ba_font(_ font: UIFont) -> Self {
+        titleLabel?.font = font
+        return self
+    }
+
+    @discardableResult
+    func ba_fillColor(_ color: UIColor) -> Self {
+        backgroundColor = color
+        return self
+    }
+
+    @discardableResult
+    func ba_cornerRadius(_ radius: CGFloat) -> Self {
+        layer.cornerRadius = radius
+        layer.cornerCurve = .continuous
+        return self
+    }
 }
 
 private final class BAButtonAction {

@@ -71,6 +71,47 @@ public extension UIView {
         layer.shadowOffset = offset
     }
 
+    @discardableResult
+    func ba_backgroundColor(_ color: UIColor) -> Self {
+        backgroundColor = color
+        return self
+    }
+
+    @discardableResult
+    func ba_cornerRadius(_ radius: CGFloat, masksToBounds: Bool = true) -> Self {
+        layer.cornerRadius = radius
+        layer.cornerCurve = .continuous
+        layer.masksToBounds = masksToBounds
+        return self
+    }
+
+    @discardableResult
+    func ba_border(width: CGFloat, color: UIColor) -> Self {
+        ba_setBorder(width: width, color: color)
+        return self
+    }
+
+    @discardableResult
+    func ba_shadow(color: UIColor = .black,
+                   opacity: Float = 0.15,
+                   radius: CGFloat = 8,
+                   offset: CGSize = CGSize(width: 0, height: 4)) -> Self {
+        ba_setShadow(color: color, opacity: opacity, radius: radius, offset: offset)
+        return self
+    }
+
+    @discardableResult
+    func ba_hidden(_ hidden: Bool) -> Self {
+        isHidden = hidden
+        return self
+    }
+
+    @discardableResult
+    func ba_alpha(_ alpha: CGFloat) -> Self {
+        self.alpha = alpha
+        return self
+    }
+
     // MARK: - 快速添加子视图
 
     /// 批量 addSubview

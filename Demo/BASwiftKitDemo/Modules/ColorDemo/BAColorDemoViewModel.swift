@@ -21,14 +21,14 @@ final class BAColorDemoViewModel {
 
     func loadData() {
         let palette: [(String, String)] = [
-            ("Indigo",   "#5B6CFF"),
-            ("Violet",   "#9B5BFF"),
-            ("Mint",     "#2BB673"),
-            ("Cyan",     "#1FBFB8"),
-            ("Sunset",   "#F2A22C"),
-            ("Coral",    "#EF4F4F"),
-            ("Navy",     "#16213E"),
-            ("Sand",     "#F6D7A7")
+            ("Aurora",   "#31D7FF"),
+            ("Ultraviolet", "#8F5CFF"),
+            ("Lagoon",   "#20E3B2"),
+            ("Royal",    "#2F80ED"),
+            ("Sunset",   "#F2A53B"),
+            ("Flamingo", "#F05260"),
+            ("Midnight", "#111827"),
+            ("Cream",    "#F6D7A7")
         ]
         swatches.update(palette.map {
             BAColorSwatch(title: $0.0,
