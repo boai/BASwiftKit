@@ -70,3 +70,6 @@ fastlane/test_output
 # XcodeGen 生成的 Xcode 工程：通过 `xcodegen generate` 现产现用，避免提交易冲突的二进制
 Demo/*.xcodeproj/
 
+# 仓库根目录下的临时截图（调试 / 沟通用），不进版本库
+/*.png
+
