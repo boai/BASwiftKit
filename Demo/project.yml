@@ -14,7 +14,7 @@ settings:
 
 packages:
   BASwiftKit:
-    path: ../
+    path: ../Package
 
 targets:
   BASwiftKitDemo:

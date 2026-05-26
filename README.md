@@ -3,27 +3,28 @@
 > 一个面向 iOS UIKit 项目、可独立提取的 Swift 公共封装库 + MVVM Demo。
 
 所有公开 API 均以 `ba_` 前缀挂载在系统类型上，避免与宿主工程冲突；
-工具类、UI 组件、视图扩展之间保持低耦合，方便后续直接拷贝某一文件或整个 `Sources/BASwiftKit` 目录到其他工程使用。
+工具类、UI 组件、视图扩展之间保持低耦合，方便后续直接拷贝某一文件或整个 `Package/Sources/BASwiftKit` 目录到其他工程使用。
 
 ```
 BASwiftKit/
-├─ Package.swift                  # Swift Package 入口（可直接 SwiftPM 引入）
-├─ Sources/BASwiftKit/            # 库代码：扩展 + 工具 + UI 组件
-│  ├─ Extensions/
-│  │  ├─ Foundation/              # String / Date / Date+Calendar / Collection /
-│  │  │                           # Bundle / NotificationCenter
-│  │  └─ UIKit/                   # UIColor / UIView / UIView+Animation / UIView+Gesture /
-│  │                              # UIImage / UIButton / UILabel / UIFont / UITextField /
-│  │                              # UIStackView / UIViewController / UIApplication /
-│  │                              # CALayer
-│  ├─ Utilities/                  # Toast / Logger / UserDefaults / Keychain / DeviceInfo /
-│  │                              # LoadingHUD / Localization / ResourceBundle / Cache
-│  └─ UIComponents/               # GradientView / CardView / BadgeView /
-│                                 # NavigationBarStyle / TabBarController
-├─ Tests/BASwiftKitTests/         # XCTest 单测
-├─ Demo/                          # MVVM Demo 工程
-│  ├─ project.yml                 # XcodeGen 配置
-│  └─ BASwiftKitDemo/             # App 源码（App / Theme / Common / 12 个 Modules）
+├─ Package/                       # Swift Package root（SPM 引入指向此目录）
+│  ├─ Package.swift               # Swift Package 入口（可直接 SwiftPM 引入）
+│  ├─ Sources/BASwiftKit/         # 库代码：扩展 + 工具 + UI 组件
+│  │  ├─ Extensions/
+│  │  │  ├─ Foundation/           # String / Date / Date+Calendar / Collection /
+│  │  │  │                        # Bundle / NotificationCenter
+│  │  │  └─ UIKit/                # UIColor / UIView / UIView+Animation / UIView+Gesture /
+│  │  │                           # UIImage / UIButton / UILabel / UIFont / UITextField /
+│  │  │                           # UIStackView / UIViewController / UIApplication /
+│  │  │                           # CALayer
+│  │  ├─ Utilities/               # Toast / Logger / UserDefaults / Keychain / DeviceInfo /
+│  │  │                           # LoadingHUD / Localization / ResourceBundle / Cache
+│  │  └─ UIComponents/            # GradientView / CardView / BadgeView /
+│  │                              # NavigationBarStyle / TabBarController
+│  └─ Tests/BASwiftKitTests/      # XCTest 单测
+├─ Demo/                          # MVVM Demo 工程（与 Package 解耦，避免 Xcode 重复显示）
+│  ├─ project.yml                 # XcodeGen 配置，path: ../Package
+│  └─ BASwiftKitDemo/             # App 源码（App / Theme / Common / Modules）
 └─ CONVERSATIONS.md               # 对话与完成项日志
 ```
 
@@ -107,7 +108,7 @@ BASwiftKit/
 
 ### 手动拷贝
 
-直接把 `Sources/BASwiftKit` 目录拖入工程也能用，全部 UIKit 相关代码都使用条件编译（`#if canImport(UIKit)`），不会强依赖具体平台。
+直接把 `Package/Sources/BASwiftKit` 目录拖入工程也能用，全部 UIKit 相关代码都使用条件编译（`#if canImport(UIKit)`），不会强依赖具体平台。
 
 ## 跑通 Demo
 
@@ -128,7 +129,7 @@ open BASwiftKitDemo.xcodeproj
 1. 新建一个 `iOS App`，名为 `BASwiftKitDemo`，最低系统 iOS 13。
 2. 删除 Xcode 自动生成的 `ContentView` / `ViewController` 等。
 3. 把 `Demo/BASwiftKitDemo/` 下所有 `.swift` 文件拖入工程（勾选 `Copy if needed` 视需要）。
-4. 把项目根目录加为 Swift Package：`File → Add Package Dependencies → Add Local…`，选中本仓库根目录即可。
+4. 把 Package 目录加为 Swift Package：`File → Add Package Dependencies → Add Local…`，选中本仓库下的 `Package/` 目录即可。
 5. Build & Run。
 
 ## 测试
@@ -136,7 +137,7 @@ open BASwiftKitDemo.xcodeproj
 仓库自带单测，跑：
 
 ```bash
-swift test
+cd Package && swift test
 ```
 
 当前 14 个核心用例：String / Array / Date / Date+Calendar / Collection / Base64 / MD5 / Localization 等均已通过。
