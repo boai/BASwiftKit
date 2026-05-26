@@ -12,6 +12,7 @@ import SnapKit
 final class BAAnimationDemoViewController: BABaseViewController {
 
     private let viewModel: BAAnimationDemoViewModel
+    private let disposeBag = BADisposeBag()
 
     private let target = BAGradientView()
     private let icon = UIImageView(image: UIImage(systemName: "sparkles"))
@@ -73,7 +74,7 @@ final class BAAnimationDemoViewController: BABaseViewController {
     private func bindViewModel() {
         viewModel.samples.bind { [weak self] samples in
             self?.renderButtons(samples)
-        }
+        }.disposed(by: disposeBag)
     }
 
     private func renderButtons(_ samples: [BAAnimationSample]) {

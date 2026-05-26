@@ -12,6 +12,7 @@ import SnapKit
 final class BACacheDemoViewController: BABaseViewController {
 
     private let viewModel: BACacheDemoViewModel
+    private let disposeBag = BADisposeBag()
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
     private let logTextView = UITextView()
 
@@ -59,7 +60,7 @@ final class BACacheDemoViewController: BABaseViewController {
         viewModel.logText.bind { [weak self] text in
             self?.logTextView.text = text
             self?.logTextView.scrollRangeToVisible(NSRange(location: text.count, length: 0))
-        }
+        }.disposed(by: disposeBag)
     }
 }
 

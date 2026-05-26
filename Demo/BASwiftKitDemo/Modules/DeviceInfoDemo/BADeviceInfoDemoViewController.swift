@@ -12,6 +12,7 @@ import SnapKit
 final class BADeviceInfoDemoViewController: BABaseViewController {
 
     private let viewModel: BADeviceInfoDemoViewModel
+    private let disposeBag = BADisposeBag()
     private let scroll = UIScrollView()
     private let stack = UIStackView.ba_make(axis: .vertical, spacing: 18)
     private let cacheCard = BACardView()
@@ -110,10 +111,10 @@ final class BADeviceInfoDemoViewController: BABaseViewController {
     private func bindViewModel() {
         viewModel.sections.bind { [weak self] sections in
             self?.renderSections(sections)
-        }
+        }.disposed(by: disposeBag)
         viewModel.cacheSizeText.bind { [weak self] text in
             self?.cacheValueLabel.text = text
-        }
+        }.disposed(by: disposeBag)
     }
 
     private func renderSections(_ sections: [BADeviceInfoSection]) {

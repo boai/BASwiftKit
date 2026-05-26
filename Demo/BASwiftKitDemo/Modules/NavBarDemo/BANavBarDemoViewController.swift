@@ -12,6 +12,7 @@ import SnapKit
 final class BANavBarDemoViewController: BABaseViewController {
 
     private let viewModel: BANavBarDemoViewModel
+    private let disposeBag = BADisposeBag()
     private let stack = UIStackView.ba_make(axis: .vertical, spacing: 12)
     private let hint = UILabel()
 
@@ -58,7 +59,7 @@ final class BANavBarDemoViewController: BABaseViewController {
     private func bindViewModel() {
         viewModel.presets.bind { [weak self] presets in
             self?.renderButtons(presets)
-        }
+        }.disposed(by: disposeBag)
     }
 
     private func renderButtons(_ presets: [BANavBarStylePreset]) {

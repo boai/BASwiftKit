@@ -12,6 +12,7 @@ import SnapKit
 final class BAStringDemoViewController: BABaseViewController {
 
     private let viewModel: BAStringDemoViewModel
+    private let disposeBag = BADisposeBag()
 
     private let inputCard = BACardView()
     private let textField = UITextField()
@@ -109,7 +110,7 @@ final class BAStringDemoViewController: BABaseViewController {
     private func bindViewModel() {
         viewModel.results.bind { [weak self] rows in
             self?.renderResults(rows)
-        }
+        }.disposed(by: disposeBag)
     }
 
     private func renderResults(_ rows: [BAStringDemoResult]) {

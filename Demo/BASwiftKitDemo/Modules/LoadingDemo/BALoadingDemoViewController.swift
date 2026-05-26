@@ -12,6 +12,7 @@ import SnapKit
 final class BALoadingDemoViewController: BABaseViewController {
 
     private let viewModel: BALoadingDemoViewModel
+    private let disposeBag = BADisposeBag()
     private let stack = UIStackView.ba_make(axis: .vertical, spacing: 12)
 
     init(viewModel: BALoadingDemoViewModel) {
@@ -46,7 +47,7 @@ final class BALoadingDemoViewController: BABaseViewController {
     private func bindViewModel() {
         viewModel.scenarios.bind { [weak self] list in
             self?.renderButtons(list)
-        }
+        }.disposed(by: disposeBag)
     }
 
     private func renderButtons(_ scenarios: [BALoadingScenario]) {

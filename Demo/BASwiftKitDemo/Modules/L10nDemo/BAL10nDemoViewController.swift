@@ -12,6 +12,7 @@ import SnapKit
 final class BAL10nDemoViewController: BABaseViewController {
 
     private let viewModel: BAL10nDemoViewModel
+    private let disposeBag = BADisposeBag()
 
     private let segment = UISegmentedControl(items: ["English", "中文"])
     private let titleLabel = UILabel()
@@ -81,7 +82,7 @@ final class BAL10nDemoViewController: BABaseViewController {
     private func bindViewModel() {
         viewModel.currentLanguage.bind { [weak self] lang in
             self?.refreshTexts(language: lang)
-        }
+        }.disposed(by: disposeBag)
     }
 
     private func refreshTexts(language: String) {

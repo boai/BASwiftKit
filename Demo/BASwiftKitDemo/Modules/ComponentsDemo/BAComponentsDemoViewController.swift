@@ -12,6 +12,7 @@ import SnapKit
 final class BAComponentsDemoViewController: BABaseViewController {
 
     private let viewModel: BAComponentsDemoViewModel
+    private let disposeBag = BADisposeBag()
     private let scroll = UIScrollView()
     private let content = UIStackView()
 
@@ -109,8 +110,8 @@ final class BAComponentsDemoViewController: BABaseViewController {
     }
 
     private func bindViewModel() {
-        viewModel.gradients.bind { [weak self] list in self?.renderGradients(list) }
-        viewModel.badges.bind { [weak self] list in self?.renderBadges(list) }
+        viewModel.gradients.bind { [weak self] list in self?.renderGradients(list) }.disposed(by: disposeBag)
+        viewModel.badges.bind { [weak self] list in self?.renderBadges(list) }.disposed(by: disposeBag)
     }
 
     private func renderGradients(_ list: [BAComponentsDemoViewModel.GradientSample]) {

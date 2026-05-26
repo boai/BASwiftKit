@@ -12,6 +12,7 @@ import SnapKit
 final class BAHomeViewController: BABaseViewController {
 
     private let viewModel: BAHomeViewModel
+    private let disposeBag = BADisposeBag()
     private let tableView = UITableView(frame: .zero, style: .plain)
     private var items: [BADemoItem] = []
 
@@ -134,7 +135,7 @@ final class BAHomeViewController: BABaseViewController {
         viewModel.items.bind { [weak self] items in
             self?.items = items
             self?.tableView.reloadData()
-        }
+        }.disposed(by: disposeBag)
     }
 }
 

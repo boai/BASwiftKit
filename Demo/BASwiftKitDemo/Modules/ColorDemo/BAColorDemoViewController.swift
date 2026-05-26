@@ -12,6 +12,7 @@ import SnapKit
 final class BAColorDemoViewController: BABaseViewController {
 
     private let viewModel: BAColorDemoViewModel
+    private let disposeBag = BADisposeBag()
 
     private let scroll = UIScrollView()
     private let content = UIStackView.ba_make(axis: .vertical, spacing: 22)
@@ -166,11 +167,11 @@ final class BAColorDemoViewController: BABaseViewController {
     private func bindViewModel() {
         viewModel.swatches.bind { [weak self] swatches in
             self?.renderPalette(swatches)
-        }
+        }.disposed(by: disposeBag)
         viewModel.randomColor.bind { [weak self] color in
             self?.randomPreview.ba_colors = [color.withAlphaComponent(0.72), color]
             self?.randomHexLabel.text = color.ba_hexString
-        }
+        }.disposed(by: disposeBag)
     }
 
     private func renderPalette(_ swatches: [BAColorSwatch]) {

@@ -12,6 +12,7 @@ import SnapKit
 final class BAToastDemoViewController: BABaseViewController {
 
     private let viewModel: BAToastDemoViewModel
+    private let disposeBag = BADisposeBag()
     private let stack = UIStackView()
 
     init(viewModel: BAToastDemoViewModel) {
@@ -51,7 +52,7 @@ final class BAToastDemoViewController: BABaseViewController {
     private func bindViewModel() {
         viewModel.options.bind { [weak self] options in
             self?.renderButtons(options)
-        }
+        }.disposed(by: disposeBag)
     }
 
     private func renderButtons(_ options: [BAToastDemoOption]) {

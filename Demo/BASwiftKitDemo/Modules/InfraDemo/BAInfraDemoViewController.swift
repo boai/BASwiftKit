@@ -12,6 +12,7 @@ import SnapKit
 final class BAInfraDemoViewController: BABaseViewController {
 
     private let viewModel: BAInfraDemoViewModel
+    private let disposeBag = BADisposeBag()
     private let scroll = UIScrollView()
     private let stack = UIStackView.ba_make(axis: .vertical, spacing: 16)
     private let rowsStack = UIStackView.ba_make(axis: .vertical, spacing: 8)
@@ -321,7 +322,7 @@ final class BAInfraDemoViewController: BABaseViewController {
     private func bindViewModel() {
         viewModel.rows.bind { [weak self] rows in
             self?.renderRows(rows)
-        }
+        }.disposed(by: disposeBag)
     }
 
     private func renderRows(_ rows: [BAInfraRow]) {

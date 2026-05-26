@@ -12,6 +12,7 @@ import SnapKit
 final class BAFontDemoViewController: BABaseViewController {
 
     private let viewModel: BAFontDemoViewModel
+    private let disposeBag = BADisposeBag()
 
     private let scroll = UIScrollView()
     private let stack = UIStackView.ba_make(axis: .vertical, spacing: 16)
@@ -50,7 +51,7 @@ final class BAFontDemoViewController: BABaseViewController {
     private func bindViewModel() {
         viewModel.rows.bind { [weak self] rows in
             self?.renderRows(rows)
-        }
+        }.disposed(by: disposeBag)
     }
 
     private func renderRows(_ rows: [BAFontDemoRow]) {
