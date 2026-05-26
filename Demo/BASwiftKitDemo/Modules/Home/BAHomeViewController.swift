@@ -35,6 +35,22 @@ final class BAHomeViewController: BABaseViewController {
         viewModel.loadData()
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // UITableView 的 tableHeaderView 不会跟随 table 自动调整宽度，
+        // 需要在父视图布局完成后把宽度同步成 tableView 当前宽度，
+        // 再把 header 重新赋值一次触发高度重新计算 —— 否则 SnapKit
+        // 在 viewDidLoad 阶段拿到的 view.bounds.width 仍是 0，会导致
+        // gradient(left+16/right-16) 与 width==0 互相打架。
+        if let header = tableView.tableHeaderView {
+            let targetWidth = tableView.bounds.width
+            if targetWidth > 0, header.frame.width != targetWidth {
+                header.frame.size.width = targetWidth
+                tableView.tableHeaderView = header
+            }
+        }
+    }
+
     // MARK: - Setup
 
     private func setupTable() {
@@ -134,8 +150,12 @@ extension BAHomeViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
         let vc = items[indexPath.row].builder()
         vc.title = items[indexPath.row].title
+        // 二级页面隐藏底部 TabBar，给详情更多垂直空间。
+        // 这里只在第一次 push 时设置即可，后续从二级 push 到三级会自动保持。
+        vc.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(vc, animated: true)
     }
 }
