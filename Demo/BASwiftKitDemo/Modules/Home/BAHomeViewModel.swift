@@ -169,6 +169,13 @@ enum BADemoCatalog {
                 builder: { BAL10nDemoViewController(viewModel: BAL10nDemoViewModel()) }
             ),
             BADemoItem(
+                title: "Network & Crypto",
+                subtitle: "网络请求拆分、Endpoint、SHA/HMAC/AES 加密",
+                iconSystemName: "lock.shield.fill",
+                gradient: [UIColor(ba_hex: "#16213E")!, UIColor(ba_hex: "#0EA5E9")!],
+                builder: { BANetworkCryptoDemoViewController(viewModel: BANetworkCryptoDemoViewModel()) }
+            ),
+            BADemoItem(
                 title: "基础设施 / Codable · Network",
                 subtitle: "模型互转、网络请求、列表订阅、Bundle/TopVC",
                 iconSystemName: "rectangle.connected.to.line.below",

@@ -143,6 +143,26 @@ final class BASwiftKitTests: XCTestCase {
         model.ba_removeCache(key: key, cache: cache)
         XCTAssertNil(BATestUserModel.ba_cache(key: key, cache: cache) as BATestUserModel?)
     }
+
+    func test_networkRequestBuildsQueryAndFormBody() throws {
+        let client = BANetworkClient(configuration: BANetworkConfiguration(baseURL: URL(string: "https://api.example.com")))
+        let query = try client.makeURLRequest(BANetworkRequest(path: "users", parameters: ["page": 1]))
+        XCTAssertEqual(query.url?.absoluteString, "https://api.example.com/users?page=1")
+
+        let form = try client.makeURLRequest(BANetworkRequest(path: "login", method: .post, parameters: ["name": "boai"], encoding: .formURLEncoded))
+        XCTAssertEqual(form.value(forHTTPHeaderField: "Content-Type"), "application/x-www-form-urlencoded; charset=utf-8")
+        XCTAssertEqual(String(data: form.httpBody ?? Data(), encoding: .utf8), "name=boai")
+    }
+
+    func test_cryptoHashHMACAndAES() throws {
+        XCTAssertEqual("abc".ba_sha256, "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")
+        XCTAssertEqual("hello".ba_hmac(key: "key", algorithm: .sha256), "9307b3b915efb5171ff14d8cb55fbcc798c6c0ef1456d66ded1a6aa723a58b7b")
+
+        let key = "1234567890abcdef"
+        let iv = "abcdef1234567890"
+        let encrypted = try "BASwiftKit".ba_aesCBCEncryptedBase64(key: key, iv: iv)
+        XCTAssertEqual(try encrypted.ba_aesCBCDecryptedFromBase64(key: key, iv: iv), "BASwiftKit")
+    }
 }
 
 final class BATestUserModel: BABaseModel, Codable {
