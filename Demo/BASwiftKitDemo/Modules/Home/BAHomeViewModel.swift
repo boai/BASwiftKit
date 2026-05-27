@@ -103,6 +103,20 @@ enum BADemoCatalog {
                 builder: { BAFontDemoViewController(viewModel: BAFontDemoViewModel()) }
             ),
             BADemoItem(
+                title: "瀑布流 FlowLayout",
+                subtitle: "自适应纵向/横向瀑布流、按比例动态排布",
+                iconSystemName: "rectangle.grid.2x2.fill",
+                gradient: [UIColor(ba_hex: "#0EA5E9")!, UIColor(ba_hex: "#22C55E")!],
+                builder: { BAWaterfallDemoViewController() }
+            ),
+            BADemoItem(
+                title: "横向分页瀑布流",
+                subtitle: "每页两行四列：第一行 1-4，第二行 5-8，自定义页码指示器",
+                iconSystemName: "rectangle.grid.2x2",
+                gradient: [UIColor(ba_hex: "#111827")!, UIColor(ba_hex: "#5B6CFF")!],
+                builder: { BAPagedWaterfallDemoViewController() }
+            ),
+            BADemoItem(
                 title: "自定义 NavigationBar",
                 subtitle: "实心 / 渐变 / 透明，运行时切换",
                 iconSystemName: "rectangle.dashed",
@@ -174,6 +188,13 @@ enum BADemoCatalog {
                 iconSystemName: "lock.shield.fill",
                 gradient: [UIColor(ba_hex: "#16213E")!, UIColor(ba_hex: "#0EA5E9")!],
                 builder: { BANetworkCryptoDemoViewController(viewModel: BANetworkCryptoDemoViewModel()) }
+            ),
+            BADemoItem(
+                title: "扫一扫 / Scanner",
+                subtitle: "独立相机扫码、二维码/条码识别、手电筒控制",
+                iconSystemName: "qrcode.viewfinder",
+                gradient: [UIColor(ba_hex: "#111827")!, UIColor(ba_hex: "#22C55E")!],
+                builder: { BAScannerDemoViewController() }
             ),
             BADemoItem(
                 title: "基础设施 / Codable · Network",

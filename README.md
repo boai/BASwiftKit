@@ -11,16 +11,20 @@ BASwiftKit/
 │  ├─ Package.swift               # Swift Package 入口（可直接 SwiftPM 引入）
 │  ├─ Sources/BASwiftKit/         # 库代码：扩展 + 工具 + UI 组件
 │  │  ├─ Extensions/
-│  │  │  ├─ Foundation/           # String / Date / Date+Calendar / Collection /
-│  │  │  │                        # Bundle / NotificationCenter
+│  │  │  ├─ Foundation/           # String 按 Trim / Validation / Encoding / Size 拆分，
+│  │  │  │                        # Date / Date+Calendar / Collection / Bundle / Data 等
 │  │  │  └─ UIKit/                # UIColor / UIView / UIView+Animation / UIView+Gesture /
 │  │  │                           # UIImage / UIButton / UILabel / UIFont / UITextField /
-│  │  │                           # UIStackView / UIViewController / UIApplication /
-│  │  │                           # CALayer
-│  │  ├─ Utilities/               # Toast / Logger / UserDefaults / Keychain / DeviceInfo /
-│  │  │                           # LoadingHUD / Localization / ResourceBundle / Cache
+│  │  │                           # UIStackView / UIViewController / UIApplication / CALayer
+│  │  ├─ Network/                 # URLSession 网络请求、Endpoint、拦截器、参数编码
+│  │  ├─ Crypto/                  # Digest / HMAC / AES-CBC 独立加密封装
+│  │  ├─ Storage/                 # FileManager / UserDefaults / Cache / BaseModel 缓存
+│  │  ├─ Scanner/                 # 扫一扫：相机扫码会话 + 基础扫码页面
+│  │  ├─ Layout/                  # 瀑布流 FlowLayout / 横向分页瀑布流
+│  │  ├─ Bluetooth/               # 单设备 / 多设备蓝牙连接、收发、分包缓冲
+│  │  ├─ Utilities/               # Logger / DeviceInfo / AppEnvironment / 权限 / 系统跳转
 │  │  └─ UIComponents/            # GradientView / CardView / BadgeView /
-│  │                              # NavigationBarStyle / TabBarController
+│  │                              # NavigationBarStyle / TabBarController / Toast / HUD
 │  └─ Tests/BASwiftKitTests/      # XCTest 单测
 ├─ Demo/                          # MVVM Demo 工程（与 Package 解耦，避免 Xcode 重复显示）
 │  ├─ project.yml                 # XcodeGen 配置，path: ../Package
@@ -65,9 +69,47 @@ BASwiftKit/
 | `UITextField` | `ba_placeholderColor` / `ba_maxLength` / `ba_toggleSecureEntry` / `ba_leftPadding(_:)` | 文本框便利 |
 | `UIViewController` | `ba_alert` / `ba_actionSheet` / `ba_dismissKeyboard` / `ba_findInNavigation` | 弹窗与导航 |
 | `UINavigationController` | `ba_apply(style:)` | 应用 `BANavigationBarStyle` |
-| `UIApplication` | `ba_keyWindow` / `ba_topViewController` | 多 scene 安全的 keyWindow + 当前顶层 VC |
+| `UIApplication` | `ba_keyWindow` / `ba_topViewController` / `ba_currentViewController` | 多 scene 安全的 keyWindow + 当前顶层 VC |
 | `UIWindow` | `ba_topViewController` / `ba_replaceRootViewController(_:duration:options:)` | Root VC 切换（带交叉淡入） |
+| `UICollectionView` | `ba_register(_:)` / `ba_dequeue(_:for:)` / `ba_subscribe(...)` | Cell 注册、复用、简单绑定 |
 | `CALayer` | `ba_rasterize` / `ba_softShadow` / `ba_border` | layer 便利 |
+
+### 网络 / 加密
+
+| 模块 | API | 说明 |
+| --- | --- | --- |
+| `BANetworkClient` | `request(_:)` / `request(_:responseType:)` / `get` / `post` / `makeURLRequest(_:)` | 基于 URLSession 的轻量网络层 |
+| `BANetworkEndpoint` | `path` / `method` / `headers` / `parameters` / `encoding` / `ba_request` | 类型安全 Endpoint 描述 |
+| `BANetworkRequest` | `path` / `method` / `headers` / `parameters` / `encoding` | 请求模型 |
+| `BAURLRequestInterceptor` | `adapt(_:)` / `process(_:data:)` | 请求和响应拦截 |
+| `BADigest` | `digest(_:algorithm:)` / `hexString(_:algorithm:)` | MD5/SHA 系列摘要，MD5/SHA1 仅建议兼容旧接口 |
+| `BAHMAC` | `sign(_:key:algorithm:)` / `hexString(_:key:algorithm:)` | HMAC 签名，默认 SHA256 |
+| `BAAES` | `cbcEncrypt(_:key:iv:)` / `cbcDecrypt(_:key:iv:)` | AES-CBC-PKCS7 加解密 |
+| `Data` / `String` Crypto | `ba_sha256String` / `ba_hmac` / `ba_aesCBCEncryptedBase64` / `ba_aesCBCDecryptedFromBase64` | 常用加密快捷入口 |
+
+### 存储 / 数据 / 蓝牙
+
+| 模块 | API | 说明 |
+| --- | --- | --- |
+| `BAFileManager` | Documents/Caches/tmp 路径、读写、删除、大小统计 | 文件管理常用能力 |
+| `BAUserDefaults` / `@BAUserDefault` | 基础类型和 Codable 存取 | UserDefaults 快捷封装 |
+| `BACacheManager` | 内存 / 磁盘 / 混合缓存、过期策略、LRU | 通用缓存框架 |
+| `BABaseModel` | `ba_saveCache` / `ba_updateCache` / `ba_removeCache` / `ba_cache` | 接口 Model 手动缓存生命周期 |
+| `Data` Bytes | `ba_hexString` / `ba_spacedHexString` / `ba_uint16` / `ba_chunks` / `ba_crc16ModbusData` | 字节解析、分包、校验 |
+| `BADataReader` | `readUInt8` / `readUInt16` / `readData` | 顺序读 Data |
+| `BABluetoothManager` | 扫描、单设备/多设备连接、读写、订阅 | CoreBluetooth 常用封装 |
+| `BABluetoothDataBuffer` | `ba_append` / `ba_popFrame` | 按 header/footer 缓冲拆包 |
+
+### 扫码 / 布局 / 运行环境
+
+| 模块 | API | 说明 |
+| --- | --- | --- |
+| `BAScannerSession` | `prepare(in:)` / `start` / `stop` / `setTorch` | 独立相机扫码会话，支持二维码和常见条码 |
+| `BAScannerViewController` | `onResult` / `onError` / `restartScanning` | 基础扫一扫页面，可直接用或二次定制 |
+| `BAScanCodeType` | `.qr` / `.ean13` / `.code128` / `.pdf417` / `.aztec` 等 | 扫码类型配置 |
+| `BAWaterfallFlowLayout` | `scrollDirection` / `columnCount` / `rowCount` / `BAWaterfallFlowLayoutDelegate` | 自适应纵向/横向瀑布流 |
+| `BAPagedWaterfallFlowLayout` | `rowCount` / `columnCount` / `itemsPerPage` / `pageCount` | 横向分页瀑布流，每页行优先排列 |
+| `BAAppEnvironment` | `ba_screenWidth` / `ba_keyWindow` / `ba_currentViewController` / `ba_safeAreaTop` / `ba_statusBarHeight` / `ba_scaleWidth` | 替代常见宏定义的运行环境变量 |
 
 ### 工具类
 
@@ -77,12 +119,15 @@ BASwiftKit/
 | `BALoadingHUD` | 全屏 / 局部阻塞型 loading，支持运行时更新文案 |
 | `BALocalization` | 运行时切换语言，支持运行时字典 + .lproj 双路 |
 | `BAResourceBundle` | 组件化资源 bundle 查找（按 anchor 类 + bundleName 解析），支持 `ba_image(named:from:)` |
-| `BADeviceInfo`（扩展） | `ba_modelName`（机型映射 iPhone 6s ~ 16/iPad）、`ba_userDeviceName`、`ba_isSimulator`、`ba_processorCount`、`ba_physicalMemoryBytes`；电池 `ba_enableBatteryMonitoring()` / `ba_batteryLevel` / `ba_batteryState(+Description)`；存储 `ba_totalDiskBytes / ba_freeDiskBytes / ba_usedDiskBytes`；地域 `ba_localeIdentifier / ba_timeZoneIdentifier / ba_languageCode`；`ba_formatBytes(_:)` |
+| `BADeviceInfo`（扩展） | `ba_modelName`（机型映射 iPhone / iPad / Watch 主流型号）、`ba_userDeviceName`、`ba_isSimulator`、`ba_processorCount`、`ba_physicalMemoryBytes`；电池 `ba_enableBatteryMonitoring()` / `ba_batteryLevel` / `ba_batteryState(+Description)`；存储 `ba_totalDiskBytes / ba_freeDiskBytes / ba_usedDiskBytes`；地域 `ba_localeIdentifier / ba_timeZoneIdentifier / ba_languageCode`；`ba_formatBytes(_:)` |
+| `BAAppEnvironment` | 屏幕宽高、KeyWindow、当前 VC、安全区、状态栏、导航栏/TabBar 高度、设计稿等比换算 |
 | `BACache` | `ba_size(of:)` / `ba_sizeAsync` 统计 Library/Caches + tmp 占用；`ba_clear(directories:)` / `ba_clearAsync` 一键清除 |
 | `BALogger` | 等级化日志，Debug 自动开启 |
 | `BAUserDefault` / `BAUserDefaultCodable` | UserDefaults 属性包装器，支持 Codable |
 | `BAKeychain` | 轻量 Keychain 读写 |
-| `BADeviceInfo` | App / 系统 / 屏幕信息一站式 |
+| `BADeviceInfo` | App / 系统 / 屏幕 / 电池 / 存储信息一站式 |
+| `BASystemPermission` | 相机、麦克风、相册、定位、通知权限查询和请求 |
+| `BAAppNavigator` | App 设置页、电话、短信、邮件、浏览器和地图跳转 |
 
 ### UI 组件
 
@@ -93,6 +138,8 @@ BASwiftKit/
 | `BABadgeView` | 自适应宽度的胶囊角标 |
 | `BANavigationBarStyle` | NavigationBar 样式描述（实心 / 渐变 / 透明），配合 `UINavigationController.ba_apply` 一键应用 |
 | `BATabBarController` | 自带选中弹跳动画 + 角标快捷 API 的 TabBarController |
+| `BAEmptyView` | 空状态视图，支持图片、标题、内容和操作按钮 |
+| `BACustomAlertViewController` | 自定义弹窗容器，支持表单类弹窗组合 |
 
 ## 集成方式
 
@@ -140,7 +187,7 @@ open BASwiftKitDemo.xcodeproj
 cd Package && swift test
 ```
 
-当前 14 个核心用例：String / Array / Date / Date+Calendar / Collection / Base64 / MD5 / Localization 等均已通过。
+当前 20 个核心用例：String / Array / Date / Date+Calendar / Collection / Base64 / MD5 / Localization / Data 字节处理 / Bluetooth 数据缓冲 / BaseModel 缓存 / Network 请求构建 / Crypto SHA-HMAC-AES 等均已通过。
 
 ## 设计约束
 

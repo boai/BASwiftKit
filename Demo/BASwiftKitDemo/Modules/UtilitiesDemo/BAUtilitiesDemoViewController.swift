@@ -33,7 +33,8 @@ final class BAUtilitiesDemoViewController: BABaseViewController {
         scroll.addSubview(stack)
 
         scroll.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.bottom.equalToSuperview()
         }
         stack.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)

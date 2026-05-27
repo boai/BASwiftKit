@@ -46,7 +46,8 @@ final class BACacheDemoViewController: BABaseViewController {
         logTextView.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
 
         tableView.snp.makeConstraints { make in
-            make.top.left.right.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.equalToSuperview()
             make.height.equalToSuperview().multipliedBy(0.55)
         }
         logTextView.snp.makeConstraints { make in

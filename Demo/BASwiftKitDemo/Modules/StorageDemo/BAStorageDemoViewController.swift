@@ -47,7 +47,8 @@ final class BAStorageDemoViewController: BABaseViewController {
         logTextView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
 
         tableView.snp.makeConstraints { make in
-            make.top.left.right.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.equalToSuperview()
             make.height.equalToSuperview().multipliedBy(0.55)
         }
         logTextView.snp.makeConstraints { make in

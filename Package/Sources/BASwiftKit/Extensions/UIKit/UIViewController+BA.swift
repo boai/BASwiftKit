@@ -10,6 +10,9 @@ import UIKit
 
 public extension UIViewController {
 
+    /// 当前可见的最顶层控制器。
+    static var ba_current: UIViewController? { BAAppEnvironment.ba_currentViewController }
+
     /// 弹出系统 Alert
     func ba_alert(title: String?,
                   message: String?,

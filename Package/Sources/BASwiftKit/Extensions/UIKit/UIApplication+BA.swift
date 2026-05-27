@@ -9,6 +9,11 @@
 import UIKit
 
 public extension UIApplication {
+    /// 当前活跃 Scene 的 KeyWindow，便于替代旧项目中的 `kKeyWindow` 宏。
+    static var ba_keyWindow: UIWindow? { shared.ba_keyWindow }
+
+    /// 当前可见的最顶层控制器，便于替代旧项目中的 `kCurrentVC` 宏。
+    static var ba_currentViewController: UIViewController? { shared.ba_topViewController }
 
     /// 当前活跃 scene 的 keyWindow（iOS 13+ 多 scene 安全）
     var ba_keyWindow: UIWindow? {

@@ -23,7 +23,8 @@ final class BAWebViewDemoViewController: BABaseViewController {
     private func setupLayout() {
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+            make.left.right.bottom.equalToSuperview()
         }
 
         tableView.delegate = self

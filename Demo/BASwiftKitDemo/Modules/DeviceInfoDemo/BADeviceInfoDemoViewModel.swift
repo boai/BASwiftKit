@@ -47,7 +47,20 @@ final class BADeviceInfoDemoViewModel {
             ]),
             BADeviceInfoSection(title: "屏幕", rows: [
                 ("分辨率",      "\(Int(BADeviceInfo.ba_screenSize.width))×\(Int(BADeviceInfo.ba_screenSize.height)) @\(Int(BADeviceInfo.ba_screenScale))x"),
-                ("刘海屏",      BADeviceInfo.ba_isNotched ? "是" : "否")
+                ("屏幕宽高",    "\(Int(BAAppEnvironment.ba_screenWidth))×\(Int(BAAppEnvironment.ba_screenHeight)) pt"),
+                ("窗口宽高",    "\(Int(BAAppEnvironment.ba_windowWidth))×\(Int(BAAppEnvironment.ba_windowHeight)) pt"),
+                ("安全区",      "top=\(Int(BAAppEnvironment.ba_safeAreaTop)), bottom=\(Int(BAAppEnvironment.ba_safeAreaBottom))"),
+                ("状态栏",      "\(Int(BAAppEnvironment.ba_statusBarHeight)) pt"),
+                ("导航栏区域",   "\(Int(BAAppEnvironment.ba_navigationFullHeight)) pt"),
+                ("TabBar 区域", "\(Int(BAAppEnvironment.ba_tabBarFullHeight)) pt"),
+                ("刘海屏",      BAAppEnvironment.ba_hasTopSafeArea ? "是" : "否")
+            ]),
+            BADeviceInfoSection(title: "当前界面", rows: [
+                ("KeyWindow",   BAAppEnvironment.ba_keyWindow == nil ? "nil" : "存在"),
+                ("CurrentVC",   String(describing: type(of: BAAppEnvironment.ba_currentViewController ?? UIViewController()))),
+                ("RootVC",      String(describing: type(of: BAAppEnvironment.ba_rootViewController ?? UIViewController()))),
+                ("横竖屏",      BAAppEnvironment.ba_isPortrait ? "竖屏" : "横屏"),
+                ("等比宽度",    "16pt@375 → \(String(format: "%.1f", BAAppEnvironment.ba_scaleWidth(16)))pt")
             ]),
             BADeviceInfoSection(title: "存储", rows: [
                 ("总空间",      BADeviceInfo.ba_formatBytes(BADeviceInfo.ba_totalDiskBytes)),
