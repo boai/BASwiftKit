@@ -51,6 +51,7 @@ public final class BAAnyDisposable: BADisposable {
         self.action = action
     }
 
+    /// 执行清理闭包并取消订阅；多次调用只会执行一次清理逻辑。
     public func dispose() {
         lock.lock()
         let toRun = action
@@ -91,6 +92,7 @@ public final class BADisposeBag {
     private var disposables: [BADisposable] = []
     private var isDisposed = false
 
+    /// 创建空订阅容器。
     public init() {}
 
     /// 加入一个 disposable。若 bag 已 dispose（一般是销毁过程中），传入的

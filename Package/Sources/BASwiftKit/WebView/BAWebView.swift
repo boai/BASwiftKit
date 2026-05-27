@@ -199,6 +199,7 @@ public final class BAWebView: UIView {
 
 extension BAWebView: WKNavigationDelegate {
 
+    /// 根据配置中的拦截器决定本次导航是否允许继续。
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         guard let url = navigationAction.request.url else {
             decisionHandler(.allow)
@@ -216,14 +217,17 @@ extension BAWebView: WKNavigationDelegate {
         decisionHandler(.allow)
     }
 
+    /// 页面加载完成回调，转发给 `didFinishLoading`。
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         didFinishLoading?(webView.url)
     }
 
+    /// 页面主导航加载失败回调，转发给 `didFailLoading`。
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         didFailLoading?(error)
     }
 
+    /// 页面 provisional navigation 加载失败回调，转发给 `didFailLoading`。
     public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         didFailLoading?(error)
     }

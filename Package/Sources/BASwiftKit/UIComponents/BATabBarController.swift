@@ -8,13 +8,24 @@
 #if canImport(UIKit)
 import UIKit
 
-/// 一个 Tab 项的描述
+/// 一个 Tab 项的描述。
 public struct BATabItem {
+    /// Tab 标题，同时会设置给子控制器 title。
     public let title: String
+    /// 默认状态图标。
     public let icon: UIImage?
+    /// 选中状态图标；为空时复用默认图标。
     public let selectedIcon: UIImage?
+    /// Tab 对应的内容控制器。
     public let viewController: UIViewController
 
+    /// 创建 Tab 项描述。
+    ///
+    /// - Parameters:
+    ///   - title: Tab 标题。
+    ///   - icon: 默认状态图标。
+    ///   - selectedIcon: 选中状态图标；为空时复用默认图标。
+    ///   - viewController: Tab 对应的内容控制器。
     public init(title: String,
                 icon: UIImage?,
                 selectedIcon: UIImage? = nil,
@@ -45,11 +56,15 @@ public final class BATabBarController: UITabBarController, UITabBarControllerDel
     /// 是否在每个 VC 外面套一层 UINavigationController（默认 true）
     public var ba_embedInNavigation: Bool = true
 
+    /// 视图加载后绑定自身为 `UITabBarControllerDelegate`。
     public override func viewDidLoad() {
         super.viewDidLoad()
         delegate = self
     }
 
+    /// 根据 Tab 描述批量配置子控制器。
+    ///
+    /// - Parameter items: Tab 项数组，顺序即底部 Tab 显示顺序。
     public func ba_setup(items: [BATabItem]) {
         let controllers: [UIViewController] = items.map { item in
             let vc = item.viewController
@@ -84,6 +99,7 @@ public final class BATabBarController: UITabBarController, UITabBarControllerDel
         }
     }
 
+    /// Tab 选中时给图标添加轻微弹跳动画。
     public func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
         guard let index = viewControllers?.firstIndex(of: viewController) else { return }
         let buttons = tabBar.subviews.filter { String(describing: type(of: $0)).contains("UITabBarButton") }

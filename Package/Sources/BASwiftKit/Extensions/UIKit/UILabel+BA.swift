@@ -40,30 +40,50 @@ public extension UILabel {
         attributedText = attr
     }
 
+    /// 链式设置字体。
+    ///
+    /// - Parameter font: 文本字体。
+    /// - Returns: 当前标签实例，便于继续链式调用。
     @discardableResult
     func ba_font(_ font: UIFont) -> Self {
         self.font = font
         return self
     }
 
+    /// 链式设置文字颜色。
+    ///
+    /// - Parameter color: 文字颜色。
+    /// - Returns: 当前标签实例，便于继续链式调用。
     @discardableResult
     func ba_textColor(_ color: UIColor) -> Self {
         textColor = color
         return self
     }
 
+    /// 链式设置文本对齐方式。
+    ///
+    /// - Parameter alignment: 文本对齐方式。
+    /// - Returns: 当前标签实例，便于继续链式调用。
     @discardableResult
     func ba_alignment(_ alignment: NSTextAlignment) -> Self {
         textAlignment = alignment
         return self
     }
 
+    /// 链式设置行数。
+    ///
+    /// - Parameter lines: 最大显示行数，`0` 表示不限行。
+    /// - Returns: 当前标签实例，便于继续链式调用。
     @discardableResult
     func ba_numberOfLines(_ lines: Int) -> Self {
         numberOfLines = lines
         return self
     }
 
+    /// 链式设置文本内容。
+    ///
+    /// - Parameter text: 文本内容。
+    /// - Returns: 当前标签实例，便于继续链式调用。
     @discardableResult
     func ba_text(_ text: String?) -> Self {
         self.text = text

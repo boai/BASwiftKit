@@ -176,6 +176,27 @@ enum BADemoCatalog {
                 builder: { BAInfraDemoViewController(viewModel: BAInfraDemoViewModel()) }
             ),
             BADemoItem(
+                title: "Storage 存储工具",
+                subtitle: "FileManager、UserDefaults、缓存大小与清理",
+                iconSystemName: "folder.fill.badge.gearshape",
+                gradient: [UIColor(ba_hex: "#1FBFB8")!, UIColor(ba_hex: "#5B6CFF")!],
+                builder: { BAStorageDemoViewController(viewModel: BAStorageDemoViewModel()) }
+            ),
+            BADemoItem(
+                title: "工具封装",
+                subtitle: "正则校验、系统跳转、权限状态封装",
+                iconSystemName: "wrench.and.screwdriver.fill",
+                gradient: [UIColor(ba_hex: "#8F5CFF")!, UIColor(ba_hex: "#0EA5E9")!],
+                builder: { BAUtilitiesDemoViewController() }
+            ),
+            BADemoItem(
+                title: "Data & Image",
+                subtitle: "字节解析、CRC、分包、UIImage 常用处理",
+                iconSystemName: "photo.on.rectangle.angled",
+                gradient: [UIColor(ba_hex: "#FF6BCB")!, UIColor(ba_hex: "#F97316")!],
+                builder: { BAMediaDataDemoViewController() }
+            ),
+            BADemoItem(
                 title: "设备信息 + 清缓存",
                 subtitle: "机型 / 电池 / 存储 / 一键清 Caches & tmp",
                 iconSystemName: "iphone.gen3",

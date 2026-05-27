@@ -36,6 +36,7 @@ import Foundation
 /// ```
 public class BAObservable<Value> {
 
+    /// 观察者闭包类型，参数为最新值。
     public typealias Listener = (Value) -> Void
 
     // MARK: - Subscription
@@ -61,6 +62,9 @@ public class BAObservable<Value> {
 
     // MARK: - Init
 
+    /// 创建响应式数据容器。
+    ///
+    /// - Parameter value: 初始值，后续 `bind` 会立即收到该值。
     public init(_ value: Value) {
         self._value = value
     }

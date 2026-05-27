@@ -20,6 +20,7 @@ import Foundation
 /// ```
 public final class BALocalization {
 
+    /// 全局共享本地化管理器。
     public static let shared = BALocalization()
 
     /// 语言切换通知
@@ -27,6 +28,7 @@ public final class BALocalization {
 
     private let storageKey = "BALocalization.currentLanguage"
     private var runtimeTables: [String: [String: String]] = [:]
+    /// 当前语言标识，例如 `zh-Hans`、`en`。
     public private(set) var currentLanguage: String
 
     private init() {

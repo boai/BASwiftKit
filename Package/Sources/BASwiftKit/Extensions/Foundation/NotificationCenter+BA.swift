@@ -8,10 +8,15 @@
 #if canImport(UIKit)
 import UIKit
 
+/// 键盘通知解析后的动画和布局信息。
 public struct BAKeyboardInfo {
+    /// 键盘动画结束后的屏幕坐标系 frame。
     public let endFrame: CGRect
+    /// 键盘显示/隐藏动画时长。
     public let duration: TimeInterval
+    /// 键盘动画曲线。
     public let curve: UIView.AnimationCurve
+    /// 可直接传给 `UIView.animate` 的动画选项。
     public var animationOptions: UIView.AnimationOptions {
         UIView.AnimationOptions(rawValue: UInt(curve.rawValue) << 16)
     }

@@ -11,19 +11,38 @@ import UIKit
 /// 一份可复用的 NavigationBar 样式描述。
 public struct BANavigationBarStyle {
 
+    /// NavigationBar 背景类型。
     public enum Background {
+        /// 单色背景。
         case solid(UIColor)
+        /// 渐变背景。
         case gradient(colors: [UIColor], direction: BAGradientView.Direction)
+        /// 透明背景。
         case transparent
     }
 
+    /// 导航栏背景。
     public var background: Background
+    /// 返回按钮、右侧按钮等交互元素颜色。
     public var tintColor: UIColor
+    /// 标题文字颜色。
     public var titleColor: UIColor
+    /// 普通标题字体。
     public var titleFont: UIFont
+    /// 大标题字体。
     public var largeTitleFont: UIFont
+    /// 是否隐藏底部分割线。
     public var hideBottomLine: Bool
 
+    /// 创建导航栏样式描述。
+    ///
+    /// - Parameters:
+    ///   - background: 导航栏背景，默认系统背景色。
+    ///   - tintColor: 交互元素颜色。
+    ///   - titleColor: 标题颜色。
+    ///   - titleFont: 普通标题字体。
+    ///   - largeTitleFont: 大标题字体。
+    ///   - hideBottomLine: 是否隐藏底部分割线。
     public init(background: Background = .solid(.systemBackground),
                 tintColor: UIColor = .label,
                 titleColor: UIColor = .label,

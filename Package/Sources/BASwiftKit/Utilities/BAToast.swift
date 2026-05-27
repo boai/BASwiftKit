@@ -16,8 +16,16 @@ import SnapKit
 /// ```
 public enum BAToast {
 
+    /// Toast 展示样式。
     public enum Style {
-        case `default`, success, error, warning
+        /// 默认深色提示。
+        case `default`
+        /// 成功提示。
+        case success
+        /// 错误提示。
+        case error
+        /// 警告提示。
+        case warning
 
         var background: UIColor {
             switch self {
@@ -29,6 +37,12 @@ public enum BAToast {
         }
     }
 
+    /// 显示一条全局 Toast。
+    ///
+    /// - Parameters:
+    ///   - message: 提示文案。
+    ///   - style: 展示样式，默认 `.default`。
+    ///   - duration: 停留时长，默认 1.8 秒。
     public static func ba_show(_ message: String,
                                style: Style = .default,
                                duration: TimeInterval = 1.8) {

@@ -68,12 +68,14 @@ public final class BAWebViewController: UIViewController {
         super.init(coder: coder)
     }
 
+    /// 加载视图并初始化 WebView、进度条和工具栏。
     public override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
         setupToolbar()
     }
 
+    /// 页面即将消失时隐藏工具栏并清理工具栏刷新定时器。
     public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         toolbarTimer?.invalidate()
@@ -83,6 +85,7 @@ public final class BAWebViewController: UIViewController {
         }
     }
 
+    /// 页面即将显示时按配置展示底部工具栏。
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if configuration.toolbarEnabled {

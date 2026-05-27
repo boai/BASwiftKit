@@ -95,4 +95,64 @@ final class BASwiftKitTests: XCTestCase {
         // 未注册 key 走兜底
         XCTAssertEqual("nonexistent_key".ba_localized, "nonexistent_key")
     }
+
+    // MARK: - Data+BABytes
+
+    func test_dataHexAndEndianParsing() throws {
+        let data = try Data(ba_hexString: "01 02 0A FF")
+        XCTAssertEqual(data.ba_bytes, [0x01, 0x02, 0x0A, 0xFF])
+        XCTAssertEqual(data.ba_hexString, "01020AFF")
+        XCTAssertEqual(data.ba_spacedHexString, "01 02 0A FF")
+        XCTAssertEqual(data.ba_uint16(offset: 0, byteOrder: .bigEndian), 0x0102)
+        XCTAssertEqual(data.ba_uint16(offset: 0, byteOrder: .littleEndian), 0x0201)
+    }
+
+    func test_dataReaderAndChunks() throws {
+        let data = try Data(ba_hexString: "01 02 0A FF")
+        var reader = BADataReader(data: data)
+        XCTAssertEqual(try reader.readUInt8(), 0x01)
+        XCTAssertEqual(try reader.readUInt16(byteOrder: .bigEndian), 0x020A)
+        XCTAssertEqual(reader.remainingCount, 1)
+        XCTAssertEqual(data.ba_chunks(size: 2).map(\.ba_hexString), ["0102", "0AFF"])
+    }
+
+    func test_bluetoothDataBufferFrames() throws {
+        let buffer = BABluetoothDataBuffer()
+        buffer.ba_append(try Data(ba_hexString: "AA 01 02 55 AA 03 55"))
+        XCTAssertEqual(buffer.ba_popFrame(header: Data([0xAA]), footer: Data([0x55]))?.ba_hexString, "AA010255")
+        XCTAssertEqual(buffer.ba_popFrame(header: Data([0xAA]), footer: Data([0x55]), includesBoundary: false)?.ba_hexString, "03")
+    }
+
+    func test_baseModelCacheLifecycle() {
+        let cache = BACacheManager(strategy: .memory)
+        let key = "unit_test_base_model"
+        let model = BATestUserModel(id: 1, name: "boai")
+
+        XCTAssertTrue(model.ba_saveCache(key: key, cache: cache))
+        XCTAssertTrue(BATestUserModel.ba_hasCache(key: key, cache: cache))
+
+        let cached: BATestUserModel? = BATestUserModel.ba_cache(key: key, cache: cache)
+        XCTAssertEqual(cached?.id, 1)
+        XCTAssertEqual(cached?.name, "boai")
+
+        model.name = "updated"
+        XCTAssertTrue(model.ba_updateCache(key: key, cache: cache))
+        let updated: BATestUserModel? = BATestUserModel.ba_cache(key: key, cache: cache)
+        XCTAssertEqual(updated?.name, "updated")
+
+        model.ba_removeCache(key: key, cache: cache)
+        XCTAssertNil(BATestUserModel.ba_cache(key: key, cache: cache) as BATestUserModel?)
+    }
 }
+
+final class BATestUserModel: BABaseModel, Codable {
+    var id: Int
+    var name: String
+
+    init(id: Int, name: String) {
+        self.id = id
+        self.name = name
+        super.init()
+    }
+}
+

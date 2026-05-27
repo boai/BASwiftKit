@@ -11,6 +11,7 @@ import UIKit
 /// 自动布局尺寸跟随的线性渐变 View。
 public final class BAGradientView: UIView {
 
+    /// 使用 `CAGradientLayer` 作为底层 layer。
     public override class var layerClass: AnyClass { CAGradientLayer.self }
     private var gradientLayer: CAGradientLayer { layer as! CAGradientLayer }
 
@@ -28,18 +29,22 @@ public final class BAGradientView: UIView {
         }
     }
 
+    /// 渐变颜色数组，至少传入两个颜色效果最佳。
     public var ba_colors: [UIColor] = [.systemBlue, .systemPurple] {
         didSet { applyColors() }
     }
 
+    /// 渐变方向。
     public var ba_direction: Direction = .leadingDiagonal {
         didSet { applyDirection() }
     }
 
+    /// 渐变位置数组，对应 `CAGradientLayer.locations`。
     public var ba_locations: [NSNumber]? {
         didSet { gradientLayer.locations = ba_locations }
     }
 
+    /// 代码创建渐变视图。
     public override init(frame: CGRect) {
         super.init(frame: frame)
         applyColors()

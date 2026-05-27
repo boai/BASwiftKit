@@ -12,6 +12,7 @@ import SnapKit
 /// 带圆角、阴影的卡片容器。内部有一个 `contentView` 用于挂子视图。
 public final class BACardView: UIView {
 
+    /// 内容容器，业务子视图应添加到这里而不是直接添加到卡片本身。
     public let contentView: UIView = {
         let v = UIView()
         v.backgroundColor = .clear
@@ -38,6 +39,7 @@ public final class BACardView: UIView {
         return v
     }()
 
+    /// 代码创建卡片容器。
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -60,6 +62,7 @@ public final class BACardView: UIView {
         }
     }
 
+    /// 加入父视图后同步创建阴影承载层。
     public override func didMoveToSuperview() {
         super.didMoveToSuperview()
         // 把 shadow 加在父视图层级，避免被 masksToBounds 截断

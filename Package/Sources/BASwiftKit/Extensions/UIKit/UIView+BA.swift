@@ -12,21 +12,25 @@ public extension UIView {
 
     // MARK: - Frame 便利
 
+    /// frame.origin.x 便捷访问器。
     var ba_x: CGFloat {
         get { frame.origin.x }
         set { var f = frame; f.origin.x = newValue; frame = f }
     }
 
+    /// frame.origin.y 便捷访问器。
     var ba_y: CGFloat {
         get { frame.origin.y }
         set { var f = frame; f.origin.y = newValue; frame = f }
     }
 
+    /// frame.size.width 便捷访问器。
     var ba_width: CGFloat {
         get { frame.size.width }
         set { var f = frame; f.size.width = newValue; frame = f }
     }
 
+    /// frame.size.height 便捷访问器。
     var ba_height: CGFloat {
         get { frame.size.height }
         set { var f = frame; f.size.height = newValue; frame = f }
@@ -71,12 +75,22 @@ public extension UIView {
         layer.shadowOffset = offset
     }
 
+    /// 链式设置背景色。
+    ///
+    /// - Parameter color: 视图背景色。
+    /// - Returns: 当前视图实例，便于继续链式调用。
     @discardableResult
     func ba_backgroundColor(_ color: UIColor) -> Self {
         backgroundColor = color
         return self
     }
 
+    /// 链式设置圆角。
+    ///
+    /// - Parameters:
+    ///   - radius: 圆角半径。
+    ///   - masksToBounds: 是否裁剪超出圆角范围的内容，默认 `true`。
+    /// - Returns: 当前视图实例，便于继续链式调用。
     @discardableResult
     func ba_cornerRadius(_ radius: CGFloat, masksToBounds: Bool = true) -> Self {
         layer.cornerRadius = radius
@@ -85,12 +99,26 @@ public extension UIView {
         return self
     }
 
+    /// 链式设置边框。
+    ///
+    /// - Parameters:
+    ///   - width: 边框宽度。
+    ///   - color: 边框颜色。
+    /// - Returns: 当前视图实例，便于继续链式调用。
     @discardableResult
     func ba_border(width: CGFloat, color: UIColor) -> Self {
         ba_setBorder(width: width, color: color)
         return self
     }
 
+    /// 链式设置阴影。
+    ///
+    /// - Parameters:
+    ///   - color: 阴影颜色。
+    ///   - opacity: 阴影透明度。
+    ///   - radius: 阴影模糊半径。
+    ///   - offset: 阴影偏移量。
+    /// - Returns: 当前视图实例，便于继续链式调用。
     @discardableResult
     func ba_shadow(color: UIColor = .black,
                    opacity: Float = 0.15,
@@ -100,12 +128,20 @@ public extension UIView {
         return self
     }
 
+    /// 链式设置隐藏状态。
+    ///
+    /// - Parameter hidden: 是否隐藏。
+    /// - Returns: 当前视图实例，便于继续链式调用。
     @discardableResult
     func ba_hidden(_ hidden: Bool) -> Self {
         isHidden = hidden
         return self
     }
 
+    /// 链式设置透明度。
+    ///
+    /// - Parameter alpha: 透明度，取值通常为 0~1。
+    /// - Returns: 当前视图实例，便于继续链式调用。
     @discardableResult
     func ba_alpha(_ alpha: CGFloat) -> Self {
         self.alpha = alpha
@@ -141,6 +177,7 @@ public extension UIView {
 
     // MARK: - 移除全部子视图
 
+    /// 移除当前视图的全部子视图。
     func ba_removeAllSubviews() {
         subviews.forEach { $0.removeFromSuperview() }
     }

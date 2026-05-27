@@ -14,22 +14,28 @@ public enum BADeviceInfo {
 
     // MARK: - App
 
+    /// App 显示名称，优先读取 `CFBundleDisplayName`，其次读取 `CFBundleName`。
     public static var ba_appName: String {
         (Bundle.main.infoDictionary?["CFBundleDisplayName"] as? String)
             ?? (Bundle.main.infoDictionary?["CFBundleName"] as? String)
             ?? ""
     }
+    /// App 对外版本号，对应 `CFBundleShortVersionString`。
     public static var ba_appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
     }
+    /// App 构建号，对应 `CFBundleVersion`。
     public static var ba_buildNumber: String {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
     }
+    /// App Bundle Identifier。
     public static var ba_bundleId: String { Bundle.main.bundleIdentifier ?? "" }
 
     // MARK: - 系统
 
+    /// 系统名称，例如 `iOS`。
     public static var ba_systemName: String { UIDevice.current.systemName }
+    /// 系统版本，例如 `18.0`。
     public static var ba_systemVersion: String { UIDevice.current.systemVersion }
 
     /// 用户自定义的设备名（如 "Alice 的 iPhone"）
@@ -74,9 +80,12 @@ public enum BADeviceInfo {
 
     // MARK: - 屏幕
 
+    /// 屏幕尺寸，单位为 point。
     public static var ba_screenSize: CGSize { UIScreen.main.bounds.size }
+    /// 屏幕缩放倍率，例如 2.0 或 3.0。
     public static var ba_screenScale: CGFloat { UIScreen.main.scale }
 
+    /// keyWindow 安全区顶部大于 24pt 时认为是刘海屏或灵动岛机型。
     public static var ba_isNotched: Bool {
         if #available(iOS 13.0, *) {
             let window = UIApplication.shared.connectedScenes
@@ -141,8 +150,11 @@ public enum BADeviceInfo {
 
     // MARK: - 地域 / 时区
 
+    /// 当前区域设置标识符，例如 `zh_CN`。
     public static var ba_localeIdentifier: String { Locale.current.identifier }
+    /// 当前时区标识符，例如 `Asia/Shanghai`。
     public static var ba_timeZoneIdentifier: String { TimeZone.current.identifier }
+    /// 系统首选语言代码。
     public static var ba_languageCode: String { Locale.preferredLanguages.first ?? "" }
 
     // MARK: - 字节格式化
@@ -156,6 +168,7 @@ public enum BADeviceInfo {
         return f.string(fromByteCount: bytes)
     }
 
+    /// 把无符号字节数格式化成 1.23 GB / 456 MB 等。
     public static func ba_formatBytes(_ bytes: UInt64,
                                       style: ByteCountFormatter.CountStyle = .file) -> String {
         ba_formatBytes(Int64(clamping: bytes), style: style)

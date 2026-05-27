@@ -12,6 +12,11 @@ import SnapKit
 /// 全屏阻塞型 Loading。直接 `BALoadingHUD.ba_show(in: view)` 即可。
 public enum BALoadingHUD {
 
+    /// 显示全屏 Loading。
+    ///
+    /// - Parameters:
+    ///   - container: 承载 Loading 的视图；为空时使用当前 keyWindow。
+    ///   - message: Loading 文案；为空时仅显示转圈指示器。
     public static func ba_show(in container: UIView? = nil,
                                message: String? = nil) {
         DispatchQueue.main.async {
@@ -32,6 +37,9 @@ public enum BALoadingHUD {
         }
     }
 
+    /// 隐藏全屏 Loading。
+    ///
+    /// - Parameter container: 承载 Loading 的视图；为空时使用当前 keyWindow。
     public static func ba_hide(from container: UIView? = nil) {
         DispatchQueue.main.async {
             let host = container ?? keyWindow()
