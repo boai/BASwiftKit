@@ -36,8 +36,13 @@ final class BAPagedWaterfallDemoViewController: BABaseViewController {
         setupLayout()
     }
 
+    private var previousBoundsSize: CGSize = .zero
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        let newSize = view.bounds.size
+        guard newSize != previousBoundsSize else { return }
+        previousBoundsSize = newSize
         layout.invalidateLayout()
         pageIndicator.pageCount = max(1, Int(ceil(Double(items.count) / Double(layout.itemsPerPage))))
     }

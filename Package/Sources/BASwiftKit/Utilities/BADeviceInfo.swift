@@ -87,14 +87,11 @@ public enum BADeviceInfo {
 
     /// keyWindow 安全区顶部大于 24pt 时认为是刘海屏或灵动岛机型。
     public static var ba_isNotched: Bool {
-        if #available(iOS 13.0, *) {
-            let window = UIApplication.shared.connectedScenes
-                .compactMap { $0 as? UIWindowScene }
-                .flatMap { $0.windows }
-                .first(where: { $0.isKeyWindow })
-            return (window?.safeAreaInsets.top ?? 0) > 24
-        }
-        return false
+        let window = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first(where: { $0.isKeyWindow })
+        return (window?.safeAreaInsets.top ?? 0) > 24
     }
 
     // MARK: - 电池

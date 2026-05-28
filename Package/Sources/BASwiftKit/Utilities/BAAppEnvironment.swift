@@ -17,7 +17,15 @@ public enum BAAppEnvironment {
     // MARK: - Screen
 
     /// 主屏幕 bounds，单位为 point。
-    public static var ba_screenBounds: CGRect { UIScreen.main.bounds }
+    /// iOS 16+ 优先从当前活跃 Scene 的屏幕获取，避免 `UIScreen.main` 废弃警告。
+    public static var ba_screenBounds: CGRect {
+        if #available(iOS 16.0, *) {
+            if let screen = ba_keyWindow?.windowScene?.screen {
+                return screen.bounds
+            }
+        }
+        return UIScreen.main.bounds
+    }
     /// 主屏幕尺寸，单位为 point。
     public static var ba_screenSize: CGSize { ba_screenBounds.size }
     /// 主屏幕宽度，单位为 point。
@@ -25,15 +33,28 @@ public enum BAAppEnvironment {
     /// 主屏幕高度，单位为 point。
     public static var ba_screenHeight: CGFloat { ba_screenSize.height }
     /// 主屏幕缩放倍率，例如 2.0、3.0。
-    public static var ba_screenScale: CGFloat { UIScreen.main.scale }
+    /// iOS 16+ 优先从当前活跃 Scene 的屏幕获取，避免 `UIScreen.main` 废弃警告。
+    public static var ba_screenScale: CGFloat {
+        if #available(iOS 16.0, *) {
+            if let screen = ba_keyWindow?.windowScene?.screen {
+                return screen.scale
+            }
+        }
+        return UIScreen.main.scale
+    }
     /// 屏幕像素宽度。
     public static var ba_screenPixelWidth: CGFloat { ba_screenWidth * ba_screenScale }
     /// 屏幕像素高度。
     public static var ba_screenPixelHeight: CGFloat { ba_screenHeight * ba_screenScale }
-    /// 当前界面是否竖屏。
-    public static var ba_isPortrait: Bool { ba_screenHeight >= ba_screenWidth }
-    /// 当前界面是否横屏。
-    public static var ba_isLandscape: Bool { ba_screenWidth > ba_screenHeight }
+    /// 当前屏幕是否竖屏（按屏幕物理尺寸判断）。
+    public static var ba_isScreenPortrait: Bool { ba_screenHeight >= ba_screenWidth }
+    /// 当前屏幕是否横屏（按屏幕物理尺寸判断）。
+    public static var ba_isScreenLandscape: Bool { ba_screenWidth > ba_screenHeight }
+
+    @available(*, deprecated, renamed: "ba_isScreenPortrait")
+    public static var ba_isPortrait: Bool { ba_isScreenPortrait }
+    @available(*, deprecated, renamed: "ba_isScreenLandscape")
+    public static var ba_isLandscape: Bool { ba_isScreenLandscape }
 
     // MARK: - Window / ViewController
 
@@ -69,14 +90,11 @@ public enum BAAppEnvironment {
 
     // MARK: - System Bars
 
-    /// 状态栏高度。iOS 13+ 从 active UIWindowScene 读取，取不到时回退到顶部安全区。
+    /// 状态栏高度。从 active UIWindowScene 读取，取不到时回退到顶部安全区。
     public static var ba_statusBarHeight: CGFloat {
-        if #available(iOS 13.0, *) {
-            let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
-            let activeScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first
-            return activeScene?.statusBarManager?.statusBarFrame.height ?? ba_safeAreaTop
-        }
-        return UIApplication.shared.statusBarFrame.height
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let activeScene = scenes.first(where: { $0.activationState == .foregroundActive }) ?? scenes.first
+        return activeScene?.statusBarManager?.statusBarFrame.height ?? ba_safeAreaTop
     }
 
     /// 系统导航栏默认高度，未包含状态栏。

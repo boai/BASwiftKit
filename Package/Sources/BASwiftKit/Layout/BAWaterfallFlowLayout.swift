@@ -85,7 +85,7 @@ open class BAWaterfallFlowLayout: UICollectionViewLayout {
 
     private func prepareVerticalLayout(in collectionView: UICollectionView) {
         let sectionCount = collectionView.numberOfSections
-        let availableWidth = collectionView.bounds.width - collectionView.adjustedContentInset.left - collectionView.adjustedContentInset.right
+        let availableWidth = collectionView.bounds.width
         let columns = max(1, columnCount)
         let totalSpacing = CGFloat(columns - 1) * minimumInteritemSpacing
         let itemWidth = max(0, (availableWidth - sectionInset.left - sectionInset.right - totalSpacing) / CGFloat(columns))
@@ -116,7 +116,7 @@ open class BAWaterfallFlowLayout: UICollectionViewLayout {
 
     private func prepareHorizontalLayout(in collectionView: UICollectionView) {
         let sectionCount = collectionView.numberOfSections
-        let availableHeight = collectionView.bounds.height - collectionView.adjustedContentInset.top - collectionView.adjustedContentInset.bottom
+        let availableHeight = collectionView.bounds.height
         let rows = max(1, rowCount)
         let totalSpacing = CGFloat(rows - 1) * minimumLineSpacing
         let itemHeight = max(0, (availableHeight - sectionInset.top - sectionInset.bottom - totalSpacing) / CGFloat(rows))

@@ -78,15 +78,11 @@ public final class BATabBarController: UITabBarController, UITabBarControllerDel
         tabBar.tintColor = ba_selectedColor
         tabBar.unselectedItemTintColor = ba_unselectedColor
 
-        if #available(iOS 13.0, *) {
-            let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .systemBackground
-            tabBar.standardAppearance = appearance
-            if #available(iOS 15.0, *) {
-                tabBar.scrollEdgeAppearance = appearance
-            }
-        }
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .systemBackground
+        tabBar.standardAppearance = appearance
+        tabBar.scrollEdgeAppearance = appearance
     }
 
     /// 给指定 index 的 Tab 设置数字角标。0 或负数表示清除

@@ -87,10 +87,8 @@ public extension UINavigationController {
 
         navigationBar.standardAppearance = appearance
         navigationBar.scrollEdgeAppearance = appearance
-        if #available(iOS 15.0, *) {
-            navigationBar.compactAppearance = appearance
-            navigationBar.compactScrollEdgeAppearance = appearance
-        }
+        navigationBar.compactAppearance = appearance
+        navigationBar.compactScrollEdgeAppearance = appearance
         navigationBar.tintColor = style.tintColor
         navigationBar.barTintColor = style.tintColor
     }

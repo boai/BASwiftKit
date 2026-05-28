@@ -98,14 +98,21 @@ public final class BAScannerSession: NSObject {
     /// - Throws: 当前设备无手电筒或锁定设备失败时抛出错误。
     public func setTorch(_ isOn: Bool) throws {
         guard let device = videoDevice, device.hasTorch else { throw BAScannerError.torchUnavailable }
-        try device.lockForConfiguration()
-        device.torchMode = isOn ? .on : .off
-        device.unlockForConfiguration()
+        do {
+            try device.lockForConfiguration()
+            device.torchMode = isOn ? .on : .off
+            device.unlockForConfiguration()
+        } catch {
+            throw BAScannerError.torchLocked
+        }
     }
 
     private func configure(in previewView: UIView, completion: @escaping (Result<Void, BAScannerError>) -> Void) {
         sessionQueue.async { [weak self, weak previewView] in
-            guard let self, let previewView else { return }
+            guard let self, let previewView else {
+                DispatchQueue.main.async { completion(.failure(.cameraUnavailable)) }
+                return
+            }
             if !self.captureSession.inputs.isEmpty {
                 DispatchQueue.main.async { completion(.success(())) }
                 return

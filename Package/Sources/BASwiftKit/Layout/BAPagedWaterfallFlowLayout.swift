@@ -10,9 +10,11 @@ import UIKit
 
 /// 横向分页瀑布流/宫格布局。
 ///
-/// 适合首页金刚区、分类入口、菜单分页等场景。布局按页横向滚动，每页内部按“行优先”排布：
+/// 适合首页金刚区、分类入口、菜单分页等场景。布局按页横向滚动，每页内部按”行优先”排布：
 /// 当 `rowCount = 2`、`columnCount = 4` 时，第 1 页第一行是 1/2/3/4，第二行是 5/6/7/8，
 /// 第 2 页继续从 9 开始。布局会自动根据 collectionView 尺寸计算 item 宽高。
+///
+/// - Note: 本布局暂不支持 Supplementary Views（Header/Footer）和 Decoration Views。
 open class BAPagedWaterfallFlowLayout: UICollectionViewLayout {
     /// 每页行数，最小为 1。
     public var rowCount: Int = 2 { didSet { invalidateLayout() } }
@@ -81,6 +83,14 @@ open class BAPagedWaterfallFlowLayout: UICollectionViewLayout {
 
     open override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         itemAttributes.first { $0.indexPath == indexPath }
+    }
+
+    open override func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        nil
+    }
+
+    open override func layoutAttributesForDecorationView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        nil
     }
 
     open override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {

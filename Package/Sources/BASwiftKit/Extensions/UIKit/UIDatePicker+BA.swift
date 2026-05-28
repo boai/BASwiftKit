@@ -27,7 +27,6 @@ public extension UIDatePicker {
         return picker
     }
 
-    @available(iOS 13.4, *)
     static func ba_make(mode: UIDatePicker.Mode = .date,
                         date: Date = Date(),
                         minimumDate: Date? = nil,

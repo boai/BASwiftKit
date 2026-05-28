@@ -30,7 +30,7 @@ public enum BAScanCodeType: CaseIterable {
     /// Data Matrix 二维码。
     case dataMatrix
 
-    var metadataObjectType: AVMetadataObject.ObjectType {
+    public var metadataObjectType: AVMetadataObject.ObjectType {
         switch self {
         case .qr: return .qr
         case .ean13: return .ean13
@@ -104,5 +104,7 @@ public enum BAScannerError: Error, Equatable {
     case unsupportedCodeTypes
     /// 手电筒不可用。
     case torchUnavailable
+    /// 手电筒被其他会话锁定，暂时无法操作。
+    case torchLocked
 }
 #endif

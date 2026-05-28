@@ -55,18 +55,12 @@ public enum BASystemPermission {
 
     /// 当前相册读取权限状态。
     public static var ba_photoLibraryStatus: BAPermissionStatus {
-        if #available(iOS 14.0, *) {
-            return ba_status(for: PHPhotoLibrary.authorizationStatus(for: .readWrite))
-        }
-        return ba_status(for: PHPhotoLibrary.authorizationStatus())
+        ba_status(for: PHPhotoLibrary.authorizationStatus(for: .readWrite))
     }
 
     /// 当前定位权限状态。
     public static var ba_locationStatus: BAPermissionStatus {
-        if #available(iOS 14.0, *) {
-            return ba_status(for: CLLocationManager().authorizationStatus)
-        }
-        return ba_status(for: CLLocationManager.authorizationStatus())
+        ba_status(for: CLLocationManager().authorizationStatus)
     }
 
     /// 请求相机权限。
@@ -91,14 +85,8 @@ public enum BASystemPermission {
     ///
     /// - Parameter completion: 主线程回调授权状态，iOS 14+ 可能返回 `.limited`。
     public static func ba_requestPhotoLibrary(completion: @escaping (BAPermissionStatus) -> Void) {
-        if #available(iOS 14.0, *) {
-            PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
-                DispatchQueue.main.async { completion(ba_status(for: status)) }
-            }
-        } else {
-            PHPhotoLibrary.requestAuthorization { status in
-                DispatchQueue.main.async { completion(ba_status(for: status)) }
-            }
+        PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+            DispatchQueue.main.async { completion(ba_status(for: status)) }
         }
     }
 
@@ -217,13 +205,8 @@ public final class BALocationPermissionRequest: NSObject, CLLocationManagerDeleg
         }
     }
 
-    /// iOS 14+ 定位授权状态变化回调。
+    /// 定位授权状态变化回调。
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        ba_complete()
-    }
-
-    /// iOS 13 及以下定位授权状态变化回调。
-    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         ba_complete()
     }
 

@@ -55,14 +55,11 @@ public extension UIColor {
                 alpha: 1.0)
     }
 
-    /// 适配深浅色（iOS 13+）
+    /// 适配深浅色。
     static func ba_dynamic(light: UIColor, dark: UIColor) -> UIColor {
-        if #available(iOS 13.0, *) {
-            return UIColor { trait in
-                trait.userInterfaceStyle == .dark ? dark : light
-            }
+        UIColor { trait in
+            trait.userInterfaceStyle == .dark ? dark : light
         }
-        return light
     }
 
     /// 转为 16 进制串（#RRGGBB）

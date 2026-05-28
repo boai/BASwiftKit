@@ -17,18 +17,15 @@ public extension UIApplication {
 
     /// 当前活跃 scene 的 keyWindow（iOS 13+ 多 scene 安全）
     var ba_keyWindow: UIWindow? {
-        if #available(iOS 13.0, *) {
-            return connectedScenes
+        connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .filter { $0.activationState == .foregroundActive }
+            .flatMap { $0.windows }
+            .first(where: { $0.isKeyWindow })
+            ?? connectedScenes
                 .compactMap { $0 as? UIWindowScene }
-                .filter { $0.activationState == .foregroundActive }
                 .flatMap { $0.windows }
                 .first(where: { $0.isKeyWindow })
-                ?? connectedScenes
-                    .compactMap { $0 as? UIWindowScene }
-                    .flatMap { $0.windows }
-                    .first(where: { $0.isKeyWindow })
-        }
-        return windows.first(where: { $0.isKeyWindow })
     }
 
     /// 当前可见的最顶层 UIViewController（穿透 navigation / tab / present）
