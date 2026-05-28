@@ -22,6 +22,8 @@ open class BAScannerViewController: UIViewController {
     /// 扫码失败回调。
     public var onError: ((BAScannerError) -> Void)?
 
+    private var isPrepared = false
+
     /// 创建扫码页面。
     ///
     /// - Parameter configuration: 扫码配置。
@@ -48,7 +50,9 @@ open class BAScannerViewController: UIViewController {
 
     open override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        scannerSession.start()
+        if isPrepared {
+            scannerSession.start()
+        }
     }
 
     open override func viewWillDisappear(_ animated: Bool) {
@@ -85,7 +89,10 @@ open class BAScannerViewController: UIViewController {
         scannerSession.prepare(in: previewView) { [weak self] result in
             switch result {
             case .success:
-                self?.scannerSession.start()
+                self?.isPrepared = true
+                if self?.view.window != nil {
+                    self?.scannerSession.start()
+                }
             case let .failure(error):
                 self?.onError?(error)
             }

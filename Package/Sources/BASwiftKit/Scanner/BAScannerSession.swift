@@ -30,7 +30,6 @@ public final class BAScannerSession: NSObject {
     private let sessionQueue = DispatchQueue(label: "com.baswiftkit.scanner.session")
     private let metadataQueue = DispatchQueue(label: "com.baswiftkit.scanner.metadata")
     private var videoDevice: AVCaptureDevice?
-    private var isConfigured = false
 
     /// 创建扫码会话。
     ///
@@ -107,7 +106,7 @@ public final class BAScannerSession: NSObject {
     private func configure(in previewView: UIView, completion: @escaping (Result<Void, BAScannerError>) -> Void) {
         sessionQueue.async { [weak self, weak previewView] in
             guard let self, let previewView else { return }
-            if self.isConfigured {
+            if !self.captureSession.inputs.isEmpty {
                 DispatchQueue.main.async { completion(.success(())) }
                 return
             }
@@ -149,7 +148,6 @@ public final class BAScannerSession: NSObject {
             let layer = AVCaptureVideoPreviewLayer(session: self.captureSession)
             layer.videoGravity = self.configuration.videoGravity
             self.previewLayer = layer
-            self.isConfigured = true
 
             DispatchQueue.main.async {
                 layer.frame = previewView.bounds
