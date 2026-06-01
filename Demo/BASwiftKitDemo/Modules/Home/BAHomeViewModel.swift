@@ -183,6 +183,13 @@ enum BADemoCatalog {
                 builder: { BAL10nDemoViewController(viewModel: BAL10nDemoViewModel()) }
             ),
             BADemoItem(
+                title: "Socket / WebSocket",
+                subtitle: "基于 Starscream 的 Socket 封装，支持多类型解析与自动重连",
+                iconSystemName: "antenna.radiowaves.left.and.right",
+                gradient: BAAppTheme.brandGradient,
+                builder: { BASocketDemoViewController() }
+            ),
+            BADemoItem(
                 title: "Network & Crypto",
                 subtitle: "网络请求拆分、Endpoint、SHA/HMAC/AES 加密",
                 iconSystemName: "lock.shield.fill",
