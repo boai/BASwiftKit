@@ -60,7 +60,12 @@ open class BAWaterfallFlowLayout: UICollectionViewLayout {
 
     open override func prepare() {
         super.prepare()
-        guard let collectionView else { return }
+        guard let collectionView,
+              collectionView.bounds.width > 0,
+              collectionView.bounds.height > 0 else {
+            contentSize = .zero
+            return
+        }
         itemAttributes.removeAll()
 
         switch scrollDirection {

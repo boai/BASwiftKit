@@ -54,6 +54,9 @@
 		EFA4029A55EBDC8AEFF49DB2 /* BAFontDemoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1AA0544AB1181BAE5B0A14A /* BAFontDemoViewModel.swift */; };
 		F80CF5CA60AFEE5EB4BDAD9B /* BAHomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D314CF2CA32A307081AD35B1 /* BAHomeViewModel.swift */; };
 		F9579FB81959F53FF0881355 /* BAUtilitiesDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8832C7A206BEF26DEAC1BB26 /* BAUtilitiesDemoViewController.swift */; };
+		C8EAA03230C645DB9E440881 /* BASocketDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8AE83EFD9C4732AE19FFBE /* BASocketDemoViewController.swift */; };
+		4D3FFF6331C44B9191C8BE51 /* BASocketDemoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE251BE5579460CA31FB2F4 /* BASocketDemoViewModel.swift */; };
+		42A99C502F6446458BC82E3F /* BASocketMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60B71EF127D94DC9A7C3C57F /* BASocketMessageCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -105,6 +108,9 @@
 		F1AA0544AB1181BAE5B0A14A /* BAFontDemoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BAFontDemoViewModel.swift; sourceTree = "<group>"; };
 		F211789C4DA50B7FD73A29E4 /* BAStringDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BAStringDemoViewController.swift; sourceTree = "<group>"; };
 		F993FC1B008E2EE4ABEAA961 /* BAColorDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BAColorDemoViewController.swift; sourceTree = "<group>"; };
+		9A8AE83EFD9C4732AE19FFBE /* BASocketDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BASocketDemoViewController.swift; sourceTree = "<group>"; };
+		BAE251BE5579460CA31FB2F4 /* BASocketDemoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BASocketDemoViewModel.swift; sourceTree = "<group>"; };
+		60B71EF127D94DC9A7C3C57F /* BASocketMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BASocketMessageCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,6 +142,7 @@
 				13145E86614B18221B21143F /* NavBarDemo */,
 				6AD33590A2E0DC729E030425 /* NetworkCryptoDemo */,
 				0610510DAAF55542DBC61ED5 /* ScannerDemo */,
+				8B85AC0806314521B04FB9AA /* SocketDemo */,
 				1F0C985E1852C0AE6F41D02C /* StorageDemo */,
 				48DA5C3E8234BFCAB486F6EF /* StringDemo */,
 				49BCCFC76B5B1AEA84BECAE8 /* TabBarDemo */,
@@ -161,6 +168,16 @@
 				DAF7809B4005302DF8F34060 /* BAScannerDemoViewController.swift */,
 			);
 			path = ScannerDemo;
+			sourceTree = "<group>";
+		};
+		8B85AC0806314521B04FB9AA /* SocketDemo */ = {
+			isa = PBXGroup;
+			children = (
+				9A8AE83EFD9C4732AE19FFBE /* BASocketDemoViewController.swift */,
+				BAE251BE5579460CA31FB2F4 /* BASocketDemoViewModel.swift */,
+				60B71EF127D94DC9A7C3C57F /* BASocketMessageCell.swift */,
+			);
+			path = SocketDemo;
 			sourceTree = "<group>";
 		};
 		0A16492E2DF7B3661037D22B /* WebViewDemo */ = {
@@ -489,6 +506,9 @@
 				D7759EEDE53B5F2F9079C0BD /* BANetworkCryptoDemoViewModel.swift in Sources */,
 				9216779DB4BCA1EB7F08E3E1 /* BAPagedWaterfallDemoViewController.swift in Sources */,
 				35DCCB2A7349DF5672D8B381 /* BAScannerDemoViewController.swift in Sources */,
+				C8EAA03230C645DB9E440881 /* BASocketDemoViewController.swift in Sources */,
+				4D3FFF6331C44B9191C8BE51 /* BASocketDemoViewModel.swift in Sources */,
+				42A99C502F6446458BC82E3F /* BASocketMessageCell.swift in Sources */,
 				622E1C534D10F021B24D734F /* BASceneDelegate.swift in Sources */,
 				C21652118E36E9AA3CB032DB /* BAStorageDemoViewController.swift in Sources */,
 				EC5F37DD9EEF9C885B4DE4B1 /* BAStorageDemoViewModel.swift in Sources */,

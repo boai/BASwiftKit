@@ -94,11 +94,12 @@ final class BAToastView: UIView {
         super.init(frame: .zero)
         backgroundColor = style.background
         layer.cornerRadius = 12
-        layer.masksToBounds = true
         layer.shadowColor = UIColor.black.cgColor
         layer.shadowOpacity = 0.15
         layer.shadowRadius = 10
         layer.shadowOffset = CGSize(width: 0, height: 4)
+        // 注意：不要设 masksToBounds/clipsToBounds，否则 shadow 会被裁剪不可见。
+        // cornerRadius 本身已能裁剪背景色圆角，子视图（UILabel）由 SnapKit inset 约束保证不溢出。
 
         let label = UILabel()
         label.text = text

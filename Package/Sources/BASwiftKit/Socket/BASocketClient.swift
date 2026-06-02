@@ -222,9 +222,12 @@ public final class BASocketClient {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             self.heartbeatTimer?.invalidate()
-            self.heartbeatTimer = Timer.scheduledTimer(withTimeInterval: self.configuration.heartbeatInterval, repeats: true) { [weak self] _ in
+            let timer = Timer(timeInterval: self.configuration.heartbeatInterval, repeats: true) { [weak self] _ in
                 self?.socket?.write(ping: Data())
             }
+            // 添加到 .common mode，确保 UIScrollView 滚动时心跳也能正常发送
+            RunLoop.main.add(timer, forMode: .common)
+            self.heartbeatTimer = timer
         }
     }
 
@@ -237,17 +240,26 @@ public final class BASocketClient {
 
     private func attemptReconnect() {
         guard configuration.maxReconnectAttempts > 0 else { return }
-        guard reconnectCount < configuration.maxReconnectAttempts else { return }
 
+        lock.lock()
+        guard reconnectCount < configuration.maxReconnectAttempts else {
+            lock.unlock()
+            return
+        }
         reconnectCount += 1
-        let delay = configuration.reconnectDelay * pow(2.0, Double(reconnectCount - 1))
+        let count = reconnectCount
+        lock.unlock()
+
+        let delay = configuration.reconnectDelay * pow(2.0, Double(count - 1))
         DispatchQueue.global().asyncAfter(deadline: .now() + delay) { [weak self] in
             guard let self else { return }
             self.lock.lock()
-            let shouldReconnect = self.socket == nil || self.state.value == .disconnected(nil)
-            self.lock.unlock()
-            guard shouldReconnect else { return }
+            guard self.socket == nil else {
+                self.lock.unlock()
+                return
+            }
             self.socket = nil
+            self.lock.unlock()
             self.connect()
         }
     }
