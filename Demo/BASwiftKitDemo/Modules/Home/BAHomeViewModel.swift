@@ -190,6 +190,13 @@ enum BADemoCatalog {
                 builder: { BASocketDemoViewController() }
             ),
             BADemoItem(
+                title: "倒计时 / Countdown",
+                subtitle: "列表共享 Timer、截止时间精准同步、刷新不丢秒",
+                iconSystemName: "timer",
+                gradient: [UIColor(ba_hex: "#FF4D4F")!, UIColor(ba_hex: "#FF7A45")!],
+                builder: { BACountdownDemoViewController() }
+            ),
+            BADemoItem(
                 title: "Network & Crypto",
                 subtitle: "网络请求拆分、Endpoint、SHA/HMAC/AES 加密",
                 iconSystemName: "lock.shield.fill",
