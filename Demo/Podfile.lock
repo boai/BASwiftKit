@@ -61,6 +61,10 @@ PODS:
     - BASwiftKit
     - DemoCommon
     - SnapKit
+  - ParamPassingDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
   - RouterDemo (0.1.0):
     - BASwiftKit
     - DemoCommon
@@ -121,6 +125,7 @@ DEPENDENCIES:
   - MediaDataDemo (from `LocalPods/MediaDataDemo`)
   - NavBarDemo (from `LocalPods/NavBarDemo`)
   - NetworkCryptoDemo (from `LocalPods/NetworkCryptoDemo`)
+  - ParamPassingDemo (from `LocalPods/ParamPassingDemo`)
   - RouterDemo (from `LocalPods/RouterDemo`)
   - ScannerDemo (from `LocalPods/ScannerDemo`)
   - SocketDemo (from `LocalPods/SocketDemo`)
@@ -170,6 +175,8 @@ EXTERNAL SOURCES:
     :path: LocalPods/NavBarDemo
   NetworkCryptoDemo:
     :path: LocalPods/NetworkCryptoDemo
+  ParamPassingDemo:
+    :path: LocalPods/ParamPassingDemo
   RouterDemo:
     :path: LocalPods/RouterDemo
   ScannerDemo:
@@ -208,6 +215,7 @@ SPEC CHECKSUMS:
   MediaDataDemo: fc0a4bfc62c0ac3d5c5a0f34aa6b26e2e4daa572
   NavBarDemo: 78fd0e518fd26ba2c1e361a201c45f998608252d
   NetworkCryptoDemo: ce967866a9ee8d56284de6c474e17e9c93e7cae7
+  ParamPassingDemo: 24b0332dadd8a94a7f46a4ac4909110f01347db1
   RouterDemo: b34fb39802533c021f68000259f179953626e88e
   ScannerDemo: c343b07fe58d8368301b2ad224b7d67e3d6676fd
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
@@ -221,6 +229,6 @@ SPEC CHECKSUMS:
   WaterfallDemo: a6b4d22d2569f401a9558af96edd05dd78ebc531
   WebViewDemo: 4496a51bb296a2d6163d6221c967a5f0f13147d1
 
-PODFILE CHECKSUM: d3b4493b5ae1c030e84138d7cff7d4592e373c5b
+PODFILE CHECKSUM: 5b77bd648a831a46ee9efdafb5089c95d64e7088
 
 COCOAPODS: 1.16.2

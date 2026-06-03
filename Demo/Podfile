@@ -42,6 +42,7 @@ target 'BASwiftKitDemo' do
   pod 'MediaDataDemo',       :path => 'LocalPods/MediaDataDemo'
   pod 'NavBarDemo',          :path => 'LocalPods/NavBarDemo'
   pod 'NetworkCryptoDemo',   :path => 'LocalPods/NetworkCryptoDemo'
+  pod 'ParamPassingDemo',    :path => 'LocalPods/ParamPassingDemo'
   pod 'RouterDemo',          :path => 'LocalPods/RouterDemo'
   pod 'ScannerDemo',         :path => 'LocalPods/ScannerDemo'
   pod 'SocketDemo',          :path => 'LocalPods/SocketDemo'

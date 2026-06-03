@@ -76,6 +76,9 @@ public final class BARouter {
     /// 全局拦截器链。
     let interceptorChain = BARouteInterceptorChain()
 
+    /// 回调注册中心。
+    let callbackRegistry = BARouteCallbackRegistry()
+
     /// 串行队列保证线程安全。
     private let lock = NSLock()
 
@@ -254,6 +257,81 @@ public final class BARouter {
     @discardableResult
     public func open(_ url: URL, completion: ((BARouteError?) -> Void)? = nil) -> BARouteError? {
         open(url.absoluteString, completion: completion)
+    }
+
+    // MARK: - Request-Based Opening
+
+    /// 通过标准化的 `BARouteRequest` 模型发起路由跳转。
+    ///
+    /// 适用于从不同来源（外部 App、推送通知、Deep Link 等）统一解析后的跳转。
+    ///
+    /// - Parameters:
+    ///   - request: 由 `BAURLParser` 解析出的路由请求。
+    ///   - callback: 目标页面回传结果时的回调闭包。
+    /// - Returns: 回调令牌，目标页面通过 `sendCallback(_:for:)` 回传结果。
+    ///            若不需要回调可忽略。
+    ///
+    /// ```swift
+    /// // 解析外部 URL 并跳转
+    /// if let req = BAURLParser.parse("baswiftkit://demo/animation?tab=ui") {
+    ///     BARouter.shared.open(req) { result in
+    ///         print("目标页回调: \(result ?? "nil")")
+    ///     }
+    /// }
+    /// ```
+    @discardableResult
+    public func open(_ request: BARouteRequest,
+                     callback: BARouteCallback? = nil) -> BARouteCallbackToken? {
+        var token: BARouteCallbackToken?
+        if let cb = callback {
+            token = callbackRegistry.register(cb)
+        }
+
+        // 构建完整路径（路径参数 + query 参数合并）
+        var path = request.path
+        if let tokenStr = token {
+            var params = request.params
+            params["_ba_callback_token"] = tokenStr
+            // 将 params 编码为 query string 追加到 path
+            let queryItems = params.compactMap { (key, value) -> String? in
+                "\(key)=\(value)"
+            }
+            if !queryItems.isEmpty {
+                path += "?" + queryItems.joined(separator: "&")
+            }
+        }
+
+        open(path) { error in
+            if error != nil, let token = token {
+                self.callbackRegistry.remove(token)
+            }
+        }
+
+        return token
+    }
+
+    // MARK: - Callback
+
+    /// 发送路由回调结果。
+    ///
+    /// 目标页面在处理完业务逻辑后，通过该方法将结果回传给发起方。
+    ///
+    /// - Parameters:
+    ///   - result: 回调结果（可为 String、Dictionary、Model 等任意类型）。
+    ///   - token: 发起方持有的回调令牌。
+    ///
+    /// ```swift
+    /// // 目标页
+    /// BARouter.shared.sendCallback(["status": "ok", "data": model], for: routeToken)
+    /// ```
+    public func sendCallback(_ result: Any?, for token: BARouteCallbackToken) {
+        guard let callback = callbackRegistry.consume(token) else {
+            BARouterLogger.warning("回调令牌无效或已过期: \(token)")
+            return
+        }
+        DispatchQueue.main.async {
+            callback(result)
+        }
     }
 
     // MARK: - Service Registration
