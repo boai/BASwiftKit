@@ -197,6 +197,20 @@ enum BADemoCatalog {
                 builder: { BACountdownDemoViewController() }
             ),
             BADemoItem(
+                title: "日志埋点 / Logger",
+                subtitle: "自动埋点、SQLite 持久化、按日加密导出 TXT",
+                iconSystemName: "doc.text.magnifyingglass",
+                gradient: [UIColor(ba_hex: "#111827")!, UIColor(ba_hex: "#3B82F6")!],
+                builder: { BALoggerDemoViewController() }
+            ),
+            BADemoItem(
+                title: "路由 / Router",
+                subtitle: "TheRouter 范式封装：URL 跳转 + 服务发现 + 拦截器链",
+                iconSystemName: "arrow.triangle.branch",
+                gradient: [UIColor(ba_hex: "#3B82F6")!, UIColor(ba_hex: "#8B5CF6")!],
+                builder: { BARouterDemoViewController() }
+            ),
+            BADemoItem(
                 title: "Network & Crypto",
                 subtitle: "网络请求拆分、Endpoint、SHA/HMAC/AES 加密",
                 iconSystemName: "lock.shield.fill",
