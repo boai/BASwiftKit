@@ -558,19 +558,22 @@ class ViewController: UIViewController {
 
 ## 六、Demo 工程
 
-Demo 通过 [XcodeGen](https://github.com/yonaskolb/XcodeGen) 生成，避免二进制 `.xcodeproj` 冲突。
+Demo 通过 [XcodeGen](https://github.com/yonaskolb/XcodeGen) 生成 `.xcodeproj`，再通过 [CocoaPods](https://cocoapods.org) 集成 BASwiftKit 本地 pod，避免二进制文件和依赖冲突。
 
 ```bash
-# 安装 XcodeGen
+# 1. 安装 XcodeGen（如已安装可跳过）
 brew install xcodegen
 
-# 生成工程并运行
+# 2. 生成工程 + 安装依赖
 cd Demo
 xcodegen generate
-open BASwiftKitDemo.xcodeproj
+pod install
+
+# 3. 打开 workspace
+open BASwiftKitDemo.xcworkspace
 ```
 
-> 如果不想安装 XcodeGen，也可以在 Xcode 中手动新建 iOS App 工程，把 `Demo/BASwiftKitDemo/` 下的源码和 `Package/` 目录拖入即可，最低 iOS 15.0。
+> **注意**：必须打开 `.xcworkspace` 而不是 `.xcodeproj`，否则无法加载 CocoaPods 依赖。
 
 ---
 
