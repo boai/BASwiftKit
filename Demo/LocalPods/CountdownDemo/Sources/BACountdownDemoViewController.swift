@@ -15,7 +15,7 @@ import DemoCommon
 /// 顶部 Banner 展示全局倒计时（最近到期商品），下方列表展示每个商品的独立倒计时。
 /// 所有 Cell 共享 `BACountdownManager` 的同一个底层 Timer，
 /// 刷新列表后截止时间重新随机生成，倒计时依然准确同步。
-final class BACountdownDemoViewController: BABaseViewController {
+public final class BACountdownDemoViewController: BABaseViewController {
 
     private let viewModel = BACountdownDemoViewModel()
     private let disposeBag = BADisposeBag()
@@ -35,15 +35,15 @@ final class BACountdownDemoViewController: BABaseViewController {
 
     // MARK: - Init
 
-    init() {
+    public init() {
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     // MARK: - Lifecycle
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = "限时抢购"
         setupLayout()
@@ -51,12 +51,12 @@ final class BACountdownDemoViewController: BABaseViewController {
         viewModel.loadData()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
+    public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         BACountdownManager.shared.resume()
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
+    public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         BACountdownManager.shared.pause()
     }
@@ -169,11 +169,11 @@ final class BACountdownDemoViewController: BABaseViewController {
 
 extension BACountdownDemoViewController: UITableViewDataSource, UITableViewDelegate {
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         viewModel.products.value.count
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(
             withIdentifier: BACountdownDemoCell.reuseIdentifier,
             for: indexPath
@@ -183,15 +183,15 @@ extension BACountdownDemoViewController: UITableViewDataSource, UITableViewDeleg
         return cell
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         UITableView.automaticDimension
     }
 
-    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+    public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         90
     }
 
-    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         guard let cell = cell as? BACountdownDemoCell, let id = cell.countdownId else { return }
         BACountdownManager.shared.unregister(id: id)
         cell.countdownId = nil

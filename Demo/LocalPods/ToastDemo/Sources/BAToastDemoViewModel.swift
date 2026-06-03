@@ -9,14 +9,17 @@ import UIKit
 import BASwiftKit
 import DemoCommon
 
-struct BAToastDemoOption {
+public struct BAToastDemoOption {
+
     let title: String
     let message: String
     let style: BAToast.Style
     let color: UIColor
 }
 
-final class BAToastDemoViewModel {
+public final class BAToastDemoViewModel {
+
+    public init() {}
 
     let options: BAObservable<[BAToastDemoOption]> = BAObservable([])
 

@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import DemoCommon
 import SnapKit
 
 final class BAHomeViewController: BABaseViewController {

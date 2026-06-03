@@ -13,8 +13,8 @@ import DemoCommon
 /// 演示 `BATabBarController`：
 /// - 三个 Tab，进入时自动 push 在 BATabBarController 上方
 /// - 给 "Home" 设了一个 8 的角标，"Profile" 设了 999+
-final class BATabBarDemoLauncher {
-    static func make() -> UIViewController {
+public final class BATabBarDemoLauncher {
+    public static func make() -> UIViewController {
         let tab = BATabBarController()
         tab.ba_selectedColor = BAAppTheme.accent
         tab.ba_unselectedColor = BAAppTheme.textSecondary
@@ -58,21 +58,21 @@ final class BATabBarDemoLauncher {
 }
 
 /// 一个简单占位 VC，仅用于 TabBar Demo
-final class BATabPlaceholderViewController: BABaseViewController {
+public final class BATabPlaceholderViewController: BABaseViewController {
 
     private let descText: String
     private let tint: UIColor
 
-    init(title: String, tint: UIColor, description: String) {
+    public init(title: String, tint: UIColor, description: String) {
         self.descText = description
         self.tint = tint
         super.init(nibName: nil, bundle: nil)
         self.title = title
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         let card = BACardView()
         card.ba_cardColor = BAAppTheme.cardHighlight

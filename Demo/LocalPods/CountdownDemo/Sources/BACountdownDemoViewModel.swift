@@ -9,7 +9,8 @@ import Foundation
 import BASwiftKit
 
 /// 模拟商品数据
-struct BACountdownProduct {
+public struct BACountdownProduct {
+
     let id: String
     let name: String
     let image: String       // SF Symbol 名
@@ -21,7 +22,9 @@ struct BACountdownProduct {
     var isExpired: Bool { Date() >= endDate }
 }
 
-final class BACountdownDemoViewModel {
+public final class BACountdownDemoViewModel {
+
+    public init() {}
 
     /// 商品列表。
     let products: BAObservable<[BACountdownProduct]> = BAObservable([])

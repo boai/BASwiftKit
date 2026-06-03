@@ -9,12 +9,15 @@ import UIKit
 import BASwiftKit
 import DemoCommon
 
-struct BANavBarStylePreset {
+public struct BANavBarStylePreset {
+
     let title: String
     let style: BANavigationBarStyle
 }
 
-final class BANavBarDemoViewModel {
+public final class BANavBarDemoViewModel {
+
+    public init() {}
 
     let presets: BAObservable<[BANavBarStylePreset]> = BAObservable([])
 

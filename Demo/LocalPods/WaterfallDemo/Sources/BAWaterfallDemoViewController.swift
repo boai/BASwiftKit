@@ -10,7 +10,10 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAWaterfallDemoViewController: BABaseViewController {
+public final class BAWaterfallDemoViewController: BABaseViewController {
+
+    public init() { super.init(nibName: nil, bundle: nil) }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     private struct Item {
         let title: String
@@ -34,7 +37,7 @@ final class BAWaterfallDemoViewController: BABaseViewController {
                     color: colors[index % colors.count])
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = "瀑布流 FlowLayout"
         setupLayout()
@@ -102,11 +105,11 @@ final class BAWaterfallDemoViewController: BABaseViewController {
 }
 
 extension BAWaterfallDemoViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         items.count
     }
 
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.ba_dequeue(BAWaterfallDemoCell.self, for: indexPath)
         cell.configure(title: items[indexPath.item].title,
                        size: items[indexPath.item].size,
@@ -116,7 +119,7 @@ extension BAWaterfallDemoViewController: UICollectionViewDataSource {
 }
 
 extension BAWaterfallDemoViewController: BAWaterfallFlowLayoutDelegate {
-    func waterfallFlowLayout(_ layout: BAWaterfallFlowLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    public func waterfallFlowLayout(_ layout: BAWaterfallFlowLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         items[indexPath.item].size
     }
 }
@@ -125,7 +128,7 @@ private final class BAWaterfallDemoCell: UICollectionViewCell {
     private let titleLabel = UILabel.ba_make(font: .ba_semibold(18), color: .white)
     private let detailLabel = UILabel.ba_make(font: .ba_regular(12), color: UIColor.white.withAlphaComponent(0.8), numberOfLines: 0)
 
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.layer.cornerRadius = BAAppTheme.cornerRadius
         contentView.layer.masksToBounds = true
@@ -137,7 +140,6 @@ private final class BAWaterfallDemoCell: UICollectionViewCell {
             make.left.right.bottom.equalToSuperview().inset(14)
         }
     }
-
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func configure(title: String, size: CGSize, color: UIColor) {

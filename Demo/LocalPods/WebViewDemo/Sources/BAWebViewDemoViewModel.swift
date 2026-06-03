@@ -10,7 +10,8 @@ import BASwiftKit
 import WebKit
 import DemoCommon
 
-final class BAWebViewDemoViewModel {
+public final class BAWebViewDemoViewModel {
+
 
     struct Row {
         let title: String
@@ -91,7 +92,7 @@ final class BAWebViewDemoViewModel {
 
 // MARK: - JS Demo VC
 
-final class BAWebViewDemoJSViewController: BABaseViewController {
+public final class BAWebViewDemoJSViewController: BABaseViewController {
 
     private let webView: BAWebView = {
         let wv = BAWebView()
@@ -103,7 +104,7 @@ final class BAWebViewDemoJSViewController: BABaseViewController {
 
     private let resultLabel = UILabel.ba_make(font: .ba_medium(14), color: BAAppTheme.textPrimary, numberOfLines: 0)
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = "JS 交互演示"
         setupLayout()

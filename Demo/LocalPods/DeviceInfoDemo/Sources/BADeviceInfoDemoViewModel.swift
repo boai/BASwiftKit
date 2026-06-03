@@ -8,12 +8,15 @@
 import UIKit
 import BASwiftKit
 
-struct BADeviceInfoSection {
+public struct BADeviceInfoSection {
+
     let title: String
     let rows: [(String, String)]
 }
 
-final class BADeviceInfoDemoViewModel {
+public final class BADeviceInfoDemoViewModel {
+
+    public init() {}
 
     let sections: BAObservable<[BADeviceInfoSection]> = BAObservable([])
     let cacheSizeText: BAObservable<String> = BAObservable("计算中…")

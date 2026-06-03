@@ -8,7 +8,10 @@
 import UIKit
 import BASwiftKit
 
-final class BAL10nDemoViewModel {
+public final class BAL10nDemoViewModel {
+
+    public init() {}
+
 
     /// 当前语言，跟随 BALocalization
     let currentLanguage: BAObservable<String> = BAObservable(BALocalization.shared.currentLanguage)

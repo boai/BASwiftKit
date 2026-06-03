@@ -10,7 +10,7 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAInfraDemoViewController: BABaseViewController {
+public final class BAInfraDemoViewController: BABaseViewController {
 
     private let viewModel: BAInfraDemoViewModel
     private let disposeBag = BADisposeBag()
@@ -31,14 +31,14 @@ final class BAInfraDemoViewController: BABaseViewController {
         BAInfraListItem(title: "Codable", subtitle: "模型转换", color: BAAppTheme.accentSecondary)
     ]
 
-    init(viewModel: BAInfraDemoViewModel) {
+    public init(viewModel: BAInfraDemoViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
         bindViewModel()
@@ -381,7 +381,7 @@ private final class BAInfraTableCell: UITableViewCell {
     private let title = UILabel.ba_make(font: .ba_semibold(14), color: BAAppTheme.textPrimary)
     private let subtitle = UILabel.ba_make(font: .ba_regular(12), color: BAAppTheme.textSecondary)
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = .clear
         selectionStyle = .none
@@ -401,7 +401,7 @@ private final class BAInfraTableCell: UITableViewCell {
         }
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func configure(_ item: BAInfraListItem) {
         dot.backgroundColor = item.color
@@ -415,7 +415,7 @@ private final class BAInfraCollectionCell: UICollectionViewCell {
     private let title = UILabel.ba_make(font: .ba_semibold(13), color: .white, alignment: .center)
     private let subtitle = UILabel.ba_make(font: .ba_regular(11), color: UIColor.white.withAlphaComponent(0.82), alignment: .center)
 
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.layer.cornerRadius = 16
         contentView.layer.cornerCurve = .continuous
@@ -429,7 +429,7 @@ private final class BAInfraCollectionCell: UICollectionViewCell {
         }
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func configure(_ item: BAInfraListItem) {
         contentView.backgroundColor = item.color

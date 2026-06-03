@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import DemoCommon
 import SnapKit
 
 /// Home 列表中的一张 Demo 卡片

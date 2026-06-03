@@ -10,7 +10,7 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BADeviceInfoDemoViewController: BABaseViewController {
+public final class BADeviceInfoDemoViewController: BABaseViewController {
 
     private let viewModel: BADeviceInfoDemoViewModel
     private let disposeBag = BADisposeBag()
@@ -21,14 +21,14 @@ final class BADeviceInfoDemoViewController: BABaseViewController {
                                                   color: BAAppTheme.textPrimary,
                                                   alignment: .right)
 
-    init(viewModel: BADeviceInfoDemoViewModel) {
+    public init(viewModel: BADeviceInfoDemoViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
         bindViewModel()

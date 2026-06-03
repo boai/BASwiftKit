@@ -19,7 +19,12 @@ import DemoCommon
 /// push/pop 时也会自动在「源页 appearance」和「目标页 appearance」之间做插值动画，
 /// 所以页面和导航条会作为一个整体一起滑动，不会出现"nav 透明 + 下面是页面内容"
 /// 的割裂感。tintColor 不走 appearance，所以这里跟着滚动手动插值一下。
-final class BANavBarScrollGradientViewController: UIViewController, UIScrollViewDelegate {
+public final class BANavBarScrollGradientViewController: UIViewController, UIScrollViewDelegate {
+
+    public init() { super.init(nibName: nil, bundle: nil) }
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private let scrollView = UIScrollView()
     private let contentStack = UIStackView.ba_make(axis: .vertical, spacing: 16)
@@ -31,7 +36,7 @@ final class BANavBarScrollGradientViewController: UIViewController, UIScrollView
     /// 进入本页前 nav 的 tintColor，离开时还原回去
     private var savedTintColor: UIColor?
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = BAAppTheme.background
         title = "滑动渐变"
@@ -43,7 +48,7 @@ final class BANavBarScrollGradientViewController: UIViewController, UIScrollView
         setupBodyContent()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
+    public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         // 进入本页：把当前 nav 的 tintColor 切到白色（覆盖在橙色渐变上才看得见返回箭头）。
         // 用 transitionCoordinator 跟着 push 动画一起插值，避免瞬切。
@@ -51,7 +56,7 @@ final class BANavBarScrollGradientViewController: UIViewController, UIScrollView
         animateTint(to: .white, alongside: transitionCoordinator)
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
+    public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         // 离开本页：还原 tintColor，同样跟着 pop/push 动画一起做。
         let target = savedTintColor ?? BAAppTheme.accent
@@ -215,7 +220,7 @@ final class BANavBarScrollGradientViewController: UIViewController, UIScrollView
     // MARK: - 滚动 → 返回箭头 tint 插值
     // 背景 / 标题颜色靠 iOS 在两套 appearance 之间自动切，这里只补一下 tintColor。
 
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let progress = max(0, min(1, scrollView.contentOffset.y / fadeDistance))
         navigationController?.navigationBar.tintColor =
             blend(.white, BAAppTheme.accent, ratio: progress)
@@ -237,9 +242,9 @@ final class BANavBarScrollGradientViewController: UIViewController, UIScrollView
 
 /// 普通的三级页面：完全交给 BABaseViewController 的默认外观，
 /// 用来演示「滑动渐变 → 普通 push」时 nav 样式如何自然过渡。
-final class BANavBarLevel3ViewController: BABaseViewController {
+public final class BANavBarLevel3ViewController: BABaseViewController {
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = "三级页面"
 

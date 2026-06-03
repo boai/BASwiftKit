@@ -10,19 +10,19 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BANavBarDemoViewController: BABaseViewController {
+public final class BANavBarDemoViewController: BABaseViewController {
 
     private let viewModel: BANavBarDemoViewModel
     private let disposeBag = BADisposeBag()
     private let stack = UIStackView.ba_make(axis: .vertical, spacing: 12)
     private let hint = UILabel()
 
-    init(viewModel: BANavBarDemoViewModel) {
+    public init(viewModel: BANavBarDemoViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     private let defaultStyle = BANavigationBarStyle(
         background: .solid(BAAppTheme.background),
@@ -30,14 +30,14 @@ final class BANavBarDemoViewController: BABaseViewController {
         titleColor: BAAppTheme.textPrimary
     )
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
         bindViewModel()
         viewModel.loadData()
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
+    public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         // 退出本页时还原全局导航栏样式，避免污染其他页面
         navigationController?.ba_apply(style: defaultStyle)

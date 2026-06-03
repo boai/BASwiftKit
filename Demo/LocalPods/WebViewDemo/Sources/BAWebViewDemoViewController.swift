@@ -10,12 +10,19 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAWebViewDemoViewController: BABaseViewController {
+public final class BAWebViewDemoViewController: BABaseViewController {
+
+    public init() { super.init(nibName: nil, bundle: nil) }
+
+
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private let viewModel = BAWebViewDemoViewModel()
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = "WebView 封装"
         setupLayout()
@@ -38,11 +45,11 @@ final class BAWebViewDemoViewController: BABaseViewController {
 
 extension BAWebViewDemoViewController: UITableViewDataSource, UITableViewDelegate {
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         viewModel.rows.count
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
             ?? UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
         let row = viewModel.rows[indexPath.row]
@@ -56,7 +63,7 @@ extension BAWebViewDemoViewController: UITableViewDataSource, UITableViewDelegat
         return cell
     }
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let vc = viewModel.rows[indexPath.row].action()
         navigationController?.pushViewController(vc, animated: true)

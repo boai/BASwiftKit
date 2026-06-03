@@ -13,13 +13,13 @@ import DemoCommon
 /// 用来「裸」展示一份 BANavigationBarStyle 的预览页。
 /// 故意不继承 BABaseViewController：基类会写入 navigationItem.standardAppearance，
 /// 那是 per-VC 外观，优先级高于 ba_apply 设置的 navigationBar 外观，会盖掉效果。
-final class BANavBarPreviewViewController: UIViewController {
+public final class BANavBarPreviewViewController: UIViewController {
 
     private let presetTitle: String
     private let style: BANavigationBarStyle
     private let restoreStyle: BANavigationBarStyle
 
-    init(presetTitle: String,
+    public init(presetTitle: String,
          style: BANavigationBarStyle,
          restoreStyle: BANavigationBarStyle) {
         self.presetTitle = presetTitle
@@ -28,9 +28,9 @@ final class BANavBarPreviewViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = presetTitle
         view.backgroundColor = BAAppTheme.background
@@ -49,12 +49,12 @@ final class BANavBarPreviewViewController: UIViewController {
         }
     }
 
-    override func viewWillAppear(_ animated: Bool) {
+    public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.ba_apply(style: style)
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
+    public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.ba_apply(style: restoreStyle)
     }

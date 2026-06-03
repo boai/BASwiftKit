@@ -8,7 +8,7 @@
 import UIKit
 import BASwiftKit
 
-final class BASocketDemoViewModel {
+public final class BASocketDemoViewModel {
 
     struct MessageItem {
         let id = UUID()
@@ -30,7 +30,7 @@ final class BASocketDemoViewModel {
         return f
     }()
 
-    init(url: URL = URL(string: "wss://ws.postman-echo.com/raw")!) {
+    public init(url: URL = URL(string: "wss://ws.postman-echo.com/raw")!) {
         self.url = url
         let config = BASocketConfiguration(url: url, heartbeatInterval: 30, maxReconnectAttempts: 3)
         client = BASocketClient(configuration: config)

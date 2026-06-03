@@ -10,7 +10,7 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAComponentsDemoViewController: BABaseViewController {
+public final class BAComponentsDemoViewController: BABaseViewController {
 
     private let viewModel: BAComponentsDemoViewModel
     private let disposeBag = BADisposeBag()
@@ -23,14 +23,14 @@ final class BAComponentsDemoViewController: BABaseViewController {
     private let deviceCard = BACardView()
     private var badgesWrapHeight: Constraint?
 
-    init(viewModel: BAComponentsDemoViewModel) {
+    public init(viewModel: BAComponentsDemoViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
         bindViewModel()

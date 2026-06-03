@@ -10,9 +10,9 @@ import BASwiftKit
 import SnapKit
 
 /// Demo 内通用基类：统一背景、导航栏外观。
-class BABaseViewController: UIViewController {
+open class BABaseViewController: UIViewController {
 
-    override func viewDidLoad() {
+    open override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = BAAppTheme.background
         addBackgroundGlow()

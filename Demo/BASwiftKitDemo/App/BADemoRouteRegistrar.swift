@@ -54,7 +54,7 @@ public enum BADemoRouteRegistrar {
         registerUI()
         registerFeedback()
         registerFoundation()
-        BARouterLogger.info("所有 Demo 路由注册完成（已注册路由: \(BARouter.shared.debugAllRoutes().count) 条）")
+        print("[BADemoRouteRegistrar] 所有 Demo 路由注册完成（已注册路由: \(BARouter.shared.debugAllRoutes().count) 条）")
     }
 
     // MARK: - Private Helpers

@@ -10,7 +10,7 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAStringDemoViewController: BABaseViewController {
+public final class BAStringDemoViewController: BABaseViewController {
 
     private let viewModel: BAStringDemoViewModel
     private let disposeBag = BADisposeBag()
@@ -21,14 +21,14 @@ final class BAStringDemoViewController: BABaseViewController {
     private let scroll = UIScrollView()
     private let content = UIStackView()
 
-    init(viewModel: BAStringDemoViewModel) {
+    public init(viewModel: BAStringDemoViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
         bindViewModel()

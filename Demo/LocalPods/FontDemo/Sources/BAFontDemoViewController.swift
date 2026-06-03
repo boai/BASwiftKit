@@ -10,7 +10,7 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAFontDemoViewController: BABaseViewController {
+public final class BAFontDemoViewController: BABaseViewController {
 
     private let viewModel: BAFontDemoViewModel
     private let disposeBag = BADisposeBag()
@@ -18,14 +18,14 @@ final class BAFontDemoViewController: BABaseViewController {
     private let scroll = UIScrollView()
     private let stack = UIStackView.ba_make(axis: .vertical, spacing: 16)
 
-    init(viewModel: BAFontDemoViewModel) {
+    public init(viewModel: BAFontDemoViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
         bindViewModel()

@@ -10,20 +10,20 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAToastDemoViewController: BABaseViewController {
+public final class BAToastDemoViewController: BABaseViewController {
 
     private let viewModel: BAToastDemoViewModel
     private let disposeBag = BADisposeBag()
     private let stack = UIStackView()
 
-    init(viewModel: BAToastDemoViewModel) {
+    public init(viewModel: BAToastDemoViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
         bindViewModel()

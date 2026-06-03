@@ -13,7 +13,14 @@ import DemoCommon
 /// 日志埋点系统 Demo。
 ///
 /// 演示手动打点、查看日志列表、按日导出加密 TXT、自定义密码。
-final class BALoggerDemoViewController: BABaseViewController {
+public final class BALoggerDemoViewController: BABaseViewController {
+
+    public init() { super.init(nibName: nil, bundle: nil) }
+
+
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private let disposeBag = BADisposeBag()
     private var currentDate: String = BALoggerDemoViewController.todayString()
@@ -28,7 +35,7 @@ final class BALoggerDemoViewController: BABaseViewController {
 
     // MARK: - Lifecycle
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = "日志埋点"
         setupLayout()
@@ -174,10 +181,10 @@ final class BALoggerDemoViewController: BABaseViewController {
 // MARK: - UITableViewDataSource
 
 extension BALoggerDemoViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         logs.count
     }
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "logCell", for: indexPath)
         let entry = logs[indexPath.row]
         var config = cell.defaultContentConfiguration()

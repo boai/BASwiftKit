@@ -8,12 +8,15 @@
 import UIKit
 import BASwiftKit
 
-struct BAInfraRow {
+public struct BAInfraRow {
+
     let label: String
     let value: String
 }
 
-final class BAInfraDemoViewModel {
+public final class BAInfraDemoViewModel {
+
+    public init() {}
 
     let rows: BAObservable<[BAInfraRow]> = BAObservable([])
 

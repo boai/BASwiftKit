@@ -8,12 +8,15 @@
 import Foundation
 import BASwiftKit
 
-struct BAStringDemoResult {
+public struct BAStringDemoResult {
+
     let title: String
     let value: String
 }
 
-final class BAStringDemoViewModel {
+public final class BAStringDemoViewModel {
+
+    public init() {}
 
     let input: BAObservable<String> = BAObservable("hello@baswiftkit.dev")
     let results: BAObservable<[BAStringDemoResult]> = BAObservable([])

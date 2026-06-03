@@ -10,7 +10,7 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BASocketDemoViewController: BABaseViewController {
+public final class BASocketDemoViewController: BABaseViewController {
 
     private let viewModel: BASocketDemoViewModel
     private let disposeBag = BADisposeBag()
@@ -26,14 +26,14 @@ final class BASocketDemoViewController: BABaseViewController {
     private let messageTextField = UITextField()
     private let sendButton = UIButton(type: .system)
 
-    init(viewModel: BASocketDemoViewModel = BASocketDemoViewModel()) {
+    public init(viewModel: BASocketDemoViewModel = BASocketDemoViewModel()) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = "Socket / WebSocket"
         setupLayout()
@@ -233,28 +233,28 @@ final class BASocketDemoViewController: BABaseViewController {
 }
 
 extension BASocketDemoViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         viewModel.messages.value.count
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: BASocketMessageCell.reuseIdentifier, for: indexPath) as! BASocketMessageCell
         let item = viewModel.messages.value[indexPath.row]
         cell.configure(content: item.content, type: item.type, isOutgoing: item.isOutgoing, timestamp: item.timestamp)
         return cell
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         UITableView.automaticDimension
     }
 
-    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+    public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         60
     }
 }
 
 extension BASocketDemoViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         onSendTap()
         return true
     }

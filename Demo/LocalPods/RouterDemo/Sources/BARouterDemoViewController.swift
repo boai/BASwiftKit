@@ -9,7 +9,14 @@ import UIKit
 import BASwiftKit
 
 /// 路由组件 Demo。
-final class BARouterDemoViewController: UIViewController {
+public final class BARouterDemoViewController: UIViewController {
+
+    public init() { super.init(nibName: nil, bundle: nil) }
+
+
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     // MARK: - UI
 
@@ -39,7 +46,7 @@ final class BARouterDemoViewController: UIViewController {
 
     // MARK: - Lifecycle
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = "Router Demo"
         view.backgroundColor = .systemGroupedBackground
@@ -63,11 +70,11 @@ final class BARouterDemoViewController: UIViewController {
 // MARK: - UITableViewDataSource
 
 extension BARouterDemoViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         items.count
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.textLabel?.text = items[indexPath.row].title
         cell.accessoryType = .disclosureIndicator
@@ -78,7 +85,7 @@ extension BARouterDemoViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 
 extension BARouterDemoViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         items[indexPath.row].action()
     }
@@ -86,8 +93,8 @@ extension BARouterDemoViewController: UITableViewDelegate {
 
 // MARK: - Top VC helper
 
-enum BAAppRouterHelper {
-    static func topViewController() -> UIViewController? {
+public enum BAAppRouterHelper {
+    public static func topViewController() -> UIViewController? {
         guard let window = UIApplication.shared.connectedScenes
             .compactMap({ ($0 as? UIWindowScene)?.keyWindow })
             .first,

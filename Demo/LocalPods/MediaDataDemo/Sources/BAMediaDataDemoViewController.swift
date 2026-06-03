@@ -10,12 +10,19 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAMediaDataDemoViewController: BABaseViewController {
+public final class BAMediaDataDemoViewController: BABaseViewController {
+
+    public init() { super.init(nibName: nil, bundle: nil) }
+
+
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private let scroll = UIScrollView()
     private let stack = UIStackView()
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = "Data & Image Demo"
         setupLayout()

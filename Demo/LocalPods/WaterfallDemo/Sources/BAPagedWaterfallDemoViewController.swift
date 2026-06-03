@@ -10,7 +10,10 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAPagedWaterfallDemoViewController: BABaseViewController {
+public final class BAPagedWaterfallDemoViewController: BABaseViewController {
+
+    public init() { super.init(nibName: nil, bundle: nil) }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     private struct Item {
         let title: String
@@ -31,7 +34,7 @@ final class BAPagedWaterfallDemoViewController: BABaseViewController {
         return Item(title: "\(index)", subtitle: "Item \(index)", color: colors[(index - 1) % colors.count])
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = "横向分页瀑布流"
         setupLayout()
@@ -39,7 +42,7 @@ final class BAPagedWaterfallDemoViewController: BABaseViewController {
 
     private var previousBoundsSize: CGSize = .zero
 
-    override func viewDidLayoutSubviews() {
+    public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         let newSize = view.bounds.size
         guard newSize != previousBoundsSize else { return }
@@ -83,18 +86,18 @@ final class BAPagedWaterfallDemoViewController: BABaseViewController {
 }
 
 extension BAPagedWaterfallDemoViewController: UICollectionViewDataSource, UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         items.count
     }
 
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.ba_dequeue(BAPagedWaterfallCell.self, for: indexPath)
         let item = items[indexPath.item]
         cell.configure(title: item.title, subtitle: item.subtitle, color: item.color)
         return cell
     }
 
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard scrollView.bounds.width > 0 else { return }
         let page = Int(round(scrollView.contentOffset.x / scrollView.bounds.width))
         pageIndicator.currentPage = max(0, min(pageIndicator.pageCount - 1, page))
@@ -105,7 +108,7 @@ private final class BAPagedWaterfallCell: UICollectionViewCell {
     private let titleLabel = UILabel.ba_make(font: .ba_bold(24), color: .white, alignment: .center)
     private let subtitleLabel = UILabel.ba_make(font: .ba_regular(11), color: UIColor.white.withAlphaComponent(0.82), alignment: .center)
 
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.layer.cornerRadius = BAAppTheme.smallCornerRadius
         contentView.layer.masksToBounds = true
@@ -120,7 +123,7 @@ private final class BAPagedWaterfallCell: UICollectionViewCell {
         }
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func configure(title: String, subtitle: String, color: UIColor) {
         contentView.backgroundColor = color
@@ -135,7 +138,7 @@ private final class BAPagedWaterfallPageIndicator: UIView {
 
     private let stack = UIStackView.ba_make(axis: .horizontal, spacing: 6, alignment: .center)
 
-    override init(frame: CGRect) {
+    public override init(frame: CGRect) {
         super.init(frame: frame)
         addSubview(stack)
         stack.snp.makeConstraints { make in
@@ -143,7 +146,7 @@ private final class BAPagedWaterfallPageIndicator: UIView {
         }
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     private func rebuildDots() {
         stack.arrangedSubviews.forEach { view in

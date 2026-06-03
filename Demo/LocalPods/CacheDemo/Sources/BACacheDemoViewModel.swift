@@ -8,7 +8,7 @@
 import UIKit
 import BASwiftKit
 
-final class BACacheDemoViewModel {
+public final class BACacheDemoViewModel {
 
     struct Row {
         let title: String
@@ -24,7 +24,7 @@ final class BACacheDemoViewModel {
     private lazy var hybridCache = BAHybridCache(memoryCache: memoryCache, diskCache: diskCache)
     private var logs: [String] = []
 
-    init() {
+    public init() {
         refreshRows()
     }
 
@@ -103,7 +103,7 @@ final class BACacheDemoViewModel {
     }
 }
 
-struct BACacheDemoUser: Codable {
+public struct BACacheDemoUser: Codable {
     let id: Int
     let name: String
     let age: Int

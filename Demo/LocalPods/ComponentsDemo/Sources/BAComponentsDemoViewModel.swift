@@ -9,7 +9,10 @@ import UIKit
 import BASwiftKit
 import DemoCommon
 
-final class BAComponentsDemoViewModel {
+public final class BAComponentsDemoViewModel {
+
+    public init() {}
+
 
     struct GradientSample {
         let name: String

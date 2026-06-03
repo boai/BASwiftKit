@@ -8,19 +8,19 @@
 import Foundation
 import BASwiftKit
 
-struct BANetworkCryptoDemoRow {
+public struct BANetworkCryptoDemoRow {
     let title: String
     let subtitle: String
     let action: () -> String
 }
 
-final class BANetworkCryptoDemoViewModel {
+public final class BANetworkCryptoDemoViewModel {
 
     let rows = BAObservable<[BANetworkCryptoDemoRow]>([])
     let logText = BAObservable<String>("")
     private var logs: [String] = []
 
-    init() {
+    public init() {
         rows.update([
             BANetworkCryptoDemoRow(title: "构建 GET 请求", subtitle: "BANetworkClient + BANetworkRequest", action: buildGETRequest),
             BANetworkCryptoDemoRow(title: "Endpoint 枚举", subtitle: "BANetworkEndpoint 统一接口定义", action: buildEndpointRequest),

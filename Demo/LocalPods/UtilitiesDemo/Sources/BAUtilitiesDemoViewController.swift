@@ -10,7 +10,14 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAUtilitiesDemoViewController: BABaseViewController {
+public final class BAUtilitiesDemoViewController: BABaseViewController {
+
+    public init() { super.init(nibName: nil, bundle: nil) }
+
+
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private struct Row {
         let title: String
@@ -20,7 +27,7 @@ final class BAUtilitiesDemoViewController: BABaseViewController {
     private let scroll = UIScrollView()
     private let stack = UIStackView()
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = "工具封装 Demo"
         setupLayout()

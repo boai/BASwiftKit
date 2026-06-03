@@ -10,7 +10,7 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAL10nDemoViewController: BABaseViewController {
+public final class BAL10nDemoViewController: BABaseViewController {
 
     private let viewModel: BAL10nDemoViewModel
     private let disposeBag = BADisposeBag()
@@ -22,14 +22,14 @@ final class BAL10nDemoViewController: BABaseViewController {
     private let langValue = UILabel()
     private let ctaButton = UIButton(type: .system)
 
-    init(viewModel: BAL10nDemoViewModel) {
+    public init(viewModel: BAL10nDemoViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.registerTables()
         setupLayout()

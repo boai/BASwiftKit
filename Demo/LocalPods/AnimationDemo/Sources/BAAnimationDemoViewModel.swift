@@ -8,12 +8,15 @@
 import UIKit
 import BASwiftKit
 
-struct BAAnimationSample {
+public struct BAAnimationSample {
+
     let title: String
     let apply: (UIView) -> Void
 }
 
-final class BAAnimationDemoViewModel {
+public final class BAAnimationDemoViewModel {
+
+    public init() {}
 
     let samples: BAObservable<[BAAnimationSample]> = BAObservable([])
 

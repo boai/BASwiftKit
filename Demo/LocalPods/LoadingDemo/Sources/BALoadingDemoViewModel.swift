@@ -8,12 +8,15 @@
 import UIKit
 import BASwiftKit
 
-struct BALoadingScenario {
+public struct BALoadingScenario {
+
     let title: String
     let action: (UIView) -> Void
 }
 
-final class BALoadingDemoViewModel {
+public final class BALoadingDemoViewModel {
+
+    public init() {}
 
     let scenarios: BAObservable<[BALoadingScenario]> = BAObservable([])
 

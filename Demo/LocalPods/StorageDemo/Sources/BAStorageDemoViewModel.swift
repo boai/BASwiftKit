@@ -8,13 +8,13 @@
 import Foundation
 import BASwiftKit
 
-struct BAStorageDemoRow {
+public struct BAStorageDemoRow {
     let title: String
     let subtitle: String
     let action: () -> String
 }
 
-final class BAStorageDemoViewModel {
+public final class BAStorageDemoViewModel {
 
     struct Profile: Codable {
         let name: String
@@ -31,7 +31,7 @@ final class BAStorageDemoViewModel {
     let logText = BAObservable<String>("")
     private var logs: [String] = []
 
-    init() {
+    public init() {
         rows.update([
             BAStorageDemoRow(title: "写入文本文件", subtitle: "BAFileManager 相对路径自动创建目录", action: writeTextFile),
             BAStorageDemoRow(title: "读取文本文件", subtitle: "从 Documents/demo/storage-note.txt 读取", action: readTextFile),

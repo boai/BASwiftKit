@@ -8,13 +8,16 @@
 import UIKit
 import BASwiftKit
 
-struct BAColorSwatch {
+public struct BAColorSwatch {
+
     let title: String
     let color: UIColor
     let hex: String
 }
 
-final class BAColorDemoViewModel {
+public final class BAColorDemoViewModel {
+
+    public init() {}
 
     let swatches: BAObservable<[BAColorSwatch]> = BAObservable([])
     let randomColor: BAObservable<UIColor> = BAObservable(.systemBlue)

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import DemoCommon
 import BASwiftKit
 
 final class BAHomeViewModel {

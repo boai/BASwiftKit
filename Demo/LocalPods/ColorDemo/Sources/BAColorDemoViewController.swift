@@ -10,7 +10,7 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAColorDemoViewController: BABaseViewController {
+public final class BAColorDemoViewController: BABaseViewController {
 
     private let viewModel: BAColorDemoViewModel
     private let disposeBag = BADisposeBag()
@@ -24,14 +24,14 @@ final class BAColorDemoViewController: BABaseViewController {
                                                  color: BAAppTheme.textPrimary,
                                                  alignment: .center)
 
-    init(viewModel: BAColorDemoViewModel) {
+    public init(viewModel: BAColorDemoViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
         bindViewModel()

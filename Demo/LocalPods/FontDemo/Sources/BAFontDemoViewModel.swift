@@ -8,12 +8,15 @@
 import UIKit
 import BASwiftKit
 
-struct BAFontDemoRow {
+public struct BAFontDemoRow {
+
     let label: String
     let font: UIFont
 }
 
-final class BAFontDemoViewModel {
+public final class BAFontDemoViewModel {
+
+    public init() {}
 
     let rows: BAObservable<[BAFontDemoRow]> = BAObservable([])
 

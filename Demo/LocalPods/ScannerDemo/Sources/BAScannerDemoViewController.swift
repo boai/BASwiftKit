@@ -10,7 +10,14 @@ import BASwiftKit
 import SnapKit
 import DemoCommon
 
-final class BAScannerDemoViewController: BABaseViewController {
+public final class BAScannerDemoViewController: BABaseViewController {
+
+    public init() { super.init(nibName: nil, bundle: nil) }
+
+
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private let stack = UIStackView()
     private let resultLabel = UILabel.ba_make(text: "点击按钮打开扫一扫，识别二维码或条形码后会回到这里显示结果。",
@@ -18,7 +25,7 @@ final class BAScannerDemoViewController: BABaseViewController {
                                               color: BAAppTheme.textSecondary,
                                               numberOfLines: 0)
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         title = "扫一扫 Demo"
         setupLayout()

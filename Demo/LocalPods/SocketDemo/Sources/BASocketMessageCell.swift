@@ -13,7 +13,8 @@ import DemoCommon
 /// Socket Demo 消息气泡 Cell。
 ///
 /// 发送消息右对齐蓝色渐变，接收消息左对齐灰色卡片，附带类型标签和时间戳。
-final class BASocketMessageCell: UITableViewCell {
+public final class BASocketMessageCell: UITableViewCell {
+
 
     static let reuseIdentifier = "BASocketMessageCell"
 
@@ -22,7 +23,7 @@ final class BASocketMessageCell: UITableViewCell {
     private let typeLabel = UILabel()
     private let timeLabel = UILabel()
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
         backgroundColor = .clear
@@ -47,7 +48,7 @@ final class BASocketMessageCell: UITableViewCell {
         }
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func configure(content: String, type: String, isOutgoing: Bool, timestamp: String) {
         contentLabel.text = content

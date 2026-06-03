@@ -14,7 +14,8 @@ import DemoCommon
 ///
 /// 左侧商品图标，中间名称 + 价格信息，右侧倒计时 + 抢购按钮。
 /// 过期商品整体变灰，"抢购" 文案变为 "已结束"。
-final class BACountdownDemoCell: UITableViewCell {
+public final class BACountdownDemoCell: UITableViewCell {
+
 
     static let reuseIdentifier = "BACountdownDemoCell"
 
@@ -34,7 +35,7 @@ final class BACountdownDemoCell: UITableViewCell {
 
     // MARK: - Init
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         selectionStyle = .none
         backgroundColor = .clear
@@ -44,9 +45,9 @@ final class BACountdownDemoCell: UITableViewCell {
         setupStyle()
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    override func prepareForReuse() {
+    public override func prepareForReuse() {
         super.prepareForReuse()
         if let id = countdownId {
             BACountdownManager.shared.unregister(id: id)
