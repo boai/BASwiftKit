@@ -143,19 +143,31 @@ BASwiftKit/
 
 ## 集成方式
 
-### Swift Package Manager（推荐）
+### Swift Package Manager
 
 在你的 `Package.swift` 中：
 
 ```swift
-.package(url: "https://your-git-host/BASwiftKit.git", from: "0.1.0")
+.package(url: "https://github.com/boai/BASwiftKit.git", from: "0.1.0")
 ```
 
-或在 Xcode 中：`File → Add Package Dependencies…`，输入仓库地址。
+或在 Xcode 中：`File → Add Package Dependencies…`，输入仓库地址 `https://github.com/boai/BASwiftKit.git`。
+
+### CocoaPods
+
+在你的 `Podfile` 中：
+
+```ruby
+pod 'BASwiftKit', '~> 0.1.0'
+```
+
+然后 `pod install` 即可。该 pod 会自动引入依赖 `SnapKit` 和 `Starscream`。
+
+> **注意：** 使用 CocoaPods 集成时，需要在 `Podfile` 中指定 `platform :ios, '15.0'` 或更高版本。
 
 ### 手动拷贝
 
-直接把 `Package/Sources/BASwiftKit` 目录拖入工程也能用，全部 UIKit 相关代码都使用条件编译（`#if canImport(UIKit)`），不会强依赖具体平台。
+直接把 `Package/Sources/BASwiftKit` 目录拖入工程也能用，全部 UIKit 相关代码都使用条件编译（`#if canImport(UIKit)`），不会强依赖具体平台。手动拷贝时需自行引入 SnapKit 和 Starscream 依赖。
 
 ## 跑通 Demo
 
@@ -194,4 +206,4 @@ cd Package && swift test
 - **命名**：所有公开 API 必须以 `ba_` 前缀挂载，确保宿主工程能 grep 到所有 BASwiftKit 调用。
 - **解耦**：单个文件只能依赖 Foundation / UIKit 与本 module 内部，禁止跨模块强耦合，方便单独抽出。
 - **平台保护**：UIKit 相关代码必须放在 `#if canImport(UIKit)` 中。
-- **零依赖**：不引入任何第三方库。
+- **最小依赖**：仅依赖 SnapKit（自动布局）和 Starscream（WebSocket），不引入其他第三方库。
