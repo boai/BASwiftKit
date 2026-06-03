@@ -1,5 +1,11 @@
 # BASwiftKit
 
+[![CocoaPods](https://img.shields.io/cocoapods/v/BASwiftKit?color=blue&label=CocoaPods)](https://cocoapods.org/pods/BASwiftKit)
+[![Platform](https://img.shields.io/cocoapods/p/BASwiftKit?color=lightgrey&label=Platform)](https://cocoapods.org/pods/BASwiftKit)
+[![Swift 5.0](https://img.shields.io/badge/Swift-5.0-orange?logo=swift)](https://swift.org)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![SPM](https://img.shields.io/badge/SPM-supported-brightgreen)](https://github.com/boai/BASwiftKit)
+
 > 一个面向 iOS UIKit 项目、可独立提取的 Swift 公共封装库 + MVVM Demo。
 
 所有公开 API 均以 `ba_` 前缀挂载在系统类型上，避免与宿主工程冲突；
