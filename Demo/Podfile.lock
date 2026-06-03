@@ -1,12 +1,136 @@
 PODS:
+  - AnimationDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
   - BASwiftKit (0.1.0):
     - SnapKit (~> 5.7.0)
     - Starscream (~> 4.0.0)
+  - CacheDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - ColorDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - ComponentsDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - CountdownDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - DemoCommon (0.1.0):
+    - BASwiftKit
+    - SnapKit
+  - DeviceInfoDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - FontDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - InfraDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - L10nDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - LoadingDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - LoggerDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - MediaDataDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - NavBarDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - NetworkCryptoDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - RouterDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - ScannerDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
   - SnapKit (5.7.1)
+  - SocketDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
   - Starscream (4.0.8)
+  - StorageDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - StringDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - TabBarDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - ToastDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - UtilitiesDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - WaterfallDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
+  - WebViewDemo (0.1.0):
+    - BASwiftKit
+    - DemoCommon
+    - SnapKit
 
 DEPENDENCIES:
+  - AnimationDemo (from `LocalPods/AnimationDemo`)
   - BASwiftKit (from `../`)
+  - CacheDemo (from `LocalPods/CacheDemo`)
+  - ColorDemo (from `LocalPods/ColorDemo`)
+  - ComponentsDemo (from `LocalPods/ComponentsDemo`)
+  - CountdownDemo (from `LocalPods/CountdownDemo`)
+  - DemoCommon (from `LocalPods/DemoCommon`)
+  - DeviceInfoDemo (from `LocalPods/DeviceInfoDemo`)
+  - FontDemo (from `LocalPods/FontDemo`)
+  - InfraDemo (from `LocalPods/InfraDemo`)
+  - L10nDemo (from `LocalPods/L10nDemo`)
+  - LoadingDemo (from `LocalPods/LoadingDemo`)
+  - LoggerDemo (from `LocalPods/LoggerDemo`)
+  - MediaDataDemo (from `LocalPods/MediaDataDemo`)
+  - NavBarDemo (from `LocalPods/NavBarDemo`)
+  - NetworkCryptoDemo (from `LocalPods/NetworkCryptoDemo`)
+  - RouterDemo (from `LocalPods/RouterDemo`)
+  - ScannerDemo (from `LocalPods/ScannerDemo`)
+  - SocketDemo (from `LocalPods/SocketDemo`)
+  - StorageDemo (from `LocalPods/StorageDemo`)
+  - StringDemo (from `LocalPods/StringDemo`)
+  - TabBarDemo (from `LocalPods/TabBarDemo`)
+  - ToastDemo (from `LocalPods/ToastDemo`)
+  - UtilitiesDemo (from `LocalPods/UtilitiesDemo`)
+  - WaterfallDemo (from `LocalPods/WaterfallDemo`)
+  - WebViewDemo (from `LocalPods/WebViewDemo`)
 
 SPEC REPOS:
   trunk:
@@ -14,14 +138,89 @@ SPEC REPOS:
     - Starscream
 
 EXTERNAL SOURCES:
+  AnimationDemo:
+    :path: LocalPods/AnimationDemo
   BASwiftKit:
     :path: "../"
+  CacheDemo:
+    :path: LocalPods/CacheDemo
+  ColorDemo:
+    :path: LocalPods/ColorDemo
+  ComponentsDemo:
+    :path: LocalPods/ComponentsDemo
+  CountdownDemo:
+    :path: LocalPods/CountdownDemo
+  DemoCommon:
+    :path: LocalPods/DemoCommon
+  DeviceInfoDemo:
+    :path: LocalPods/DeviceInfoDemo
+  FontDemo:
+    :path: LocalPods/FontDemo
+  InfraDemo:
+    :path: LocalPods/InfraDemo
+  L10nDemo:
+    :path: LocalPods/L10nDemo
+  LoadingDemo:
+    :path: LocalPods/LoadingDemo
+  LoggerDemo:
+    :path: LocalPods/LoggerDemo
+  MediaDataDemo:
+    :path: LocalPods/MediaDataDemo
+  NavBarDemo:
+    :path: LocalPods/NavBarDemo
+  NetworkCryptoDemo:
+    :path: LocalPods/NetworkCryptoDemo
+  RouterDemo:
+    :path: LocalPods/RouterDemo
+  ScannerDemo:
+    :path: LocalPods/ScannerDemo
+  SocketDemo:
+    :path: LocalPods/SocketDemo
+  StorageDemo:
+    :path: LocalPods/StorageDemo
+  StringDemo:
+    :path: LocalPods/StringDemo
+  TabBarDemo:
+    :path: LocalPods/TabBarDemo
+  ToastDemo:
+    :path: LocalPods/ToastDemo
+  UtilitiesDemo:
+    :path: LocalPods/UtilitiesDemo
+  WaterfallDemo:
+    :path: LocalPods/WaterfallDemo
+  WebViewDemo:
+    :path: LocalPods/WebViewDemo
 
 SPEC CHECKSUMS:
+  AnimationDemo: 17218712a8906986d45f8f7af1ba3d67c4f61112
   BASwiftKit: de4b1c598c1cbd69776d7f787830f8fade130e2d
+  CacheDemo: 8beb1795b0c3eff19323f2191b86b16175a06b04
+  ColorDemo: 5d5d0c84f0421d996915885edb9946a94ad5625b
+  ComponentsDemo: 328d62c938c46cf5787c7ea197fd585d2dc687fc
+  CountdownDemo: fe7b7060fa24991e30c022c2066488d639f0c49a
+  DemoCommon: 7597ef976a333aa620626092eee657b93fa31073
+  DeviceInfoDemo: 3b3c0b3569a7d00f2d2887c1899ac26967e96eca
+  FontDemo: 943f86cd3b5c4d0118838eefb20a79e82fdaa8f7
+  InfraDemo: d1cc88126f43e1f73ca4e512a7e2ee8129df4bc6
+  L10nDemo: 9910a6271ba5cbda2112d57bf41ecc2b9021be17
+  LoadingDemo: a46cc660c2c863416c3d364e4f1622307b97e464
+  LoggerDemo: eb5da52eccbd5b1a2573cdd3a506d89e646b40b3
+  MediaDataDemo: 9660ade8abd22e176042873a47a5aa032a1bbfab
+  NavBarDemo: dadab11417721cf558e755faeeef23cfaadd4e04
+  NetworkCryptoDemo: 3bc3feb2a12efad35a18a376f21f5d533fdec0ba
+  RouterDemo: 904cdbc82b3e39dbc822ac4e692a4da59a74012d
+  ScannerDemo: 3cb203003a4f88f7d86e1396a433a723c301a1a5
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
+  SocketDemo: b7607ab2b4a19ced2c758d876b88d60441b1d1f7
   Starscream: 19b5533ddb925208db698f0ac508a100b884a1b9
+  StorageDemo: 6cfc81bc538bad7c42973be00b70657cde110278
+  StringDemo: 7752f72140cadd38e3c0a6e2310776d62530108a
+  TabBarDemo: daea4b7876eb9fbd56cb34ce9610e7fe75d1214f
+  ToastDemo: c4ed88b89b754e5a89aa4811c358c349b44fe92a
+  UtilitiesDemo: f92b8f2503f9a617fa4aad23a37fc05f6605b19f
+  WaterfallDemo: e68583a236e4c64c8d43deb2a63326c129e186e9
+  WebViewDemo: e76ad4c1652d0e1949287fe048e16330fd0638d0
 
-PODFILE CHECKSUM: b02e2b8365e6e8fe3ed6fbf035128e850513dadf
+PODFILE CHECKSUM: d3b4493b5ae1c030e84138d7cff7d4592e373c5b
 
 COCOAPODS: 1.16.2

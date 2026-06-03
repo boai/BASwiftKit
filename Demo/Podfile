@@ -4,13 +4,55 @@
 #   1. xcodegen generate
 #   2. pod install
 #   3. open BASwiftKitDemo.xcworkspace
+#
+# 架构：
+#   - BASwiftKit（主库，通过 :path => '../' 引用）
+#   - DemoCommon（共享组件：BABaseViewController / BAAppTheme）
+#   - 24 个 Demo Pod（每个 demo 模块独立为一个本地 pod）
+#   - 主 App 通过 BARouter 路由跳转到各 demo pod 的页面
 
 platform :ios, '15.0'
 use_frameworks!
 
+# ──────────────────────────────────────────────
+#  Target：主 App Shell
+# ──────────────────────────────────────────────
 target 'BASwiftKitDemo' do
-  # 引入本地 BASwiftKit pod（自动拉取 SnapKit + Starscream 依赖）
+
+  # 主库（本地引用）
   pod 'BASwiftKit', :path => '../'
+
+  # 共享组件
+  pod 'DemoCommon', :path => 'LocalPods/DemoCommon'
+
+  # ──────────────────────────────────────────────
+  #  24 个 Demo 本地 Pod（按字母序）
+  # ──────────────────────────────────────────────
+  pod 'AnimationDemo',      :path => 'LocalPods/AnimationDemo'
+  pod 'CacheDemo',           :path => 'LocalPods/CacheDemo'
+  pod 'ColorDemo',           :path => 'LocalPods/ColorDemo'
+  pod 'ComponentsDemo',      :path => 'LocalPods/ComponentsDemo'
+  pod 'CountdownDemo',       :path => 'LocalPods/CountdownDemo'
+  pod 'DeviceInfoDemo',      :path => 'LocalPods/DeviceInfoDemo'
+  pod 'FontDemo',            :path => 'LocalPods/FontDemo'
+  pod 'InfraDemo',           :path => 'LocalPods/InfraDemo'
+  pod 'L10nDemo',            :path => 'LocalPods/L10nDemo'
+  pod 'LoadingDemo',         :path => 'LocalPods/LoadingDemo'
+  pod 'LoggerDemo',          :path => 'LocalPods/LoggerDemo'
+  pod 'MediaDataDemo',       :path => 'LocalPods/MediaDataDemo'
+  pod 'NavBarDemo',          :path => 'LocalPods/NavBarDemo'
+  pod 'NetworkCryptoDemo',   :path => 'LocalPods/NetworkCryptoDemo'
+  pod 'RouterDemo',          :path => 'LocalPods/RouterDemo'
+  pod 'ScannerDemo',         :path => 'LocalPods/ScannerDemo'
+  pod 'SocketDemo',          :path => 'LocalPods/SocketDemo'
+  pod 'StorageDemo',         :path => 'LocalPods/StorageDemo'
+  pod 'StringDemo',          :path => 'LocalPods/StringDemo'
+  pod 'TabBarDemo',          :path => 'LocalPods/TabBarDemo'
+  pod 'ToastDemo',           :path => 'LocalPods/ToastDemo'
+  pod 'UtilitiesDemo',       :path => 'LocalPods/UtilitiesDemo'
+  pod 'WaterfallDemo',       :path => 'LocalPods/WaterfallDemo'
+  pod 'WebViewDemo',         :path => 'LocalPods/WebViewDemo'
+
 end
 
 post_install do |installer|

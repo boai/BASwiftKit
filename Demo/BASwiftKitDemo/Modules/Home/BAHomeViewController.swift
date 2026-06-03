@@ -157,11 +157,8 @@ extension BAHomeViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let vc = items[indexPath.row].builder()
-        vc.title = items[indexPath.row].title
-        // 二级页面隐藏底部 TabBar，给详情更多垂直空间。
-        // 这里只在第一次 push 时设置即可，后续从二级 push 到三级会自动保持。
-        vc.hidesBottomBarWhenPushed = true
-        navigationController?.pushViewController(vc, animated: true)
+        let item = items[indexPath.row]
+        // 通过 BARouter 统一跳转，路由 action 内负责 VC 创建、标题设置和 push。
+        BARouter.shared.open(item.route)
     }
 }

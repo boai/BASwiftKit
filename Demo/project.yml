@@ -17,9 +17,8 @@ targets:
     type: application
     platform: iOS
     sources:
-      - path: BASwiftKitDemo
-        excludes:
-          - "Resources/Info.plist"
+      - path: BASwiftKitDemo/App
+      - path: BASwiftKitDemo/Modules/Home
     info:
       path: BASwiftKitDemo/Resources/Info.plist
       properties:

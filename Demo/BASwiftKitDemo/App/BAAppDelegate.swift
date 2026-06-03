@@ -13,10 +13,12 @@ class BAAppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // 启动日志管理器（捕获 print/NSLog + 写入 SQLite）
+        // 1. 启动日志管理器（捕获 print/NSLog + 写入 SQLite）
         BALogManager.shared.start()
-        // 启动自动埋点（页面浏览 + 按钮点击 Swizzling）
+        // 2. 启动自动埋点（页面浏览 + 按钮点击 Swizzling）
         BAAutoTracker.start()
+        // 3. 注册所有 Demo 路由（各 demo pod 的 VC 通过 BARouter 统一跳转）
+        BADemoRouteRegistrar.registerAll()
         return true
     }
 
