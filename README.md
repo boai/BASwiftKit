@@ -34,7 +34,8 @@
 - [六、Demo 工程](#六demo-工程)
 - [七、测试](#七测试)
 - [八、设计原则](#八设计原则)
-- [九、License](#九license)
+- [九、贡献者](#九贡献者)
+- [十、License](#十license)
 
 ---
 
@@ -592,6 +593,15 @@ cd Package && swift test
 
 ---
 
-## 九、License
+## 九、贡献者
+
+| 贡献者 | 角色 |
+|--------|------|
+| [boai](https://github.com/boai) | 作者 & 维护者 |
+| [Claude](https://claude.ai) | AI 协作开发 |
+
+---
+
+## 十、License
 
 BASwiftKit is available under the [MIT License](LICENSE).
