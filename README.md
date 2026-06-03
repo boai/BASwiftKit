@@ -6,210 +6,592 @@
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![SPM](https://img.shields.io/badge/SPM-supported-brightgreen)](https://github.com/boai/BASwiftKit)
 
-> 一个面向 iOS UIKit 项目、可独立提取的 Swift 公共封装库 + MVVM Demo。
+> 面向 iOS UIKit 项目的 Swift 公共组件库，提供 Foundation/UIKit 扩展、网络层、加密、蓝牙、扫码等开箱即用的工具集。
 
-所有公开 API 均以 `ba_` 前缀挂载在系统类型上，避免与宿主工程冲突；
-工具类、UI 组件、视图扩展之间保持低耦合，方便后续直接拷贝某一文件或整个 `Package/Sources/BASwiftKit` 目录到其他工程使用。
+---
 
+## 目录
+
+- [一、功能特性](#一功能特性)
+- [二、环境要求](#二环境要求)
+- [三、安装集成](#三安装集成)
+- [四、功能概览](#四功能概览)
+  - [Foundation 扩展](#foundation-扩展)
+  - [UIKit 扩展](#uikit-扩展)
+  - [网络请求](#网络请求)
+  - [加解密](#加解密)
+  - [存储与缓存](#存储与缓存)
+  - [蓝牙](#蓝牙)
+  - [扫码](#扫码)
+  - [WebSocket](#websocket)
+  - [路由](#路由)
+  - [日志](#日志)
+  - [响应式](#响应式)
+  - [布局](#布局)
+  - [UI 组件](#ui-组件)
+  - [工具类](#工具类)
+- [五、快速上手](#五快速上手)
+- [六、Demo 工程](#六demo-工程)
+- [七、测试](#七测试)
+- [八、设计原则](#八设计原则)
+- [九、License](#九license)
+
+---
+
+## 一、功能特性
+
+- 🧩 **Foundation 扩展** — `String` / `Date` / `Array` / `Dictionary` / `Data` / `Bundle` 等常用类型扩展，所有 API 以 `ba_` 前缀命名
+- 🎨 **UIKit 扩展** — `UIView` / `UIColor` / `UIImage` / `UIButton` / `UILabel` 等链式构造、动画、手势闭包
+- 🌐 **网络请求** — 基于 `URLSession` 的轻量网络层，支持 Endpoint 描述、请求/响应拦截器、参数编码
+- 🔐 **加解密** — SHA 系列摘要、HMAC 签名、AES-CBC-PKCS7 加解密
+- 📦 **存储与缓存** — FileManager / UserDefaults / Keychain 封装 + 内存/磁盘/混合缓存框架
+- 📡 **蓝牙** — `CoreBluetooth` 封装，支持单/多设备连接、数据收发、分包缓冲
+- 📷 **扫码** — `AVFoundation` 相机扫码会话 + 基础扫码页面，支持二维码和主流条码
+- 🔌 **WebSocket** — Starscream 封装，支持自定义协议解析器、心跳、断线重连
+- 🧭 **路由** — URL pattern 匹配、参数注入、拦截器链，解耦页面跳转
+- 📝 **日志** — 分级日志系统，支持控制台输出和 SQLite 持久化
+- ⚡ **响应式** — 轻量 `Observable` / `Disposable` 实现
+- 🏞️ **布局** — 纵向/横向瀑布流、横向分页瀑布流 `UICollectionViewFlowLayout`
+- 🧱 **UI 组件** — `GradientView` / `CardView` / `BadgeView` / `TabBarController` / `Toast` / `HUD` 等
+- 🛠️ **工具类** — 设备信息、权限请求、系统跳转、多语言切换、正则校验等
+
+---
+
+## 二、环境要求
+
+| 项目 | 版本 |
+|------|------|
+| iOS | 15.0+ |
+| Swift | 5.0+ |
+| Xcode | 14.0+ |
+| 第三方依赖 | [SnapKit](https://github.com/SnapKit/SnapKit) ~> 5.7.0 / [Starscream](https://github.com/daltoniam/Starscream) ~> 4.0.0 |
+
+---
+
+## 三、安装集成
+
+### CocoaPods
+
+```ruby
+# Podfile
+platform :ios, '15.0'
+
+pod 'BASwiftKit', '~> 0.1.0'
 ```
-BASwiftKit/
-├─ Package/                       # Swift Package root（SPM 引入指向此目录）
-│  ├─ Package.swift               # Swift Package 入口（可直接 SwiftPM 引入）
-│  ├─ Sources/BASwiftKit/         # 库代码：扩展 + 工具 + UI 组件
-│  │  ├─ Extensions/
-│  │  │  ├─ Foundation/           # String 按 Trim / Validation / Encoding / Size 拆分，
-│  │  │  │                        # Date / Date+Calendar / Collection / Bundle / Data 等
-│  │  │  └─ UIKit/                # UIColor / UIView / UIView+Animation / UIView+Gesture /
-│  │  │                           # UIImage / UIButton / UILabel / UIFont / UITextField /
-│  │  │                           # UIStackView / UIViewController / UIApplication / CALayer
-│  │  ├─ Network/                 # URLSession 网络请求、Endpoint、拦截器、参数编码
-│  │  ├─ Crypto/                  # Digest / HMAC / AES-CBC 独立加密封装
-│  │  ├─ Storage/                 # FileManager / UserDefaults / Cache / BaseModel 缓存
-│  │  ├─ Scanner/                 # 扫一扫：相机扫码会话 + 基础扫码页面
-│  │  ├─ Layout/                  # 瀑布流 FlowLayout / 横向分页瀑布流
-│  │  ├─ Bluetooth/               # 单设备 / 多设备蓝牙连接、收发、分包缓冲
-│  │  ├─ Utilities/               # Logger / DeviceInfo / AppEnvironment / 权限 / 系统跳转
-│  │  └─ UIComponents/            # GradientView / CardView / BadgeView /
-│  │                              # NavigationBarStyle / TabBarController / Toast / HUD
-│  └─ Tests/BASwiftKitTests/      # XCTest 单测
-├─ Demo/                          # MVVM Demo 工程（与 Package 解耦，避免 Xcode 重复显示）
-│  ├─ project.yml                 # XcodeGen 配置，path: ../Package
-│  └─ BASwiftKitDemo/             # App 源码（App / Theme / Common / Modules）
-└─ CONVERSATIONS.md               # 对话与完成项日志
-```
-
-## 功能速查
-
-### Foundation 扩展（`ba_` 前缀）
-
-| 类型 | API | 说明 |
-| --- | --- | --- |
-| `String` | `ba_trimmed` / `ba_isBlank` / `ba_compact` | 去空白、空校验 |
-| `String` | `ba_isEmail` / `ba_isChinaMobile` / `ba_isURL` / `ba_isPureDigits` | 常用校验 |
-| `String` | `ba_md5` / `ba_base64Encoded` / `ba_base64Decoded` | 编码摘要 |
-| `String` | `ba_width(font:)` / `ba_height(font:maxWidth:)` | 文本测量 |
-| `String` | `ba_localized` / `ba_localized(_:)` / `ba_date(format:)` | i18n / 解析为 Date |
-| `Date` | `ba_string(format:)` / `ba_relativeFromNow` / `ba_components` | 格式化 / 相对时间 |
-| `Date` | `ba_startOfDay` / `ba_endOfDay` / `ba_startOfMonth` / `ba_endOfMonth` | 日期边界 |
-| `Date` | `ba_adding(days/months/years:)` / `ba_daysBetween(_:)` / `ba_ageInYears` | 日期算术 |
-| `Date` | `ba_isToday` / `ba_isYesterday` / `ba_isWeekend` / `ba_weekdayName(locale:)` | 查询 |
-| `Array` | `ba_unique()` / `ba_chunked(into:)` | 去重 / 分块 |
-| `Collection` | `ba_safe(_:)` | 越界安全下标 |
-| `Dictionary` | `ba_merged(with:)` | 合并 |
-| `Bundle` | `ba_appName` / `ba_appVersion` / `ba_buildNumber` / `ba_bundleId` / `ba_infoValue(forKey:)` / `ba_resourceURL/Data/JSON` | App 元数据 + 资源查找 |
-| `NotificationCenter` | `ba_observeKeyboardWillShow/Hide` | 键盘观察器（封装好 `BAKeyboardInfo`） |
-
-### UIKit 扩展
-
-| 类型 | API | 说明 |
-| --- | --- | --- |
-| `UIColor` | `init?(ba_hex:)` / `ba_rgb` / `ba_random` / `ba_dynamic(light:dark:)` / `ba_hexString` | 颜色一站式 |
-| `UIView` | `ba_x/y/width/height` / `ba_setCornerRadius/Border/Shadow` / `ba_addSubviews(...)` / `ba_snapshotImage()` / `ba_parentViewController` | View 便利 |
-| `UIView` (animation) | `ba_fadeIn/Out` / `ba_shake` / `ba_pulse` / `ba_springAppear` / `ba_slideIn(from:)` / `ba_rotate(by:)` | 常用动画 |
-| `UIView` (gesture) | `ba_onTap { view in ... }` / `ba_onLongPress { view in ... }` | 任意 View 闭包式手势 |
-| `UIImage` | `ba_image(color:size:)` / `ba_resized(to:)` / `ba_roundedToCircle()` / `ba_tinted` / `ba_compressed(toKB:)` | 图像处理 |
-| `UIButton` | `ba_make(...)` / `ba_onTap` | 链式构造 + 闭包点击 |
-| `UILabel` | `ba_make(...)` / `ba_setLineSpacing` / `ba_highlight` | 文本样式 |
-| `UIFont` | `ba_regular/medium/semibold/bold(_:)` / `ba_mono(_:weight:)` / `ba_scaled(_:weight:textStyle:)` / `ba_registerFont(named:)` | 字体快捷构造 / Dynamic Type / 自定义字体注册 |
-| `UIStackView` | `ba_make(axis:spacing:...)` / `ba_addArrangedSubviews(...)` / `ba_removeAllArrangedSubviews` / `ba_insert(_:after:)` | 堆叠便利 |
-| `UITextField` | `ba_placeholderColor` / `ba_maxLength` / `ba_toggleSecureEntry` / `ba_leftPadding(_:)` | 文本框便利 |
-| `UIViewController` | `ba_alert` / `ba_actionSheet` / `ba_dismissKeyboard` / `ba_findInNavigation` | 弹窗与导航 |
-| `UINavigationController` | `ba_apply(style:)` | 应用 `BANavigationBarStyle` |
-| `UIApplication` | `ba_keyWindow` / `ba_topViewController` / `ba_currentViewController` | 多 scene 安全的 keyWindow + 当前顶层 VC |
-| `UIWindow` | `ba_topViewController` / `ba_replaceRootViewController(_:duration:options:)` | Root VC 切换（带交叉淡入） |
-| `UICollectionView` | `ba_register(_:)` / `ba_dequeue(_:for:)` / `ba_subscribe(...)` | Cell 注册、复用、简单绑定 |
-| `CALayer` | `ba_rasterize` / `ba_softShadow` / `ba_border` | layer 便利 |
-
-### 网络 / 加密
-
-| 模块 | API | 说明 |
-| --- | --- | --- |
-| `BANetworkClient` | `request(_:)` / `request(_:responseType:)` / `get` / `post` / `makeURLRequest(_:)` | 基于 URLSession 的轻量网络层 |
-| `BANetworkEndpoint` | `path` / `method` / `headers` / `parameters` / `encoding` / `ba_request` | 类型安全 Endpoint 描述 |
-| `BANetworkRequest` | `path` / `method` / `headers` / `parameters` / `encoding` | 请求模型 |
-| `BAURLRequestInterceptor` | `adapt(_:)` / `process(_:data:)` | 请求和响应拦截 |
-| `BADigest` | `digest(_:algorithm:)` / `hexString(_:algorithm:)` | MD5/SHA 系列摘要，MD5/SHA1 仅建议兼容旧接口 |
-| `BAHMAC` | `sign(_:key:algorithm:)` / `hexString(_:key:algorithm:)` | HMAC 签名，默认 SHA256 |
-| `BAAES` | `cbcEncrypt(_:key:iv:)` / `cbcDecrypt(_:key:iv:)` | AES-CBC-PKCS7 加解密 |
-| `Data` / `String` Crypto | `ba_sha256String` / `ba_hmac` / `ba_aesCBCEncryptedBase64` / `ba_aesCBCDecryptedFromBase64` | 常用加密快捷入口 |
-
-### 存储 / 数据 / 蓝牙
-
-| 模块 | API | 说明 |
-| --- | --- | --- |
-| `BAFileManager` | Documents/Caches/tmp 路径、读写、删除、大小统计 | 文件管理常用能力 |
-| `BAUserDefaults` / `@BAUserDefault` | 基础类型和 Codable 存取 | UserDefaults 快捷封装 |
-| `BACacheManager` | 内存 / 磁盘 / 混合缓存、过期策略、LRU | 通用缓存框架 |
-| `BABaseModel` | `ba_saveCache` / `ba_updateCache` / `ba_removeCache` / `ba_cache` | 接口 Model 手动缓存生命周期 |
-| `Data` Bytes | `ba_hexString` / `ba_spacedHexString` / `ba_uint16` / `ba_chunks` / `ba_crc16ModbusData` | 字节解析、分包、校验 |
-| `BADataReader` | `readUInt8` / `readUInt16` / `readData` | 顺序读 Data |
-| `BABluetoothManager` | 扫描、单设备/多设备连接、读写、订阅 | CoreBluetooth 常用封装 |
-| `BABluetoothDataBuffer` | `ba_append` / `ba_popFrame` | 按 header/footer 缓冲拆包 |
-
-### 扫码 / 布局 / 运行环境
-
-| 模块 | API | 说明 |
-| --- | --- | --- |
-| `BAScannerSession` | `prepare(in:)` / `start` / `stop` / `setTorch` | 独立相机扫码会话，支持二维码和常见条码 |
-| `BAScannerViewController` | `onResult` / `onError` / `restartScanning` | 基础扫一扫页面，可直接用或二次定制 |
-| `BAScanCodeType` | `.qr` / `.ean13` / `.code128` / `.pdf417` / `.aztec` 等 | 扫码类型配置 |
-| `BAWaterfallFlowLayout` | `scrollDirection` / `columnCount` / `rowCount` / `BAWaterfallFlowLayoutDelegate` | 自适应纵向/横向瀑布流 |
-| `BAPagedWaterfallFlowLayout` | `rowCount` / `columnCount` / `itemsPerPage` / `pageCount` | 横向分页瀑布流，每页行优先排列 |
-| `BAAppEnvironment` | `ba_screenWidth` / `ba_keyWindow` / `ba_currentViewController` / `ba_safeAreaTop` / `ba_statusBarHeight` / `ba_scaleWidth` | 替代常见宏定义的运行环境变量 |
-
-### 工具类
-
-| 类 | 用途 |
-| --- | --- |
-| `BAToast` | 全局轻提示，4 种风格，自动找 keyWindow |
-| `BALoadingHUD` | 全屏 / 局部阻塞型 loading，支持运行时更新文案 |
-| `BALocalization` | 运行时切换语言，支持运行时字典 + .lproj 双路 |
-| `BAResourceBundle` | 组件化资源 bundle 查找（按 anchor 类 + bundleName 解析），支持 `ba_image(named:from:)` |
-| `BADeviceInfo`（扩展） | `ba_modelName`（机型映射 iPhone / iPad / Watch 主流型号）、`ba_userDeviceName`、`ba_isSimulator`、`ba_processorCount`、`ba_physicalMemoryBytes`；电池 `ba_enableBatteryMonitoring()` / `ba_batteryLevel` / `ba_batteryState(+Description)`；存储 `ba_totalDiskBytes / ba_freeDiskBytes / ba_usedDiskBytes`；地域 `ba_localeIdentifier / ba_timeZoneIdentifier / ba_languageCode`；`ba_formatBytes(_:)` |
-| `BAAppEnvironment` | 屏幕宽高、KeyWindow、当前 VC、安全区、状态栏、导航栏/TabBar 高度、设计稿等比换算 |
-| `BACache` | `ba_size(of:)` / `ba_sizeAsync` 统计 Library/Caches + tmp 占用；`ba_clear(directories:)` / `ba_clearAsync` 一键清除 |
-| `BALogger` | 等级化日志，Debug 自动开启 |
-| `BAUserDefault` / `BAUserDefaultCodable` | UserDefaults 属性包装器，支持 Codable |
-| `BAKeychain` | 轻量 Keychain 读写 |
-| `BADeviceInfo` | App / 系统 / 屏幕 / 电池 / 存储信息一站式 |
-| `BASystemPermission` | 相机、麦克风、相册、定位、通知权限查询和请求 |
-| `BAAppNavigator` | App 设置页、电话、短信、邮件、浏览器和地图跳转 |
-
-### UI 组件
-
-| 组件 | 说明 |
-| --- | --- |
-| `BAGradientView` | 自动布局尺寸跟随的渐变 View，支持 4 个方向 |
-| `BACardView` | 带圆角和柔和阴影的卡片容器 |
-| `BABadgeView` | 自适应宽度的胶囊角标 |
-| `BANavigationBarStyle` | NavigationBar 样式描述（实心 / 渐变 / 透明），配合 `UINavigationController.ba_apply` 一键应用 |
-| `BATabBarController` | 自带选中弹跳动画 + 角标快捷 API 的 TabBarController |
-| `BAEmptyView` | 空状态视图，支持图片、标题、内容和操作按钮 |
-| `BACustomAlertViewController` | 自定义弹窗容器，支持表单类弹窗组合 |
-
-## 集成方式
 
 ### Swift Package Manager
 
-在你的 `Package.swift` 中：
+在 Xcode 中：`File → Add Package Dependencies…`，输入：
+
+```
+https://github.com/boai/BASwiftKit.git
+```
+
+或在 `Package.swift` 中添加：
 
 ```swift
 .package(url: "https://github.com/boai/BASwiftKit.git", from: "0.1.0")
 ```
 
-或在 Xcode 中：`File → Add Package Dependencies…`，输入仓库地址 `https://github.com/boai/BASwiftKit.git`。
+### 手动集成
 
-### CocoaPods
+将 `Package/Sources/BASwiftKit` 目录拖入工程即可，需自行引入 SnapKit 和 Starscream 依赖。
 
-在你的 `Podfile` 中：
+---
 
-```ruby
-pod 'BASwiftKit', '~> 0.1.0'
+## 四、功能概览
+
+### Foundation 扩展
+
+所有 Foundation 扩展均以 `ba_` 前缀挂载在系统类型上，避免符号冲突。
+
+```swift
+// String
+"hello@example.com".ba_isEmail          // true
+"Hello World".ba_md5                    // "b10a8db164e0754105b7a99be72e3fe5"
+"   trim me   ".ba_trimmed              // "trim me"
+
+// Date
+Date().ba_string(format: "yyyy-MM-dd")  // "2026-06-03"
+Date().ba_isToday                       // true
+Date().ba_adding(days: 7)               // 7 天后的日期
+
+// Array
+[1, 2, 2, 3].ba_unique()               // [1, 2, 3]
+[1, 2, 3, 4, 5].ba_chunked(into: 2)     // [[1, 2], [3, 4], [5]]
+
+// Collection（安全下标）
+let arr = [1, 2, 3]
+arr.ba_safe(5)                          // nil，不会越界崩溃
+
+// Bundle
+Bundle.main.ba_appName                  // "MyApp"
+Bundle.main.ba_appVersion               // "1.0.0"
+Bundle.main.ba_buildNumber              // "42"
 ```
 
-然后 `pod install` 即可。该 pod 会自动引入依赖 `SnapKit` 和 `Starscream`。
+**API 速查：**
 
-> **注意：** 使用 CocoaPods 集成时，需要在 `Podfile` 中指定 `platform :ios, '15.0'` 或更高版本。
+| 类型 | API | 说明 |
+|------|-----|------|
+| `String` | `ba_trimmed` / `ba_isBlank` / `ba_compact` | 空白处理 |
+| `String` | `ba_isEmail` / `ba_isChinaMobile` / `ba_isURL` / `ba_isPureDigits` | 格式校验 |
+| `String` | `ba_md5` / `ba_base64Encoded` / `ba_base64Decoded` | 编码摘要 |
+| `String` | `ba_width(font:)` / `ba_height(font:maxWidth:)` | 文本测量 |
+| `String` | `ba_localized` / `ba_date(format:)` | 国际化 / 日期解析 |
+| `Date` | `ba_string(format:)` / `ba_relativeFromNow` | 格式化 / 相对时间 |
+| `Date` | `ba_startOfDay` / `ba_endOfMonth` / `ba_startOfMonth` | 日期边界 |
+| `Date` | `ba_adding(days:months:years:)` / `ba_daysBetween(_:)` | 日期运算 |
+| `Date` | `ba_isToday` / `ba_isYesterday` / `ba_isWeekend` | 日期查询 |
+| `Array` | `ba_unique()` / `ba_chunked(into:)` | 去重 / 分块 |
+| `Collection` | `ba_safe(_:)` | 越界安全下标 |
+| `Dictionary` | `ba_merged(with:)` | 字典合并 |
+| `Bundle` | `ba_appName` / `ba_appVersion` / `ba_bundleId` / `ba_resourceURL` | App 元数据 |
+| `NotificationCenter` | `ba_observeKeyboardWillShow/Hide` | 键盘事件观察 |
 
-### 手动拷贝
+---
 
-直接把 `Package/Sources/BASwiftKit` 目录拖入工程也能用，全部 UIKit 相关代码都使用条件编译（`#if canImport(UIKit)`），不会强依赖具体平台。手动拷贝时需自行引入 SnapKit 和 Starscream 依赖。
+### UIKit 扩展
 
-## 跑通 Demo
+所有 UIKit 扩展均放置在 `#if canImport(UIKit)` 条件编译块内，对非 iOS 平台无害。
 
-> Demo 工程通过 [XcodeGen](https://github.com/yonaskolb/XcodeGen) 生成，避免把 `.xcodeproj` 这种易冲突的二进制提交进仓库。
+```swift
+// UIColor — 十六进制颜色、深浅色动态切换
+let color = UIColor(ba_hex: "#FF5733")
+let adaptive = UIColor.ba_dynamic(light: .white, dark: .black)
+
+// UIView — 快捷布局、圆角阴影、链式动画
+view.ba_setCornerRadius(8)
+view.ba_setShadow(radius: 4, opacity: 0.2)
+view.ba_addSubviews(titleLabel, iconView, badge)
+view.ba_fadeIn(duration: 0.3)
+view.ba_shake()
+
+// UIView — 闭包式手势
+view.ba_onTap { view in
+    print("Tapped!")
+}
+
+// UIButton — 链式构造
+let btn = UIButton.ba_make(title: "提交", titleColor: .white, font: .ba_bold(16))
+btn.ba_onTap { btn in
+    print("Button tapped")
+}
+
+// UIImage — 纯色生成、缩放裁剪
+let avatar = UIImage.ba_image(color: .blue, size: CGSize(width: 40, height: 40))
+let compressed = image.ba_compressed(toKB: 500)
+```
+
+**API 速查：**
+
+| 类型 | API | 说明 |
+|------|-----|------|
+| `UIColor` | `init?(ba_hex:)` / `ba_random` / `ba_dynamic(light:dark:)` / `ba_hexString` | 颜色构造 |
+| `UIView` | `ba_x/y/width/height` / `ba_setCornerRadius` / `ba_setBorder` / `ba_setShadow` | 布局与样式 |
+| `UIView` | `ba_addSubviews(...)` / `ba_snapshotImage()` / `ba_parentViewController` | 视图层级 |
+| `UIView` | `ba_fadeIn/Out` / `ba_shake` / `ba_pulse` / `ba_springAppear` / `ba_slideIn(from:)` | 动画 |
+| `UIView` | `ba_onTap { }` / `ba_onLongPress { }` | 手势闭包 |
+| `UIImage` | `ba_image(color:size:)` / `ba_resized(to:)` / `ba_roundedToCircle()` / `ba_tinted` / `ba_compressed(toKB:)` | 图像处理 |
+| `UIButton` | `ba_make(...)` / `ba_onTap` | 构造与事件 |
+| `UILabel` | `ba_make(...)` / `ba_setLineSpacing` | 文本样式 |
+| `UIFont` | `ba_regular/medium/semibold/bold(_:)` / `ba_mono(_:weight:)` / `ba_scaled(_:)` | 字体快捷 |
+| `UIStackView` | `ba_make(axis:spacing:)` / `ba_addArrangedSubviews(...)` | 堆叠布局 |
+| `UITextField` | `ba_placeholderColor` / `ba_maxLength` / `ba_toggleSecureEntry` | 输入框 |
+| `UIViewController` | `ba_alert` / `ba_actionSheet` / `ba_dismissKeyboard` | 弹窗 |
+| `UINavigationController` | `ba_apply(style:)` | 导航栏样式 |
+| `UIApplication` | `ba_keyWindow` / `ba_topViewController` | 窗口与层级 |
+| `UICollectionView` | `ba_register(_:)` / `ba_dequeue(_:for:)` | Cell 复用 |
+| `CALayer` | `ba_rasterize` / `ba_softShadow` / `ba_border` | 渲染与样式 |
+
+---
+
+### 网络请求
+
+基于 `URLSession` 的轻量网络层，支持 Endpoint 风格描述、请求/响应拦截器链路、多种参数编码方式。
+
+```swift
+// 定义 Endpoint
+enum UserAPI {
+    case profile(userId: String)
+}
+
+extension UserAPI: BANetworkEndpoint {
+    var path: String {
+        switch self {
+        case .profile(let id): return "/users/\(id)"
+        }
+    }
+    var method: BAHTTPMethod { .get }
+}
+
+// 发起请求
+BANetworkClient.shared.request(UserAPI.profile(userId: "123"), responseType: UserModel.self) { result in
+    switch result {
+    case .success(let user): print(user.name)
+    case .failure(let error): print(error)
+    }
+}
+```
+
+**核心类型：**
+
+| 类型 | 说明 |
+|------|------|
+| `BANetworkClient` | 网络请求客户端，支持泛型响应解析 |
+| `BANetworkEndpoint` | Endpoint 协议，描述 path / method / headers / parameters |
+| `BANetworkRequest` | 请求值类型 |
+| `BAURLRequestInterceptor` | 请求/响应拦截器协议 |
+| `BAParameterEncoding` | 参数编码策略（URL、JSON 等） |
+
+---
+
+### 加解密
+
+基于 `CommonCrypto` 的独立加解密模块，支持摘要、HMAC 签名、AES-CBC 加解密。
+
+```swift
+// 摘要
+let sha256 = BADigest.hexString("hello world", algorithm: .sha256)
+
+// HMAC 签名
+let signature = BAHMAC.hexString("message", key: "secret", algorithm: .sha256)
+
+// AES-CBC 加解密
+let key = "0123456789abcdef0123456789abcdef".data(using: .utf8)!
+let iv  = "0123456789abcdef".data(using: .utf8)!
+let encrypted = BAAES.cbcEncrypt(plainData, key: key, iv: iv)
+let decrypted = BAAES.cbcDecrypt(encrypted, key: key, iv: iv)
+
+// Data / String 快捷入口
+"hello".ba_sha256String
+data.ba_aesCBCEncryptedBase64(key: key, iv: iv)
+```
+
+**核心类型：**
+
+| 类型 | API | 说明 |
+|------|-----|------|
+| `BADigest` | `digest(_:algorithm:)` / `hexString(_:algorithm:)` | SHA-256/512 摘要 |
+| `BAHMAC` | `sign(_:key:algorithm:)` / `hexString(_:key:algorithm:)` | HMAC 签名 |
+| `BAAES` | `cbcEncrypt(_:key:iv:)` / `cbcDecrypt(_:key:iv:)` | AES-CBC 加解密 |
+
+---
+
+### 存储与缓存
+
+```swift
+// UserDefaults 属性包装器
+@BAUserDefault("user_name", defaultValue: "")
+var userName: String
+
+// Cache 管理器
+BACacheManager.shared.set("key", value: myObject, ttl: 3600)
+let cached: MyModel? = BACacheManager.shared.get("key")
+
+// Keychain
+BAKeychain.shared.set("secret_token", forKey: "auth_token")
+let token = BAKeychain.shared.string(forKey: "auth_token")
+```
+
+**核心类型：**
+
+| 类型 | 说明 |
+|------|------|
+| `BAFileManager` | Documents / Caches / tmp 路径、文件读写删除、大小计算 |
+| `BAUserDefaults` / `@BAUserDefault` | 基础类型和 Codable 存取 |
+| `BACacheManager` | 内存 / 磁盘 / 混合缓存，支持过期策略和 LRU 淘汰 |
+| `BABaseModel` | 接口 Model 手动缓存生命周期管理 |
+| `BAKeychain` | Keychain 安全读写 |
+
+---
+
+### 蓝牙
+
+`CoreBluetooth` 完整封装，支持扫描、单/多设备并发连接、数据收发订阅、按帧头帧尾缓冲拆包。
+
+```swift
+// 扫描并连接
+BABluetoothManager.shared.scanForPeripherals(withServices: [serviceUUID]) { peripheral in
+    BABluetoothManager.shared.connect(peripheral) { result in
+        // 连接成功
+    }
+}
+
+// 数据收发
+BABluetoothManager.shared.send(data, to: peripheral, characteristic: charUUID)
+
+// 缓冲拆包
+buffer.ba_append(incomingData)
+while let frame = buffer.ba_popFrame() {
+    // 处理完整数据帧
+}
+```
+
+**核心类型：**
+
+| 类型 | 说明 |
+|------|------|
+| `BABluetoothManager` | 扫描、单/多设备连接、读写特征、订阅通知 |
+| `BABluetoothDataBuffer` | 按帧头/帧尾分包缓冲 |
+
+---
+
+### 扫码
+
+基于 `AVFoundation` 的相机扫码模块，支持二维码和主流条码格式。
+
+```swift
+// 使用基础扫码页面
+let scanner = BAScannerViewController()
+scanner.onResult = { result in
+    print("扫码结果: \(result.value)")
+}
+present(scanner, animated: true)
+
+// 或只使用会话层自定义 UI
+let session = BAScannerSession()
+session.prepare(in: previewView)
+session.start()
+```
+
+**核心类型：**
+
+| 类型 | 说明 |
+|------|------|
+| `BAScannerSession` | 相机扫码会话，扫码类型可配置 |
+| `BAScannerViewController` | 基础扫码页面，可继承或组合使用 |
+| `BAScanCodeType` | 扫码类型：`.qr` / `.ean13` / `.code128` / `.pdf417` / `.aztec` 等 |
+
+---
+
+### WebSocket
+
+Starscream 的高层封装，支持自定义协议解析器、心跳保活、自动重连。
+
+```swift
+let config = BASocketConfiguration(url: "wss://echo.example.com/socket")
+let client = BASocketClient(configuration: config)
+
+client.onConnected = { print("已连接") }
+client.onMessage = { message in print("收到: \(message)") }
+client.connect()
+```
+
+**核心类型：**
+
+| 类型 | 说明 |
+|------|------|
+| `BASocketClient` | WebSocket 客户端主体 |
+| `BASocketConfiguration` | 连接配置（URL、超时、重连策略） |
+| `BASocketParser` | 自定义协议解析器协议 |
+| `BASocketState` | 连接状态枚举 |
+
+---
+
+### 路由
+
+URL pattern 匹配路由，支持页面跳转、参数注入、拦截器链。
+
+```swift
+// 注册路由
+BARouter.shared.register(BARouteConfig(
+    pattern: "/user/:userId",
+    targetType: .viewController(UserProfileVC.self),
+    sourceType: .push
+))
+
+// 调用路由
+BARouter.shared.open("/user/123", params: ["name": "张三"])
+```
+
+**核心类型：**
+
+| 类型 | 说明 |
+|------|------|
+| `BARouter` | 路由管理器，注册/打开路由 |
+| `BARouteConfig` | 路由配置（pattern、目标、拦截器） |
+| `BARouteInterceptor` | 路由拦截器协议 |
+| `BARoutable` / `BAServiceable` | 页面/服务协议 |
+
+---
+
+### 日志
+
+分级日志系统，支持 Debug / Info / Warning / Error 四级，可输出到控制台或 SQLite 持久化。
+
+```swift
+BALog.debug("调试信息")
+BALog.info("用户登录，id: \(userId)")
+BALog.warning("缓存过期，重新请求")
+BALog.error("网络请求失败: \(error)")
+```
+
+**核心类型：**
+
+| 类型 | 说明 |
+|------|------|
+| `BALogManager` | 日志管理器，控制日志等级和输出目标 |
+| `BALogSQLiteStore` | SQLite 持久化存储 |
+| `BALogExporter` | 日志导出 |
+| `BAAutoTracker` | 自动埋点（页面进入/离开） |
+
+---
+
+### 响应式
+
+轻量 Observable / Disposable 实现，零依赖。
+
+```swift
+let observable = BAObservable<Int>(0)
+let disposable = observable.subscribe { value in
+    print("值变为: \(value)")
+}
+observable.value = 42  // 输出: 值变为: 42
+disposable.dispose()
+```
+
+---
+
+### 布局
+
+自定义 `UICollectionViewFlowLayout`，支持纵向/横向瀑布流和横向分页布局。
+
+```swift
+let layout = BAWaterfallFlowLayout()
+layout.columnCount = 2
+collectionView.collectionViewLayout = layout
+```
+
+**核心类型：**
+
+| 类型 | 说明 |
+|------|------|
+| `BAWaterfallFlowLayout` | 自适应纵向/横向瀑布流 |
+| `BAPagedWaterfallFlowLayout` | 横向分页瀑布流，每页行优先排列 |
+
+---
+
+### UI 组件
+
+开箱即用的 UI 组件，均可独立使用。
+
+```swift
+// GradientView
+let gradient = BAGradientView(colors: [.red, .blue], direction: .topToBottom)
+view.addSubview(gradient)
+
+// Toast
+BAToast.show("操作成功", style: .success)
+
+// Loading HUD
+BALoadingHUD.show("加载中...")
+BALoadingHUD.dismiss()
+```
+
+**组件列表：**
+
+| 组件 | 说明 |
+|------|------|
+| `BAGradientView` | 自动布局渐变 View，4 个方向 |
+| `BACardView` | 圆角 + 柔和阴影卡片容器 |
+| `BABadgeView` | 自适应宽度胶囊角标 |
+| `BANavigationBarStyle` | 导航栏样式（实心/渐变/透明） |
+| `BATabBarController` | 选中弹跳动画 + 角标 API |
+| `BAEmptyView` | 空状态视图（图+标题+按钮） |
+| `BACustomAlertViewController` | 自定义弹窗容器 |
+
+---
+
+### 工具类
+
+| 类型 | 说明 |
+|------|------|
+| `BAToast` | 全局轻提示，4 种风格 |
+| `BALoadingHUD` | 全屏/局部 Loading |
+| `BAProgressHUD` | 进度 HUD |
+| `BALocalization` | 运行时语言切换 |
+| `BAResourceBundle` | 组件化资源 bundle 查找 |
+| `BADeviceInfo` | 设备型号、电池、存储、网络信息 |
+| `BAAppEnvironment` | 屏幕尺寸、安全区、状态栏、导航栏高度 |
+| `BACache` | 缓存目录大小统计与清除 |
+| `BASystemPermission` | 相机、麦克风、相册、定位、通知权限 |
+| `BAAppNavigator` | 系统设置、电话、短信、邮件、浏览器跳转 |
+| `BARegexValidator` | 正则校验工具 |
+| `BACountdownManager` | 倒计时管理器 |
+
+---
+
+## 五、快速上手
+
+```swift
+import BASwiftKit
+
+class ViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        // 设置导航栏样式
+        navigationController?.ba_apply(style: .solid(.systemBlue))
+
+        // 十六进制颜色
+        view.backgroundColor = UIColor(ba_hex: "#F5F5F5")
+
+        // 添加一个带圆角和阴影的卡片
+        let card = BACardView()
+        card.ba_setCornerRadius(12)
+        view.addSubview(card)
+
+        // 发一个网络请求
+        BANetworkClient.shared.get("/api/config") { (result: Result<Config, BANetworkError>) in
+            switch result {
+            case .success(let config): print(config)
+            case .failure(let error): BAToast.show(error.localizedDescription, style: .error)
+            }
+        }
+    }
+}
+```
+
+---
+
+## 六、Demo 工程
+
+Demo 通过 [XcodeGen](https://github.com/yonaskolb/XcodeGen) 生成，避免二进制 `.xcodeproj` 冲突。
 
 ```bash
-# 1. 安装 XcodeGen（任选其一）
+# 安装 XcodeGen
 brew install xcodegen
 
-# 2. 生成工程并打开
+# 生成工程并运行
 cd Demo
 xcodegen generate
 open BASwiftKitDemo.xcodeproj
 ```
 
-如果不想装 XcodeGen，也可以在 Xcode 里手动新建 iOS App：
+> 如果不想安装 XcodeGen，也可以在 Xcode 中手动新建 iOS App 工程，把 `Demo/BASwiftKitDemo/` 下的源码和 `Package/` 目录拖入即可，最低 iOS 15.0。
 
-1. 新建一个 `iOS App`，名为 `BASwiftKitDemo`，最低系统 iOS 13。
-2. 删除 Xcode 自动生成的 `ContentView` / `ViewController` 等。
-3. 把 `Demo/BASwiftKitDemo/` 下所有 `.swift` 文件拖入工程（勾选 `Copy if needed` 视需要）。
-4. 把 Package 目录加为 Swift Package：`File → Add Package Dependencies → Add Local…`，选中本仓库下的 `Package/` 目录即可。
-5. Build & Run。
+---
 
-## 测试
-
-仓库自带单测，跑：
+## 七、测试
 
 ```bash
 cd Package && swift test
 ```
 
-当前 20 个核心用例：String / Array / Date / Date+Calendar / Collection / Base64 / MD5 / Localization / Data 字节处理 / Bluetooth 数据缓冲 / BaseModel 缓存 / Network 请求构建 / Crypto SHA-HMAC-AES 等均已通过。
+已覆盖 String / Array / Date / Calendar / Collection / Base64 / MD5 / Localization / Data 字节 / Bluetooth 数据缓冲 / BaseModel 缓存 / Network 请求构建 / Crypto SHA-HMAC-AES 等核心用例。
 
-## 设计约束
+---
 
-- **命名**：所有公开 API 必须以 `ba_` 前缀挂载，确保宿主工程能 grep 到所有 BASwiftKit 调用。
-- **解耦**：单个文件只能依赖 Foundation / UIKit 与本 module 内部，禁止跨模块强耦合，方便单独抽出。
-- **平台保护**：UIKit 相关代码必须放在 `#if canImport(UIKit)` 中。
-- **最小依赖**：仅依赖 SnapKit（自动布局）和 Starscream（WebSocket），不引入其他第三方库。
+## 八、设计原则
+
+- **命名规范** — 所有公开 API 以 `ba_` 前缀挂载，`grep "ba_"` 即可定位所有 BASwiftKit 调用
+- **低耦合** — 每个文件仅依赖 Foundation / UIKit 与本模块，可单独抽取到其他工程
+- **平台安全** — UIKit 代码统一使用 `#if canImport(UIKit)` 条件编译保护
+- **最小依赖** — 仅依赖 SnapKit 和 Starscream 两个第三方库，核心能力零外部依赖
+
+---
+
+## 九、License
+
+BASwiftKit is available under the [MIT License](LICENSE).
