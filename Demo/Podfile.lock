@@ -1,0 +1,27 @@
+PODS:
+  - BASwiftKit (0.1.0):
+    - SnapKit (~> 5.7.0)
+    - Starscream (~> 4.0.0)
+  - SnapKit (5.7.1)
+  - Starscream (4.0.8)
+
+DEPENDENCIES:
+  - BASwiftKit (from `../`)
+
+SPEC REPOS:
+  trunk:
+    - SnapKit
+    - Starscream
+
+EXTERNAL SOURCES:
+  BASwiftKit:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  BASwiftKit: de4b1c598c1cbd69776d7f787830f8fade130e2d
+  SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
+  Starscream: 19b5533ddb925208db698f0ac508a100b884a1b9
+
+PODFILE CHECKSUM: b02e2b8365e6e8fe3ed6fbf035128e850513dadf
+
+COCOAPODS: 1.16.2

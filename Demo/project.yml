@@ -2,19 +2,15 @@ name: BASwiftKitDemo
 options:
   bundleIdPrefix: com.baswiftkit
   deploymentTarget:
-    iOS: 13.0
+    iOS: 15.0
   developmentLanguage: zh-Hans
   createIntermediateGroups: true
 
 settings:
   base:
     SWIFT_VERSION: 5.7
-    IPHONEOS_DEPLOYMENT_TARGET: 13.0
+    IPHONEOS_DEPLOYMENT_TARGET: 15.0
     ENABLE_USER_SCRIPT_SANDBOXING: NO
-
-packages:
-  BASwiftKit:
-    path: ../Package
 
 targets:
   BASwiftKitDemo:
@@ -48,8 +44,6 @@ targets:
             UIWindowSceneSessionRoleApplication:
               - UISceneConfigurationName: Default Configuration
                 UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).BASceneDelegate
-    dependencies:
-      - package: BASwiftKit
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.baswiftkit.demo

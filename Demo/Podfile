@@ -1,0 +1,22 @@
+# BASwiftKit Demo Podfile
+#
+# 使用方式：
+#   1. xcodegen generate
+#   2. pod install
+#   3. open BASwiftKitDemo.xcworkspace
+
+platform :ios, '15.0'
+use_frameworks!
+
+target 'BASwiftKitDemo' do
+  # 引入本地 BASwiftKit pod（自动拉取 SnapKit + Starscream 依赖）
+  pod 'BASwiftKit', :path => '../'
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+    end
+  end
+end
