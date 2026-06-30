@@ -49,6 +49,7 @@ public enum BADemoRoutes {
         public static let pagedWaterfall = "/demo/ui/paged-waterfall"
         public static let navbar         = "/demo/ui/navbar"
         public static let tabbar         = "/demo/ui/tabbar"
+        public static let banner         = "/demo/ui/banner"
     }
 
     // MARK: - Feedback 类 Demo（Category: feedback）
@@ -88,7 +89,7 @@ public enum BADemoRoutes {
     public static var allPaths: [String] {
         [
             UI.color, UI.components, UI.animation, UI.font, UI.waterfall,
-            UI.pagedWaterfall, UI.navbar, UI.tabbar,
+            UI.pagedWaterfall, UI.navbar, UI.tabbar, UI.banner,
             Feedback.toast, Feedback.loading, Feedback.emptyView, Feedback.alert,
             Foundation.string, Foundation.l10n, Foundation.socket, Foundation.countdown,
             Foundation.logger, Foundation.routerDemo, Foundation.routerCaller, Foundation.networkCrypto,

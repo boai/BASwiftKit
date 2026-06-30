@@ -126,7 +126,12 @@ enum BADemoCatalog {
                        subtitle: "弹跳动画 + 角标，BATabBarController",
                        iconSystemName: "square.grid.3x1.below.line.grid.1x2",
                        gradient: gradient("#9B5BFF", "#5B6CFF"),
-                       route: BADemoRoutes.UI.tabbar)
+                       route: BADemoRoutes.UI.tabbar),
+            BADemoItem(title: "广告组件 🆕 跑马灯 · 轮播",
+                       subtitle: "跑马灯文字 + 图片轮播：网络图/占位图/文案/自动重复/自定义指示器",
+                       iconSystemName: "megaphone.fill",
+                       gradient: gradient("#FF7A45", "#FF4D4F"),
+                       route: BADemoRoutes.UI.banner)
         ]
     }
 
