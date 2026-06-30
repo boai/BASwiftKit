@@ -31,6 +31,10 @@ public final class BADiskCache {
     private let lock = NSLock()
     private let fileManager = FileManager.default
 
+    /// 复用的 JSON 编解码器，避免每次读/写/淘汰路径反复新建（new 编解码器有不小分配开销）。
+    private static let sharedEncoder = JSONEncoder()
+    private static let sharedDecoder = JSONDecoder()
+
     /// 创建磁盘缓存实例。
     ///
     /// - Parameters:
@@ -57,7 +61,7 @@ public final class BADiskCache {
                        expiry: Date = .distantFuture,
                        cost: Int? = nil) {
         let entry = BACacheEntry(key: key, data: data, expiry: expiry, cost: cost)
-        guard let fileData = try? JSONEncoder().encode(entry) else { return }
+        guard let fileData = try? Self.sharedEncoder.encode(entry) else { return }
 
         lock.lock()
         defer { lock.unlock() }
@@ -87,7 +91,7 @@ public final class BADiskCache {
         guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
 
         guard let fileData = try? Data(contentsOf: fileURL),
-              var entry = try? JSONDecoder().decode(BACacheEntry.self, from: fileData) else {
+              let entry = try? Self.sharedDecoder.decode(BACacheEntry.self, from: fileData) else {
             try? fileManager.removeItem(at: fileURL)
             return nil
         }
@@ -97,10 +101,9 @@ public final class BADiskCache {
             return nil
         }
 
-        entry.touch()
-        if let updatedData = try? JSONEncoder().encode(entry) {
-            try? updatedData.write(to: fileURL)
-        }
+        // LRU 访问时间改用文件 modificationDate：读命中只更新 mtime（廉价），
+        // 不再把整条 entry（含完整 payload）重新编码回写 —— 消除「读触发整条写回」的写放大。
+        try? fileManager.setAttributes([.modificationDate: Date()], ofItemAtPath: fileURL.path)
 
         return entry.data
     }
@@ -113,7 +116,7 @@ public final class BADiskCache {
     /// - Returns: 解码后的模型，若不存在、已过期或解码失败则返回 `nil`。
     public func ba_object<T: Decodable>(forKey key: String, type: T.Type) -> T? {
         guard let data = ba_data(forKey: key) else { return nil }
-        return try? JSONDecoder().decode(type, from: data)
+        return try? Self.sharedDecoder.decode(type, from: data)
     }
 
     /// 将模型编码后存入磁盘缓存。
@@ -123,7 +126,7 @@ public final class BADiskCache {
     ///   - key: 唯一缓存标识。
     ///   - expiry: 过期时间。默认永不过期。
     public func ba_setObject<T: Encodable>(_ object: T, forKey key: String, expiry: Date = .distantFuture) {
-        guard let data = try? JSONEncoder().encode(object) else { return }
+        guard let data = try? Self.sharedEncoder.encode(object) else { return }
         ba_set(data, forKey: key, expiry: expiry)
     }
 
@@ -192,7 +195,7 @@ public final class BADiskCache {
 
             for file in files {
                 guard let data = try? Data(contentsOf: file),
-                      let entry = try? JSONDecoder().decode(BACacheEntry.self, from: data),
+                      let entry = try? Self.sharedDecoder.decode(BACacheEntry.self, from: data),
                       entry.isExpired else { continue }
                 try? self.fileManager.removeItem(at: file)
             }
@@ -211,21 +214,33 @@ public final class BADiskCache {
     /// 检查大小限制，超出时按 LRU 淘汰最旧条目。
     /// 调用方必须已经持有 `lock`（`NSLock` 不可重入，所以这里走无锁版本的 `_unlocked_totalSize`）。
     private func checkSizeLimit() {
-        var totalSize = _unlocked_totalSize()
+        // 单次目录枚举即预取 size + modificationDate，同时累计总大小：
+        // 避免「先全量枚举算总大小，超限再逐文件 Data(contentsOf:)+JSONDecode 取访问时间，淘汰时再二次 stat」
+        // 的多趟全盘读解。LRU 访问时间用文件 modificationDate（读命中已更新）。
+        let keys: [URLResourceKey] = [.fileSizeKey, .contentModificationDateKey]
+        guard let files = try? fileManager.contentsOfDirectory(
+            at: cacheDirectory, includingPropertiesForKeys: keys, options: []
+        ) else { return }
+
+        var entries: [(url: URL, size: Int64, accessTime: TimeInterval)] = []
+        entries.reserveCapacity(files.count)
+        var totalSize: Int64 = 0
+        for url in files {
+            let values = try? url.resourceValues(forKeys: Set(keys))
+            let size = Int64(values?.fileSize ?? 0)
+            let mtime = values?.contentModificationDate?.timeIntervalSince1970 ?? 0
+            totalSize += size
+            entries.append((url, size, mtime))
+        }
+
         guard totalSize > sizeLimit else { return }
 
-        let files = (try? fileManager.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: nil, options: [])) ?? []
-        let sortedFiles = files.compactMap { url -> (url: URL, accessTime: TimeInterval)? in
-            guard let data = try? Data(contentsOf: url),
-                  let entry = try? JSONDecoder().decode(BACacheEntry.self, from: data) else { return nil }
-            return (url, entry.lastAccessTimestamp)
-        }.sorted { $0.accessTime < $1.accessTime }
-
-        for item in sortedFiles {
+        // 仅在超限时才排序，最旧（mtime 最小）的先淘汰。
+        entries.sort { $0.accessTime < $1.accessTime }
+        for item in entries {
             if totalSize <= sizeLimit { break }
-            let fileSize = (try? fileManager.attributesOfItem(atPath: item.url.path)[.size] as? Int64) ?? 0
             try? fileManager.removeItem(at: item.url)
-            totalSize -= fileSize
+            totalSize -= item.size
         }
     }
 }

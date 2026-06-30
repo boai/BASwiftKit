@@ -10,8 +10,32 @@ import UIKit
 
 public extension UIColor {
 
-    /// 16 进制串构造（支持 #RGB、#RGBA、#RRGGBB、#RRGGBBAA，前缀可省）
-    convenience init?(ba_hex hex: String, alpha: CGFloat = 1.0) {
+    // MARK: - 16 进制解析缓存（性能优化）
+
+    /// hex 字符串 → 解析出的 RGBA 分量缓存。
+    ///
+    /// hex 串解析（大小写转换、前缀剥离、短格式扩展、按位运算）在高频构造时有一定开销，
+    /// 这里按「hex|alpha」缓存解析结果（RGBA 分量）复用。缓存只读写一个字典，用 `NSLock` 保证并发安全。
+    /// 注意：缓存的是「分量」而非 `UIColor` 实例——便利失败构造器必须以 `self.init(...)` 收尾，
+    /// 无法直接返回已有对象，故缓存分量后再委托给指定构造器，行为与原实现完全一致。
+    private static var hexComponentsCache: [String: (r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat)] = [:]
+    private static let hexCacheLock = NSLock()
+
+    /// 解析 hex 串得到 RGBA 分量；命中缓存直接返回，未命中则解析并写入缓存。
+    ///
+    /// - Returns: 解析成功返回分量元组；非法输入返回 `nil`（保持原构造器返回 nil 的语义）。
+    private static func ba_hexComponents(hex: String,
+                                         alpha: CGFloat) -> (r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat)? {
+        // key 需带 alpha：同一 hex 配不同 alpha 解析出的最终分量不同（6 位格式使用外部 alpha）。
+        let key = "\(hex)|\(alpha)"
+
+        hexCacheLock.lock()
+        if let cached = hexComponentsCache[key] {
+            hexCacheLock.unlock()
+            return cached
+        }
+        hexCacheLock.unlock()
+
         var raw = hex.uppercased()
         if raw.hasPrefix("#") { raw.removeFirst() }
         if raw.hasPrefix("0X") { raw.removeFirst(2) }
@@ -36,7 +60,19 @@ public extension UIColor {
             b = CGFloat((value & 0x0000FF00) >> 8) / 255.0
             a = CGFloat(value & 0x000000FF) / 255.0
         }
-        self.init(red: r, green: g, blue: b, alpha: a)
+
+        let components = (r: r, g: g, b: b, a: a)
+        hexCacheLock.lock()
+        hexComponentsCache[key] = components
+        hexCacheLock.unlock()
+        return components
+    }
+
+    /// 16 进制串构造（支持 #RGB、#RGBA、#RRGGBB、#RRGGBBAA，前缀可省）
+    convenience init?(ba_hex hex: String, alpha: CGFloat = 1.0) {
+        // 优化：复用缓存的解析分量，避免重复解析同一 hex 串。非法输入仍返回 nil。
+        guard let c = UIColor.ba_hexComponents(hex: hex, alpha: alpha) else { return nil }
+        self.init(red: c.r, green: c.g, blue: c.b, alpha: c.a)
     }
 
     /// 0~255 RGB 便利构造

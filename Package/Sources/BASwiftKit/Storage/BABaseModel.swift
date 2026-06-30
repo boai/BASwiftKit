@@ -54,8 +54,9 @@ public extension BABaseModel {
     func ba_saveCache(key: String? = nil,
                       expiry: Date = .distantFuture,
                       cache: BACacheManager = .default) -> Bool {
+        // 优化：复用共享编码器，避免每次保存都新建 JSONEncoder。
         guard let encodable = self as? Encodable,
-              let data = try? JSONEncoder().encode(BABaseModelEncodableBox(encodable)) else {
+              let data = try? BACodableShared.encoder.encode(BABaseModelEncodableBox(encodable)) else {
             return false
         }
         cache.ba_set(data, forKey: key ?? ba_cacheKey, expiry: expiry)
@@ -120,8 +121,9 @@ public extension BABaseModel {
 
 private enum BABaseModelDecoder {
     static func decode<T>(_ type: T.Type, from data: Data) -> T? {
+        // 优化：复用共享解码器，避免每次读取缓存都新建 JSONDecoder。
         guard let decodableType = type as? Decodable.Type,
-              let decoded = try? JSONDecoder().decode(decodableType, from: data) else {
+              let decoded = try? BACodableShared.decoder.decode(decodableType, from: data) else {
             return nil
         }
         return decoded as? T

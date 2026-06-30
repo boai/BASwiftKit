@@ -26,17 +26,39 @@ public enum BADataError: Error {
 }
 
 public extension Data {
+
+    /// 大写十六进制查表（ASCII 字节）。避免每字节 `String(format:)` 的格式化开销。
+    private static let ba_hexDigitsUpper: [UInt8] = Array("0123456789ABCDEF".utf8)
+
     /// 当前数据的字节数组。
     var ba_bytes: [UInt8] { Array(self) }
 
     /// 连续大写十六进制字符串，例如 `0A1BFF`。
     var ba_hexString: String {
-        map { String(format: "%02X", $0) }.joined()
+        // 查表 + 预分配 ASCII 缓冲，N 字节仅一次字符串构造（替代 N 次 String(format:)）。
+        let digits = Data.ba_hexDigitsUpper
+        var out = [UInt8]()
+        out.reserveCapacity(count * 2)
+        for byte in self {
+            out.append(digits[Int(byte >> 4)])
+            out.append(digits[Int(byte & 0x0F)])
+        }
+        return String(decoding: out, as: UTF8.self)
     }
 
     /// 空格分隔的大写十六进制字符串，例如 `0A 1B FF`。
     var ba_spacedHexString: String {
-        map { String(format: "%02X", $0) }.joined(separator: " ")
+        let digits = Data.ba_hexDigitsUpper
+        var out = [UInt8]()
+        guard !isEmpty else { return "" }
+        out.reserveCapacity(count * 3 - 1)
+        var first = true
+        for byte in self {
+            if first { first = false } else { out.append(0x20) } // 空格分隔
+            out.append(digits[Int(byte >> 4)])
+            out.append(digits[Int(byte & 0x0F)])
+        }
+        return String(decoding: out, as: UTF8.self)
     }
 
     /// 根据十六进制字符串创建 Data。
@@ -44,24 +66,49 @@ public extension Data {
     /// - Parameter hexString: 十六进制字符串，允许包含空格、换行、`0x` 前缀和冒号分隔符。
     /// - Throws: 字符串长度不是偶数或包含非法字符时抛出 `BADataError.invalidHexString`。
     init(ba_hexString hexString: String) throws {
-        var raw = hexString
-            .replacingOccurrences(of: "0x", with: "", options: .caseInsensitive)
-            .replacingOccurrences(of: " ", with: "")
-            .replacingOccurrences(of: "\n", with: "")
-            .replacingOccurrences(of: "\r", with: "")
-            .replacingOccurrences(of: "\t", with: "")
-            .replacingOccurrences(of: ":", with: "")
-            .replacingOccurrences(of: "-", with: "")
-        guard raw.count % 2 == 0 else { throw BADataError.invalidHexString }
-        var data = Data(capacity: raw.count / 2)
-        while !raw.isEmpty {
-            // 每两个十六进制字符正好表示一个字节。
-            let byteText = String(raw.prefix(2))
-            guard let byte = UInt8(byteText, radix: 16) else { throw BADataError.invalidHexString }
-            data.append(byte)
-            raw.removeFirst(2)
+        // 单次遍历：跳过 `0x`/`0X` 前缀与常见分隔符（空格/换行/制表/冒号/连字符），
+        // 其余按 ASCII 两两组装成字节。整体 O(n)，避免原先 7 次链式 replacingOccurrences（各 O(n)）
+        // 与 removeFirst(2) 的 O(n²)。
+        let scalars = Array(hexString.utf8)
+        var nibbles = [UInt8]()
+        nibbles.reserveCapacity(scalars.count)
+
+        var i = 0
+        while i < scalars.count {
+            let c = scalars[i]
+            // 跳过 0x / 0X
+            if c == 0x30, i + 1 < scalars.count, scalars[i + 1] == 0x78 || scalars[i + 1] == 0x58 {
+                i += 2
+                continue
+            }
+            // 跳过分隔符：空格(0x20) 换行(0x0A) 回车(0x0D) 制表(0x09) 冒号(0x3A) 连字符(0x2D)
+            if c == 0x20 || c == 0x0A || c == 0x0D || c == 0x09 || c == 0x3A || c == 0x2D {
+                i += 1
+                continue
+            }
+            guard let nibble = Data.ba_hexNibble(c) else { throw BADataError.invalidHexString }
+            nibbles.append(nibble)
+            i += 1
+        }
+
+        guard nibbles.count % 2 == 0 else { throw BADataError.invalidHexString }
+        var data = Data(capacity: nibbles.count / 2)
+        var j = 0
+        while j < nibbles.count {
+            data.append(nibbles[j] << 4 | nibbles[j + 1])
+            j += 2
         }
         self = data
+    }
+
+    /// 将单个十六进制 ASCII 字符映射为 0~15 的半字节；非法字符返回 `nil`。
+    private static func ba_hexNibble(_ ascii: UInt8) -> UInt8? {
+        switch ascii {
+        case 0x30...0x39: return ascii - 0x30           // '0'-'9'
+        case 0x41...0x46: return ascii - 0x41 + 10      // 'A'-'F'
+        case 0x61...0x66: return ascii - 0x61 + 10      // 'a'-'f'
+        default: return nil
+        }
     }
 
     /// 安全读取指定位置的单字节。

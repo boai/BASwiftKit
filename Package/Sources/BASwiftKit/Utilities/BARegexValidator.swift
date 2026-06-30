@@ -37,6 +37,31 @@ public enum BARegexValidator {
         public static let strongPassword = #"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d`~!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$"#
     }
 
+    // MARK: - 正则缓存（性能优化）
+
+    /// 已编译正则的缓存。
+    ///
+    /// `NSRegularExpression(pattern:)` 的编译成本较高，而校验方法常被高频调用（且 pattern 多为固定常量），
+    /// 这里按「pattern + options」缓存已编译实例避免重复编译。`NSRegularExpression` 自身的匹配是线程安全的，
+    /// 仅缓存字典的读写需要保护，故用一把 `NSLock` 串行化访问。
+    private static var regexCache: [String: NSRegularExpression] = [:]
+    private static let regexCacheLock = NSLock()
+
+    /// 获取（或编译并缓存）指定 pattern + options 对应的正则。
+    ///
+    /// - Returns: 编译成功返回正则实例；pattern 非法返回 `nil`（与原 `try?` 行为一致）。
+    private static func cachedRegex(pattern: String,
+                                    options: NSRegularExpression.Options) -> NSRegularExpression? {
+        // 缓存 key 需区分 options，否则不同选项会错误复用同一实例。
+        let key = "\(options.rawValue)|\(pattern)"
+        regexCacheLock.lock()
+        defer { regexCacheLock.unlock() }
+        if let cached = regexCache[key] { return cached }
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else { return nil }
+        regexCache[key] = regex
+        return regex
+    }
+
     /// 使用自定义正则进行完整匹配。
     ///
     /// - Parameters:
@@ -47,7 +72,8 @@ public enum BARegexValidator {
     public static func ba_matches(_ text: String,
                                   pattern: String,
                                   options: NSRegularExpression.Options = []) -> Bool {
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else { return false }
+        // 优化：复用已编译正则，避免每次调用都重新编译 pattern。
+        guard let regex = cachedRegex(pattern: pattern, options: options) else { return false }
         let range = NSRange(text.startIndex..<text.endIndex, in: text)
         guard let match = regex.firstMatch(in: text, options: [], range: range) else { return false }
         return match.range.location == range.location && match.range.length == range.length

@@ -220,6 +220,13 @@ public extension UIImage {
 
     // MARK: - Color / Effect
 
+    /// 共享的 CIContext（性能优化）。
+    ///
+    /// `CIContext` 创建极其昂贵（会建立 GPU/CPU 渲染管线），原实现每次滤镜处理都 `CIContext(options: nil)` 新建。
+    /// 改为复用单例：`CIContext` 在渲染时是线程安全的，可安全跨调用/跨线程共享。
+    /// 此优化仅复用上下文，不改变 `ba_blurred` / `ba_grayscale` 的同步执行语义与输出。
+    private static let ba_sharedCIContext = CIContext(options: nil)
+
     /// 着色生成同形状的纯色图。
     ///
     /// - Parameter color: 目标颜色。
@@ -259,7 +266,8 @@ public extension UIImage {
         filter?.setValue(ciImage, forKey: kCIInputImageKey)
         filter?.setValue(radius, forKey: kCIInputRadiusKey)
         guard let output = filter?.outputImage else { return nil }
-        let context = CIContext(options: nil)
+        // 优化：复用共享 CIContext，避免每次模糊都新建昂贵的渲染上下文。
+        let context = UIImage.ba_sharedCIContext
         guard let cgImage = context.createCGImage(output, from: ciImage.extent) else { return nil }
         return UIImage(cgImage: cgImage, scale: scale, orientation: imageOrientation)
     }
@@ -272,7 +280,8 @@ public extension UIImage {
         let filter = CIFilter(name: "CIPhotoEffectMono")
         filter?.setValue(ciImage, forKey: kCIInputImageKey)
         guard let output = filter?.outputImage else { return nil }
-        let context = CIContext(options: nil)
+        // 优化：复用共享 CIContext，避免每次灰度处理都新建昂贵的渲染上下文。
+        let context = UIImage.ba_sharedCIContext
         guard let cgImage = context.createCGImage(output, from: output.extent) else { return nil }
         return UIImage(cgImage: cgImage, scale: scale, orientation: imageOrientation)
     }

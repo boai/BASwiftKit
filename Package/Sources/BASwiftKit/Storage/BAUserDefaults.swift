@@ -85,7 +85,7 @@ public enum BAUserDefaults {
                                                 type: T.Type,
                                                 default defaultValue: T,
                                                 store: UserDefaults = .standard,
-                                                decoder: JSONDecoder = JSONDecoder()) -> T {
+                                                decoder: JSONDecoder = BACodableShared.decoder) -> T {
         guard let data = store.data(forKey: key),
               let value = try? decoder.decode(type, from: data) else {
             return defaultValue
@@ -103,7 +103,7 @@ public enum BAUserDefaults {
     public static func ba_setCodable<T: Encodable>(_ value: T?,
                                                    forKey key: String,
                                                    store: UserDefaults = .standard,
-                                                   encoder: JSONEncoder = JSONEncoder()) {
+                                                   encoder: JSONEncoder = BACodableShared.encoder) {
         guard let value else {
             store.removeObject(forKey: key)
             return
@@ -185,16 +185,18 @@ public struct BAUserDefaultCodable<Value: Codable> {
     /// 被包装的 Codable 值。设置为 `nil` 的 Optional 值时会删除对应 key。
     public var wrappedValue: Value {
         get {
+            // 优化：复用共享解码器，避免每次 get 都新建 JSONDecoder。
             guard let data = store.data(forKey: key),
-                  let value = try? JSONDecoder().decode(Value.self, from: data) else {
+                  let value = try? BACodableShared.decoder.decode(Value.self, from: data) else {
                 return defaultValue
             }
             return value
         }
         set {
+            // 优化：复用共享编码器，避免每次 set 都新建 JSONEncoder。
             if let optional = newValue as? AnyOptional, optional.isNil {
                 store.removeObject(forKey: key)
-            } else if let data = try? JSONEncoder().encode(newValue) {
+            } else if let data = try? BACodableShared.encoder.encode(newValue) {
                 store.set(data, forKey: key)
             }
         }

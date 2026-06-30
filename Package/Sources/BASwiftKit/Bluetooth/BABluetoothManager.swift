@@ -310,8 +310,23 @@ public final class BABluetoothManager: NSObject {
         ba_write(data, to: characteristic, on: peripheral, type: type)
     }
 
+    /// 构造**单个**外设的连接态快照。
+    ///
+    /// 用于替代「`ba_connectedPeripherals[identifier]`」——后者会先 `mapValues` 对整张
+    /// `managedPeripherals` 全表深拷贝重建所有连接态结构体，而高频回调（如每个通知数据包）
+    /// 只需要其中一个，全表重建是显著浪费。本方法只取目标 record 构造一个结构体。
+    func connectedPeripheral(for identifier: UUID) -> BABluetoothConnectedPeripheral? {
+        guard let record = managedPeripherals[identifier] else { return nil }
+        return BABluetoothConnectedPeripheral(
+            peripheral: record.peripheral,
+            state: record.state,
+            services: record.services,
+            characteristicsByService: record.characteristicsByService
+        )
+    }
+
     func emitConnectionChanged(for identifier: UUID) {
-        guard let device = ba_connectedPeripherals[identifier] else { return }
+        guard let device = connectedPeripheral(for: identifier) else { return }
         eventHandler?(.connectionChanged(device, device.state))
     }
 

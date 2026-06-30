@@ -61,17 +61,15 @@ public extension Date {
 
     /// 周几（本地化全称，如 "星期一" / "Monday"）
     func ba_weekdayName(locale: Locale = .current) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = locale
-        formatter.dateFormat = "EEEE"
+        // 优化：复用共享格式化器。面向展示，尊重调用方 locale，输出与原实现一致。
+        let formatter = BADateFormatterCache.formatter(format: "EEEE", locale: locale)
         return formatter.string(from: self)
     }
 
     /// 周几（本地化短名，如 "周一" / "Mon"）
     func ba_weekdayShortName(locale: Locale = .current) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = locale
-        formatter.dateFormat = "EEE"
+        // 优化：复用共享格式化器。面向展示，尊重调用方 locale，输出与原实现一致。
+        let formatter = BADateFormatterCache.formatter(format: "EEE", locale: locale)
         return formatter.string(from: self)
     }
 
@@ -94,10 +92,9 @@ public extension String {
     func ba_date(format: String = "yyyy-MM-dd HH:mm:ss",
                  locale: Locale = .current,
                  timeZone: TimeZone = .current) -> Date? {
-        let formatter = DateFormatter()
-        formatter.locale = locale
-        formatter.timeZone = timeZone
-        formatter.dateFormat = format
+        // 优化：复用共享格式化器，避免每次解析都 new DateFormatter。
+        // 注意：为保持公开 API 行为不变，这里沿用调用方传入的 locale（默认 .current），未强制改为 POSIX。
+        let formatter = BADateFormatterCache.formatter(format: format, locale: locale, timeZone: timeZone)
         return formatter.date(from: self)
     }
 }

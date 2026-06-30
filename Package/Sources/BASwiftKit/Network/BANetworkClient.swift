@@ -295,6 +295,16 @@ public final class BANetworkClient {
     }
 }
 
+/// 表单 body 百分号编码使用的允许字符集（性能优化：仅计算一次后复用）。
+///
+/// 在 `urlQueryAllowed` 基础上移除 `+ & = ? /` 等危险字符。原实现每次编码都重新拷贝
+/// `urlQueryAllowed` 并 remove，构造 `CharacterSet` 有一定开销；提为文件级常量后多次编码复用同一实例，行为不变。
+private let baFormAllowedCharacterSet: CharacterSet = {
+    var allowed = CharacterSet.urlQueryAllowed
+    allowed.remove(charactersIn: "+&=?/ ")
+    return allowed
+}()
+
 private extension String {
     /// 表单 body 专用的严格百分号编码。
     ///
@@ -303,8 +313,7 @@ private extension String {
     /// （例如 `+` 会被服务端解析成空格）。这里在 query 集合基础上移除这些危险字符，
     /// 确保 `+`→`%2B`、`&`→`%26`、`=`→`%3D` 等被正确转义。
     var ba_formEscaped: String {
-        var allowed = CharacterSet.urlQueryAllowed
-        allowed.remove(charactersIn: "+&=?/ ")
-        return addingPercentEncoding(withAllowedCharacters: allowed) ?? self
+        // 优化：复用预计算的字符集常量，避免每次重新构造。
+        addingPercentEncoding(withAllowedCharacters: baFormAllowedCharacterSet) ?? self
     }
 }

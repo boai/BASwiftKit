@@ -42,7 +42,10 @@ public enum BADeviceInfo {
     public static var ba_userDeviceName: String { UIDevice.current.name }
 
     /// 机型标识符（如 `iPhone17,1`）
-    public static var ba_machineModel: String {
+    ///
+    /// 优化：机型标识符是运行期常量，原实现每次访问都执行 `uname()` + Mirror 反射拼装。
+    /// 改为 `static let` 仅在首次访问时计算一次并永久缓存（`static let` 由运行时保证线程安全的惰性初始化）。
+    public static let ba_machineModel: String = {
         var sysInfo = utsname()
         uname(&sysInfo)
         let mirror = Mirror(reflecting: sysInfo.machine)
@@ -50,7 +53,7 @@ public enum BADeviceInfo {
             ($0.value as? Int8).flatMap { $0 != 0 ? Character(UnicodeScalar(UInt8($0))) : nil }
         }
         return String(id)
-    }
+    }()
 
     /// 友好型号名（如 "iPhone 17 Pro"）。未知机型直接返回原始 identifier。
     public static var ba_modelName: String {
@@ -156,13 +159,32 @@ public enum BADeviceInfo {
 
     // MARK: - 字节格式化
 
+    /// 按 `CountStyle` 缓存的 ByteCountFormatter（性能优化）。
+    ///
+    /// `ByteCountFormatter` 创建有一定开销。`allowedUnits` 固定不变，仅 `countStyle` 随入参变化，
+    /// 故按 style 缓存一个已配置好的实例复用。`ByteCountFormatter` 不是线程安全的，因此读写缓存以及
+    /// 调用 `string(fromByteCount:)` 都在同一把 `NSLock` 保护下串行执行，避免并发访问同一实例。
+    private static var byteFormatterCache: [Int: ByteCountFormatter] = [:]
+    private static let byteFormatterLock = NSLock()
+
     /// 把字节数格式化成 1.23 GB / 456 MB 等
     public static func ba_formatBytes(_ bytes: Int64,
                                       style: ByteCountFormatter.CountStyle = .file) -> String {
-        let f = ByteCountFormatter()
-        f.allowedUnits = [.useGB, .useMB, .useKB, .useBytes]
-        f.countStyle = style
-        return f.string(fromByteCount: bytes)
+        // 优化：复用按 style 缓存的格式化器，避免每次调用都新建 ByteCountFormatter。
+        byteFormatterLock.lock()
+        defer { byteFormatterLock.unlock() }
+        let key = style.rawValue
+        let formatter: ByteCountFormatter
+        if let cached = byteFormatterCache[key] {
+            formatter = cached
+        } else {
+            let f = ByteCountFormatter()
+            f.allowedUnits = [.useGB, .useMB, .useKB, .useBytes]
+            f.countStyle = style
+            byteFormatterCache[key] = f
+            formatter = f
+        }
+        return formatter.string(fromByteCount: bytes)
     }
 
     /// 把无符号字节数格式化成 1.23 GB / 456 MB 等。

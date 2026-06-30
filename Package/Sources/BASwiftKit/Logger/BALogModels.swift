@@ -121,16 +121,19 @@ public struct BALogEntry: Codable, Equatable {
     /// 格式化时间字符串（HH:mm:ss.SSS）。
     public var timeString: String {
         let date = Date(timeIntervalSince1970: timestamp)
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss.SSS"
+        // 优化：复用共享格式化器，避免每条日志都 new DateFormatter。
+        // 纯数字固定格式，使用 POSIX 地区保证跨区域输出稳定（对该格式与原 .current 输出一致）。
+        let formatter = BADateFormatterCache.formatter(format: "HH:mm:ss.SSS",
+                                                       locale: BADateFormatterCache.posixLocale)
         return formatter.string(from: date)
     }
 
     /// 格式化日期时间字符串。
     public var dateTimeString: String {
         let date = Date(timeIntervalSince1970: timestamp)
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+        // 优化：复用共享格式化器；固定机器格式使用 POSIX 地区。
+        let formatter = BADateFormatterCache.formatter(format: "yyyy-MM-dd HH:mm:ss.SSS",
+                                                       locale: BADateFormatterCache.posixLocale)
         return formatter.string(from: date)
     }
 }

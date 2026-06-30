@@ -19,7 +19,7 @@ extension BABluetoothManager: CBPeripheralDelegate {
         guard var record = managedPeripherals[peripheral.identifier] else { return }
         record.services = peripheral.services ?? []
         managedPeripherals[peripheral.identifier] = record
-        if let device = ba_connectedPeripherals[peripheral.identifier] {
+        if let device = connectedPeripheral(for: peripheral.identifier) {
             eventHandler?(.servicesDiscovered(device, record.services))
         }
     }
@@ -36,7 +36,7 @@ extension BABluetoothManager: CBPeripheralDelegate {
         let characteristics = service.characteristics ?? []
         record.characteristicsByService[service.uuid] = characteristics
         managedPeripherals[peripheral.identifier] = record
-        if let device = ba_connectedPeripherals[peripheral.identifier] {
+        if let device = connectedPeripheral(for: peripheral.identifier) {
             eventHandler?(.characteristicsDiscovered(device, service, characteristics))
         }
     }
@@ -50,7 +50,7 @@ extension BABluetoothManager: CBPeripheralDelegate {
             return
         }
         guard let data = characteristic.value,
-              let device = ba_connectedPeripherals[peripheral.identifier] else { return }
+              let device = connectedPeripheral(for: peripheral.identifier) else { return }
         let packet = BABluetoothDataPacket(device: device, characteristic: characteristic, data: data)
         eventHandler?(.dataReceived(packet))
     }

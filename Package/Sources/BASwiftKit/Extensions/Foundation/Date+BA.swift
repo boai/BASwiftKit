@@ -13,10 +13,9 @@ public extension Date {
     func ba_string(format: String = "yyyy-MM-dd HH:mm:ss",
                    locale: Locale = .current,
                    timeZone: TimeZone = .current) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = locale
-        formatter.timeZone = timeZone
-        formatter.dateFormat = format
+        // 优化：复用共享格式化器，避免每次调用都 new DateFormatter。
+        // 此方法面向展示，尊重调用方传入的 locale / timeZone，输出与原实现一致。
+        let formatter = BADateFormatterCache.formatter(format: format, locale: locale, timeZone: timeZone)
         return formatter.string(from: self)
     }
 
