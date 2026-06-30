@@ -32,7 +32,7 @@ public final class BABluetoothManager: NSObject {
     public var ba_state: CBManagerState { centralManager.state }
 
     /// 当前是否正在扫描。
-    public private(set) var ba_isScanning = false
+    public var ba_isScanning: Bool { isScanning }
 
     /// 已发现外设快照，key 为外设 identifier。
     public var ba_discoveredPeripherals: [UUID: BABluetoothDiscoveredPeripheral] {
@@ -53,9 +53,38 @@ public final class BABluetoothManager: NSObject {
 
     lazy var centralManager = CBCentralManager(delegate: self, queue: queue)
     let queue: DispatchQueue?
-    var discoveredPeripherals: [UUID: BABluetoothDiscoveredPeripheral] = [:]
-    var managedPeripherals: [UUID: BABluetoothPeripheralRecord] = [:]
-    var pendingScan: BABluetoothScanRequest?
+
+    // MARK: - 共享状态（线程安全）
+    //
+    // CoreBluetooth delegate 回调在初始化传入的 queue（可能是后台队列）上触发，
+    // 而 public API 在调用方线程访问同一批状态。下列字典/标记若无同步会出现并发读写
+    // （Swift Dictionary 并发读写会崩溃）。这里统一用 stateLock 保护：
+    // 存储改为私有 `_` 后备，对外通过加锁的计算属性访问（名称不变，调用点零改动）。
+    // 锁仅在每次存取的瞬间持有，绝不跨 CoreBluetooth 调用或 eventHandler 回调，避免死锁。
+    private let stateLock = NSLock()
+
+    private var _discoveredPeripherals: [UUID: BABluetoothDiscoveredPeripheral] = [:]
+    private var _managedPeripherals: [UUID: BABluetoothPeripheralRecord] = [:]
+    private var _pendingScan: BABluetoothScanRequest?
+    private var _isScanning = false
+
+    var discoveredPeripherals: [UUID: BABluetoothDiscoveredPeripheral] {
+        get { stateLock.lock(); defer { stateLock.unlock() }; return _discoveredPeripherals }
+        set { stateLock.lock(); _discoveredPeripherals = newValue; stateLock.unlock() }
+    }
+    var managedPeripherals: [UUID: BABluetoothPeripheralRecord] {
+        get { stateLock.lock(); defer { stateLock.unlock() }; return _managedPeripherals }
+        set { stateLock.lock(); _managedPeripherals = newValue; stateLock.unlock() }
+    }
+    var pendingScan: BABluetoothScanRequest? {
+        get { stateLock.lock(); defer { stateLock.unlock() }; return _pendingScan }
+        set { stateLock.lock(); _pendingScan = newValue; stateLock.unlock() }
+    }
+    /// 扫描标记（内部读写经锁；对外只读暴露为 `ba_isScanning`）。
+    var isScanning: Bool {
+        get { stateLock.lock(); defer { stateLock.unlock() }; return _isScanning }
+        set { stateLock.lock(); _isScanning = newValue; stateLock.unlock() }
+    }
 
     /// 创建蓝牙管理器。
     ///
@@ -93,7 +122,7 @@ public final class BABluetoothManager: NSObject {
     /// 停止扫描外设。
     public func ba_stopScan() {
         pendingScan = nil
-        ba_isScanning = false
+        isScanning = false
         centralManager.stopScan()
     }
 
@@ -287,7 +316,7 @@ public final class BABluetoothManager: NSObject {
     }
 
     func startScan(_ request: BABluetoothScanRequest) {
-        ba_isScanning = true
+        isScanning = true
         centralManager.scanForPeripherals(
             withServices: request.serviceUUIDs,
             options: [CBCentralManagerScanOptionAllowDuplicatesKey: request.allowDuplicates]
