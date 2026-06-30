@@ -18,6 +18,12 @@ public enum BACryptoError: Error {
     case cryptFailed(status: CCCryptorStatus)
     /// 字符串无法按指定编码转为 Data。
     case stringEncodingFailed
+    /// 安全随机数生成失败（SecRandomCopyBytes）。
+    case randomGenerationFailed
+    /// 口令密钥派生（PBKDF2）失败。
+    case keyDerivationFailed
+    /// 密文格式不合法（头部缺失、长度不足或版本不支持）。
+    case invalidCipherFormat
 }
 
 /// 加密模块兼容入口。

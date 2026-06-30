@@ -48,4 +48,29 @@ public extension String {
         guard let string = String(data: decrypted, encoding: .utf8) else { throw BACryptoError.stringEncodingFailed }
         return string
     }
+
+    /// 基于口令的 AES-256 加密，返回 Base64 密文 —— **推荐的安全默认**。
+    ///
+    /// 内部用 PBKDF2 从口令派生密钥并使用随机 IV（见 ``BAAES/encrypt(_:password:rounds:)``），
+    /// 无需调用方自备 key/iv，也不会出现「口令直当密钥 / 固定 IV」的弱用法。
+    ///
+    /// - Parameters:
+    ///   - password: 口令（UTF-8，不应为空）。
+    ///   - rounds: PBKDF2 迭代次数，默认 ``BAAES/defaultPBKDF2Rounds``。
+    /// - Returns: Base64 密文（已含还原所需的 salt/iv/rounds 头部）。
+    func ba_aesEncrypted(password: String, rounds: UInt32 = BAAES.defaultPBKDF2Rounds) throws -> String {
+        let encrypted = try BAAES.encrypt(ba_utf8Data, password: password, rounds: rounds)
+        return encrypted.base64EncodedString()
+    }
+
+    /// 将 ``ba_aesEncrypted(password:rounds:)`` 产出的 Base64 密文解密为字符串。
+    ///
+    /// - Parameter password: 加密时所用的同一口令。
+    /// - Returns: 解密后的 UTF-8 字符串。
+    func ba_aesDecrypted(password: String) throws -> String {
+        guard let data = Data(base64Encoded: self) else { throw BACryptoError.stringEncodingFailed }
+        let decrypted = try BAAES.decrypt(data, password: password)
+        guard let string = String(data: decrypted, encoding: .utf8) else { throw BACryptoError.stringEncodingFailed }
+        return string
+    }
 }

@@ -163,6 +163,24 @@ final class BASwiftKitTests: XCTestCase {
         let encrypted = try "BASwiftKit".ba_aesCBCEncryptedBase64(key: key, iv: iv)
         XCTAssertEqual(try encrypted.ba_aesCBCDecryptedFromBase64(key: key, iv: iv), "BASwiftKit")
     }
+
+    func test_aesPasswordEncryptionRoundtripAndRandomization() throws {
+        let plaintext = "BASwiftKit 口令加密 🔐"
+        let password = "s3cr3t-pass"
+        // 用较小迭代次数以加快测试。
+        let c1 = try plaintext.ba_aesEncrypted(password: password, rounds: 10_000)
+        let c2 = try plaintext.ba_aesEncrypted(password: password, rounds: 10_000)
+
+        // 随机 salt/iv：相同口令 + 相同明文每次密文不同。
+        XCTAssertNotEqual(c1, c2)
+        // 正确口令可解出原文。
+        XCTAssertEqual(try c1.ba_aesDecrypted(password: password), plaintext)
+        XCTAssertEqual(try c2.ba_aesDecrypted(password: password), plaintext)
+        // 错误口令：要么抛错，要么解出乱码，但绝不等于原文。
+        if let wrong = try? c1.ba_aesDecrypted(password: "wrong-pass") {
+            XCTAssertNotEqual(wrong, plaintext)
+        }
+    }
 }
 
 final class BATestUserModel: BABaseModel, Codable {
