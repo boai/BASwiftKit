@@ -4,8 +4,12 @@ PODS:
     - DemoCommon
     - SnapKit
   - BASwiftKit (0.1.0):
+    - BASwiftKit/Core (= 0.1.0)
+    - BASwiftKit/WebView (= 0.1.0)
+  - BASwiftKit/Core (0.1.0):
     - SnapKit (~> 5.7.0)
     - Starscream (~> 4.0.0)
+  - BASwiftKit/WebView (0.1.0)
   - CacheDemo (0.1.0):
     - BASwiftKit
     - DemoCommon
@@ -200,7 +204,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AnimationDemo: 4f3682337922ff9ffd987f40a961d7861646b900
-  BASwiftKit: de4b1c598c1cbd69776d7f787830f8fade130e2d
+  BASwiftKit: fd868a8efcd390d16230021110cb7ad1a62ca629
   CacheDemo: 7b549062c16bb29030708faeb60c8f3ac19691e3
   ColorDemo: c31de6efa0a4fee9202d7b6b24e076c0e089f853
   ComponentsDemo: 02ae2fc7db82e316bc2e81ee00ad04c13fb8fc65

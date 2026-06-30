@@ -47,45 +47,36 @@ Pod::Spec.new do |s|
   s.swift_version    = '5.0'
 
   # ──────────────────────────────────────────────
-  #  源文件
-  #  与 SPM Package.swift 中 target path 保持一致：
-  #  Package/Sources/BASwiftKit/
-  # ──────────────────────────────────────────────
-  s.source_files     = 'Package/Sources/BASwiftKit/**/*.swift'
-
-  # ──────────────────────────────────────────────
-  #  第三方依赖
-  #  与 Package.swift 中 dependency 版本对齐：
-  #  - SnapKit   → 自动布局 DSL
-  #  - Starscream → WebSocket 底层
-  # ──────────────────────────────────────────────
-  s.dependency 'SnapKit', '~> 5.7.0'
-  s.dependency 'Starscream', '~> 4.0.0'
-
-  # ──────────────────────────────────────────────
-  #  系统框架依赖（必需）
-  #  Swift Package 不需要显式声明，但 CocoaPods 需要。
-  #  按模块实际使用的系统框架列出：
-  # ──────────────────────────────────────────────
-  s.frameworks = 'UIKit', 'Foundation', 'AVFoundation', 'CoreBluetooth', 'Security', 'WebKit'
-
-  # ──────────────────────────────────────────────
-  #  系统框架依赖（可选 / weak link）
-  #  仅在特定模块中使用，为降低宿主工程的强制链接负担，
-  #  声明为 weak_frameworks。若宿主未使用对应模块，
-  #  这些框架不会在最终 App 中被强制引入。
+  #  Subspecs（模块化）
   #
-  #  - CoreLocation      → BASystemPermission 定位权限
-  #  - Photos            → BASystemPermission 相册权限
-  #  - UserNotifications → BASystemPermission 通知权限
-  #  - CoreImage         → UIImage+BA 图像滤镜
-  #  - CoreText          → UIFont+BA 自定义字体
+  #  默认安装 Core + WebView，保持 `pod 'BASwiftKit'` 行为不变（= 全量）。
+  #  WebView 子模块完全自包含（仅依赖 UIKit/WebKit，不依赖 SnapKit/Starscream/其它模块），
+  #  可单独安装：`pod 'BASwiftKit/WebView'`，为后续整体拆分为独立 Pod 做好准备。
+  #  源文件路径与 SPM Package.swift 的 target path 一致：Package/Sources/BASwiftKit/
   # ──────────────────────────────────────────────
-  s.weak_frameworks = 'CoreLocation', 'Photos', 'UserNotifications', 'CoreImage', 'CoreText'
+  s.default_subspecs = ['Core', 'WebView']
 
-  # ──────────────────────────────────────────────
-  #  系统 C 库依赖
-  #  - sqlite3 → BALogSQLiteStore 日志 SQLite 持久化
-  # ──────────────────────────────────────────────
-  s.libraries = 'sqlite3'
+  # 核心：除 WebView 外的全部能力（Foundation/UIKit 扩展、网络、加密、蓝牙、扫码、
+  #       WebSocket、路由、日志、响应式、存储、布局、UI 组件、工具类、主题等）
+  s.subspec 'Core' do |core|
+    core.source_files  = 'Package/Sources/BASwiftKit/**/*.swift'
+    core.exclude_files = 'Package/Sources/BASwiftKit/WebView/**/*.swift'
+
+    # 第三方依赖（与 Package.swift 版本对齐）
+    core.dependency 'SnapKit', '~> 5.7.0'      # 自动布局 DSL
+    core.dependency 'Starscream', '~> 4.0.0'   # WebSocket 底层
+
+    # 必需系统框架（WebKit 归 WebView 子模块）
+    core.frameworks = 'UIKit', 'Foundation', 'AVFoundation', 'CoreBluetooth', 'Security'
+    # 可选 / weak link：仅特定模块使用，降低宿主强制链接负担
+    core.weak_frameworks = 'CoreLocation', 'Photos', 'UserNotifications', 'CoreImage', 'CoreText'
+    # 系统 C 库：sqlite3 → BALogSQLiteStore 日志持久化
+    core.libraries = 'sqlite3'
+  end
+
+  # WebView：自包含组件，零三方/跨模块依赖（仅 UIKit + WebKit），可独立拆分为单独 Pod
+  s.subspec 'WebView' do |web|
+    web.source_files = 'Package/Sources/BASwiftKit/WebView/**/*.swift'
+    web.frameworks   = 'UIKit', 'Foundation', 'WebKit'
+  end
 end

@@ -37,6 +37,9 @@ public final class BAWebView: UIView {
     /// 拦截器处理后的导航决策回调。
     public var navigationDecisionHandler: ((URL, WKNavigationActionPolicy) -> Void)?
 
+    /// 离线命中回调：当网络不可用、改为加载离线缓存 HTML 时触发，携带原始 URL。
+    public var didLoadFromCache: ((URL) -> Void)?
+
     /// 当前 WebView 配置。
     public let configuration: BAWebViewConfiguration
 
@@ -61,6 +64,19 @@ public final class BAWebView: UIView {
 
     private var progressObservation: NSKeyValueObservation?
 
+    /// 离线快照缓存（仅在 `configuration.offlineEnabled` 时创建）。
+    private lazy var offlineCache: BAWebViewOfflineCache? = {
+        guard configuration.offlineEnabled else { return nil }
+        return BAWebViewOfflineCache(directory: configuration.offlineCacheDirectory,
+                                     maxAge: configuration.offlineMaxAge)
+    }()
+
+    /// 最近一次通过 `ba_load(url:)` 请求的 URL（离线快照存取的键 + 失败回退依据）。
+    private var currentURL: URL?
+
+    /// 是否正在展示离线缓存内容（避免对离线 HTML 二次快照、避免回退死循环）。
+    private var isServingOffline = false
+
     /// 创建 WebView。
     ///
     /// - Parameter configuration: WebView 配置。默认使用 `.default`。
@@ -84,9 +100,13 @@ public final class BAWebView: UIView {
 
     private func setupWebView() {
         addSubview(webView)
-        webView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+        // 纯原生约束铺满父视图（不依赖 SnapKit，便于 WebView 组件独立成 Pod）。
+        NSLayoutConstraint.activate([
+            webView.topAnchor.constraint(equalTo: topAnchor),
+            webView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            webView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
 
         progressObservation = webView.observe(\.estimatedProgress, options: [.new]) { [weak self] _, change in
             guard let progress = change.newValue else { return }
@@ -102,6 +122,8 @@ public final class BAWebView: UIView {
     ///
     /// - Parameter url: 要加载的 URL。
     public func ba_load(url: URL) {
+        currentURL = url
+        isServingOffline = false
         var request = URLRequest(url: url, timeoutInterval: configuration.timeoutInterval)
         configuration.headers.forEach { key, value in
             request.setValue(value, forHTTPHeaderField: key)
@@ -123,6 +145,8 @@ public final class BAWebView: UIView {
     ///   - html: HTML 内容字符串。
     ///   - baseURL: 用于解析相对路径的基准 URL。默认 `nil`。
     public func ba_load(html: String, baseURL: URL? = nil) {
+        currentURL = nil
+        isServingOffline = false
         webView.loadHTMLString(html, baseURL: baseURL)
     }
 
@@ -130,7 +154,14 @@ public final class BAWebView: UIView {
     ///
     /// - Parameter fileURL: 本地文件 URL。
     public func ba_load(fileURL: URL) {
+        currentURL = nil
+        isServingOffline = false
         webView.loadFileURL(fileURL, allowingReadAccessTo: fileURL)
+    }
+
+    /// 清空离线快照缓存。
+    public func ba_clearOfflineCache() {
+        offlineCache?.clear()
     }
 
     // MARK: - Navigation
@@ -217,19 +248,74 @@ extension BAWebView: WKNavigationDelegate {
         decisionHandler(.allow)
     }
 
-    /// 页面加载完成回调，转发给 `didFinishLoading`。
+    /// 页面加载完成回调。开启离线后抓取渲染态 HTML 存盘，再转发给 `didFinishLoading`。
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        captureOfflineSnapshotIfNeeded()
         didFinishLoading?(webView.url)
     }
 
-    /// 页面主导航加载失败回调，转发给 `didFailLoading`。
+    /// 页面主导航加载失败回调。开启离线且为网络类错误时尝试回退离线缓存。
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        didFailLoading?(error)
+        handleLoadFailure(error)
     }
 
-    /// 页面 provisional navigation 加载失败回调，转发给 `didFailLoading`。
+    /// 页面 provisional navigation 加载失败回调。开启离线且为网络类错误时尝试回退离线缓存。
     public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        didFailLoading?(error)
+        handleLoadFailure(error)
+    }
+
+    // MARK: - Offline
+
+    /// 加载完成后抓取页面渲染态 HTML 写入离线缓存（仅 http/https、非离线回放时）。
+    private func captureOfflineSnapshotIfNeeded() {
+        guard configuration.offlineEnabled, !isServingOffline,
+              let url = currentURL,
+              let scheme = url.scheme?.lowercased(), scheme == "http" || scheme == "https" else {
+            return
+        }
+        webView.evaluateJavaScript("document.documentElement.outerHTML") { [weak self] result, _ in
+            guard let self = self, let html = result as? String, !html.isEmpty else { return }
+            self.offlineCache?.save(html: html, for: url)
+        }
+    }
+
+    /// 处理加载失败：网络类错误且有离线缓存时回放缓存 HTML，否则按失败上报。
+    private func handleLoadFailure(_ error: Error) {
+        let nsError = error as NSError
+        // 已在离线展示中、未开启离线、或非网络类错误：直接按失败上报。
+        guard configuration.offlineEnabled, !isServingOffline, Self.isNetworkError(nsError),
+              let cache = offlineCache, let url = currentURL else {
+            didFailLoading?(error)
+            return
+        }
+        cache.loadSnapshot(for: url) { [weak self] html in
+            guard let self = self else { return }
+            guard let html = html else {
+                self.didFailLoading?(error) // 无离线缓存，仍按失败处理（如展示错误页）
+                return
+            }
+            self.isServingOffline = true
+            self.webView.loadHTMLString(html, baseURL: url)
+            self.didLoadFromCache?(url)
+        }
+    }
+
+    /// 判断是否为「网络不可用」类错误（据此决定是否回退离线缓存）。
+    private static func isNetworkError(_ error: NSError) -> Bool {
+        guard error.domain == NSURLErrorDomain else { return false }
+        switch error.code {
+        case NSURLErrorNotConnectedToInternet,
+             NSURLErrorTimedOut,
+             NSURLErrorCannotConnectToHost,
+             NSURLErrorCannotFindHost,
+             NSURLErrorNetworkConnectionLost,
+             NSURLErrorDNSLookupFailed,
+             NSURLErrorDataNotAllowed,
+             NSURLErrorInternationalRoamingOff:
+            return true
+        default:
+            return false
+        }
     }
 }
 #endif

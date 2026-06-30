@@ -104,6 +104,15 @@ public struct BAWebViewConfiguration {
     public var titleSyncEnabled: Bool
     /// 自定义超时时间（秒）。默认 `30`。
     public var timeoutInterval: TimeInterval
+    /// 是否开启离线加载。默认 `false`。
+    ///
+    /// 开启后：页面加载完成会抓取渲染态 HTML 存盘；后续同一 URL 因**网络不可用**加载失败时，
+    /// 自动回放缓存的 HTML 实现离线展示（详见 `BAWebView` 的离线逻辑）。
+    public var offlineEnabled: Bool
+    /// 离线快照最长有效期（秒），默认 7 天；`<= 0` 表示永不过期。
+    public var offlineMaxAge: TimeInterval
+    /// 离线缓存目录；`nil` 使用 `Caches/BAWebViewOffline`。
+    public var offlineCacheDirectory: URL?
 
     /// 创建 WebView 配置。
     ///
@@ -127,7 +136,10 @@ public struct BAWebViewConfiguration {
                 pullToRefreshEnabled: Bool = true,
                 toolbarEnabled: Bool = true,
                 titleSyncEnabled: Bool = true,
-                timeoutInterval: TimeInterval = 30) {
+                timeoutInterval: TimeInterval = 30,
+                offlineEnabled: Bool = false,
+                offlineMaxAge: TimeInterval = 7 * 24 * 3600,
+                offlineCacheDirectory: URL? = nil) {
         self.allowsJavaScript = allowsJavaScript
         self.allowsInlineMediaPlayback = allowsInlineMediaPlayback
         self.userAgent = userAgent
@@ -138,6 +150,9 @@ public struct BAWebViewConfiguration {
         self.toolbarEnabled = toolbarEnabled
         self.titleSyncEnabled = titleSyncEnabled
         self.timeoutInterval = timeoutInterval
+        self.offlineEnabled = offlineEnabled
+        self.offlineMaxAge = offlineMaxAge
+        self.offlineCacheDirectory = offlineCacheDirectory
     }
 
     /// 默认 WebView 配置。
