@@ -42,6 +42,8 @@ struct BAServiceEntry {
 final class BAServiceContainer {
     private let lock = NSLock()
     private var entries: [ObjectIdentifier: BAServiceEntry] = [:]
+    /// 协议类型 → 可读类型名映射，仅供调试输出（`ObjectIdentifier` 无法反查名称）。
+    private var typeNames: [ObjectIdentifier: String] = [:]
 
     // MARK: - Register
 
@@ -71,6 +73,7 @@ final class BAServiceContainer {
             isSingleton: isSingleton,
             cachedInstance: nil
         )
+        typeNames[key] = String(describing: type)
     }
 
     // MARK: - Resolve
@@ -112,6 +115,7 @@ final class BAServiceContainer {
         lock.lock()
         defer { lock.unlock() }
         entries.removeValue(forKey: key)
+        typeNames.removeValue(forKey: key)
     }
 
     /// 清空全部服务注册。
@@ -119,5 +123,15 @@ final class BAServiceContainer {
         lock.lock()
         defer { lock.unlock() }
         entries.removeAll()
+        typeNames.removeAll()
+    }
+
+    // MARK: - Debug
+
+    /// 返回当前已注册的全部服务协议类型名（按字典序排序），供调试面板使用。
+    func debugAllKeys() -> [String] {
+        lock.lock()
+        defer { lock.unlock() }
+        return typeNames.values.sorted()
     }
 }

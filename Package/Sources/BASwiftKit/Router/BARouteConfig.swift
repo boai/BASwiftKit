@@ -6,28 +6,12 @@
 //
 
 import Foundation
-#if canImport(UIKit)
-import UIKit
-#endif
-
-// MARK: - Route Target Type
-
-/// 路由目标类型：区分页面跳转和服务调用。
-public enum BARouteTargetType {
-    /// 跳转到 UIViewController。
-    /// - Parameter type: 目标 VC 类型。
-    case viewController(UIViewController.Type)
-
-    /// 打开一个 Action 闭包（不创建 VC）。
-    /// - Parameter handler: 自定义处理闭包，接收解析后的参数和完成回调。
-    case action((_ params: [String: Any], _ completion: (() -> Void)?) -> Void)
-}
 
 // MARK: - Route Source Type
 
 /// 路由来源类型，用于区分导航方式。
 public enum BARouteSourceType {
-    /// 由调用方自行决定（默认 push，无法 push 时 fallback 到 present）。
+    /// 由 Handler 自行决定导航方式。
     case auto
 
     /// Push 进入导航栈（需要调用方有 UINavigationController）。
@@ -44,17 +28,22 @@ public enum BARouteSourceType {
 
 /// 路由注册配置。
 ///
-/// 每条路由对应一个 URL Pattern 和一个目标：
+/// 每条路由对应一个 URL Pattern 和一个 `BARouteHandler`：
 ///
 /// ```swift
 /// let config = BARouteConfig(
 ///     pattern: "/user/detail/:userId",
-///     targetType: .viewController(UserDetailVC.self),
+///     handler: UserDetailRouteHandler(),
 ///     sourceType: .push,
 ///     animated: true,
 ///     interceptors: [LoginInterceptor()]
 /// )
 /// ```
+///
+/// ## 设计理念
+///
+/// 路由配置不再直接持有 `UIViewController.Type`，改为持有 `BARouteHandler` 协议实例。
+/// BARouter 匹配到路由后，将跳转逻辑完全委托给 Handler，框架层零 UIKit 耦合。
 public struct BARouteConfig {
 
     // MARK: - Properties
@@ -66,10 +55,13 @@ public struct BARouteConfig {
     /// - `/web/*` → 匹配 `/web/任意路径`
     public let pattern: String
 
-    /// 路由目标类型（页面跳转 / 自定义动作）。
-    public let targetType: BARouteTargetType
+    /// 路由处理器（负责创建目标页面并执行导航跳转）。
+    ///
+    /// BARouter 匹配到 URL 后，将参数和控制权交给此 Handler，
+    /// 框架本身不再直接创建 UIViewController。
+    public let handler: BARouteHandler
 
-    /// 导航方式，默认 `.auto`（由框架自动判断）。
+    /// 导航方式，默认 `.auto`（由 Handler 自行判断）。
     public let sourceType: BARouteSourceType
 
     /// 跳转是否带动画，默认 `true`。
@@ -84,19 +76,19 @@ public struct BARouteConfig {
     ///
     /// - Parameters:
     ///   - pattern: URL 匹配模式。
-    ///   - targetType: 目标类型（VC 或 Action）。
+    ///   - handler: 路由处理器（遵循 `BARouteHandler` 协议）。
     ///   - sourceType: 导航方式，默认 `.auto`。
     ///   - animated: 是否带动画，默认 `true`。
     ///   - interceptors: 专属拦截器列表，默认空。
     public init(
         pattern: String,
-        targetType: BARouteTargetType,
+        handler: BARouteHandler,
         sourceType: BARouteSourceType = .auto,
         animated: Bool = true,
         interceptors: [BARouteInterceptor] = []
     ) {
         self.pattern = pattern
-        self.targetType = targetType
+        self.handler = handler
         self.sourceType = sourceType
         self.animated = animated
         self.interceptors = interceptors

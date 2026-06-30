@@ -91,7 +91,7 @@ public enum BADemoRoutes {
             UI.pagedWaterfall, UI.navbar, UI.tabbar,
             Feedback.toast, Feedback.loading, Feedback.emptyView, Feedback.alert,
             Foundation.string, Foundation.l10n, Foundation.socket, Foundation.countdown,
-            Foundation.logger, Foundation.routerDemo, Foundation.networkCrypto,
+            Foundation.logger, Foundation.routerDemo, Foundation.routerCaller, Foundation.networkCrypto,
             Foundation.scanner, Foundation.infra, Foundation.storage,
             Foundation.utilities, Foundation.mediaData, Foundation.deviceInfo,
             Foundation.cache, Foundation.webView, Foundation.paramPassing

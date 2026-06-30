@@ -18,9 +18,9 @@ import UIKit
 /// 同时支持 **URL 页面跳转** 和 **Protocol 服务发现（IoC）** 两种模式：
 ///
 /// ```swift
-/// // 启动时注册路由
+/// // 启动时注册路由（通过组件自注册或手动注册）
 /// BARouter.shared.register(
-///     BARouteConfig(pattern: "/user/detail/:userId", targetType: .viewController(UserDetailVC.self))
+///     BARouteConfig(pattern: "/user/detail/:userId", handler: UserDetailRouteHandler())
 /// )
 ///
 /// // 注册服务
@@ -64,11 +64,11 @@ public final class BARouter {
 
     // MARK: - Private State
 
-    /// URL Pattern → 路由配置的注册表。
+    /// URL Pattern → 路由配置的注册表（主表，用于调试与匹配树重建）。
     private var routeMap: [String: BARouteConfig] = [:]
 
-    /// 动态路由 Pattern 列表（包含 `:` 或 `*` 的 pattern），按注册顺序匹配。
-    private var dynamicPatterns: [(pattern: String, regex: NSRegularExpression, paramNames: [String])] = []
+    /// 路由匹配前缀树。按路径分段组织，匹配复杂度与路由总数无关，适配大型工程的海量路由。
+    private let trie = BARouteTrie()
 
     /// 服务容器。
     let serviceContainer = BAServiceContainer()
@@ -93,10 +93,14 @@ public final class BARouter {
     /// 该方法仅需在 AppDelegate 中调用一次。调用后 `isReady` 置为 `true`，
     /// 此后重复调用无副作用。
     ///
-    /// - Parameter autoRegister: 是否开启自动注册扫描（当前版本预留），默认 `false`。
+    /// - Parameter autoRegister: 是否自动发现并注册所有 ``BARouteModule`` 组件路由，默认 `false`。
+    ///   传 `true` 等价于额外调用 `BARouteRegistrarRegistry.shared.registerAll()`。
     public func setup(autoRegister: Bool = false) {
         guard !isReady else { return }
         isReady = true
+        if autoRegister {
+            BARouteRegistrarRegistry.shared.registerAll()
+        }
         BARouterLogger.info("BARouter 初始化完成")
     }
 
@@ -112,7 +116,7 @@ public final class BARouter {
     /// BARouter.shared.register(
     ///     BARouteConfig(
     ///         pattern: "/user/detail/:userId",
-    ///         targetType: .viewController(UserDetailVC.self),
+    ///         handler: UserDetailRouteHandler(),
     ///         sourceType: .push
     ///     )
     /// )
@@ -122,15 +126,7 @@ public final class BARouter {
         defer { lock.unlock() }
 
         routeMap[config.pattern] = config
-
-        // 解析动态 Pattern
-        if config.pattern.contains(":") || config.pattern.contains("*") {
-            if let (regex, paramNames) = compilePattern(config.pattern) {
-                // 移除旧的同 pattern 条目
-                dynamicPatterns.removeAll { $0.pattern == config.pattern }
-                dynamicPatterns.append((config.pattern, regex, paramNames))
-            }
-        }
+        trie.insert(config.pattern, config: config)
 
         BARouterLogger.info("注册路由: \(config.pattern)")
     }
@@ -150,8 +146,12 @@ public final class BARouter {
     public func unregister(pattern: String) {
         lock.lock()
         defer { lock.unlock() }
-        routeMap.removeValue(forKey: pattern)
-        dynamicPatterns.removeAll { $0.pattern == pattern }
+        guard routeMap.removeValue(forKey: pattern) != nil else { return }
+        // Trie 无法单点删除，按主表重建。unregister 频率极低，重建成本可接受。
+        trie.removeAll()
+        for (p, c) in routeMap {
+            trie.insert(p, config: c)
+        }
         BARouterLogger.info("移除路由: \(pattern)")
     }
 
@@ -172,6 +172,19 @@ public final class BARouter {
     /// ```
     @discardableResult
     public func open(_ url: String, completion: ((BARouteError?) -> Void)? = nil) -> BARouteError? {
+        openInternal(url, redirectDepth: 0, completion: completion)
+    }
+
+    /// 重定向次数上限，防护拦截器之间的循环重定向（如 A→B→A）导致的无限递归崩溃。
+    private static let maxRedirectDepth = 10
+
+    /// `open(_:completion:)` 的核心实现。
+    /// - Parameter redirectDepth: 当前重定向深度，超过 ``maxRedirectDepth`` 时以 `.tooManyRedirects` 失败。
+    @discardableResult
+    private func openInternal(_ url: String, redirectDepth: Int, completion: ((BARouteError?) -> Void)? = nil) -> BARouteError? {
+        // 0. 路由跳转涉及 UIKit 操作，必须在主线程调用
+        assert(Thread.isMainThread, "BARouter.open(_:) 必须在主线程调用")
+
         // 1. 解析 URL
         guard let urlComponents = parseURL(url) else {
             let error = BARouteError.invalidURL(url)
@@ -189,8 +202,13 @@ public final class BARouter {
         }
 
         // 3. 构建上下文
-        let topVC = topViewController()
-        let nav = topVC?.navigationController
+        #if canImport(UIKit)
+        let topVC: AnyObject? = BARouteNavigator.currentViewController
+        let nav: AnyObject? = topVC?.navigationController
+        #else
+        let topVC: AnyObject? = nil
+        let nav: AnyObject? = nil
+        #endif
         var context = BARouteContext(
             url: url,
             config: matchResult.config,
@@ -212,8 +230,8 @@ public final class BARouter {
         case .block(let reason):
             interceptError = BARouteError.blocked(url: url, interceptor: reason)
         case .redirect(let redirectURL):
-            interceptorChain.notifyDidOpen(context, error: nil)
-            return open(redirectURL, completion: completion)
+            // 重定向时不应触发 didOpen，由最终跳转结果统一回调。
+            return redirect(to: redirectURL, from: url, redirectDepth: redirectDepth, completion: completion)
         }
 
         // 检查路由专属拦截器
@@ -227,9 +245,8 @@ public final class BARouter {
                 case .block(let reason):
                     interceptError = BARouteError.blocked(url: url, interceptor: reason)
                 case .redirect(let redirectURL):
-                    interceptorChain.notifyDidOpen(context, error: nil)
-                    matchResult.config.interceptors.forEach { $0.didOpen(context, error: nil) }
-                    return open(redirectURL, completion: completion)
+                    // 重定向时不应触发 didOpen，由最终跳转结果统一回调。
+                    return redirect(to: redirectURL, from: url, redirectDepth: redirectDepth, completion: completion)
                 }
                 if interceptError != nil { break }
             }
@@ -257,6 +274,21 @@ public final class BARouter {
     @discardableResult
     public func open(_ url: URL, completion: ((BARouteError?) -> Void)? = nil) -> BARouteError? {
         open(url.absoluteString, completion: completion)
+    }
+
+    /// 执行一次重定向跳转，并在超过深度上限时以 `.tooManyRedirects` 失败（防循环重定向）。
+    @discardableResult
+    private func redirect(to redirectURL: String,
+                          from url: String,
+                          redirectDepth: Int,
+                          completion: ((BARouteError?) -> Void)?) -> BARouteError? {
+        guard redirectDepth < Self.maxRedirectDepth else {
+            let error = BARouteError.tooManyRedirects(url)
+            BARouterLogger.error(error.localizedDescription)
+            completion?(error)
+            return error
+        }
+        return openInternal(redirectURL, redirectDepth: redirectDepth + 1, completion: completion)
     }
 
     // MARK: - Request-Based Opening
@@ -294,17 +326,29 @@ public final class BARouter {
             params["_ba_callback_token"] = tokenStr
             // 将 params 编码为 query string 追加到 path
             let queryItems = params.compactMap { (key, value) -> String? in
-                "\(key)=\(value)"
+                guard let encodedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                      let encodedValue = "\(value)".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+                    return nil
+                }
+                return "\(encodedKey)=\(encodedValue)"
             }
             if !queryItems.isEmpty {
                 path += "?" + queryItems.joined(separator: "&")
             }
         }
 
-        open(path) { error in
-            if error != nil, let token = token {
-                self.callbackRegistry.remove(token)
+        // 跳转涉及 UIKit，统一在主线程执行；token 已同步创建，可立即返回给调用方。
+        let performOpen: () -> Void = {
+            _ = self.open(path) { error in
+                if error != nil, let token = token {
+                    self.callbackRegistry.remove(token)
+                }
             }
+        }
+        if Thread.isMainThread {
+            performOpen()
+        } else {
+            DispatchQueue.main.async(execute: performOpen)
         }
 
         return token
@@ -438,10 +482,10 @@ public final class BARouter {
         var queryParams: [String: String] = [:]
         if parts.count == 2 {
             let queryString = String(parts[1])
-            if let components = URLComponents(string: "app://app?\(queryString)") {
-                for item in components.queryItems ?? [] {
-                    queryParams[item.name] = item.value
-                }
+            var components = URLComponents()
+            components.query = queryString
+            for item in components.queryItems ?? [] {
+                queryParams[item.name] = item.value
             }
         }
         return (path, queryParams)
@@ -449,63 +493,26 @@ public final class BARouter {
 
     // MARK: - Private: Pattern Matching
 
-    private func compilePattern(_ pattern: String) -> (NSRegularExpression, [String])? {
-        var paramNames: [String] = []
-        var regexString = "^"
-
-        let segments = pattern.split(separator: "/", omittingEmptySubsequences: false)
-        for segment in segments {
-            regexString += "/"
-            if segment.hasPrefix(":") {
-                let name = String(segment.dropFirst())
-                paramNames.append(name)
-                regexString += "([^/]+)"
-            } else if segment == "*" {
-                regexString += ".*"
-            } else {
-                regexString += NSRegularExpression.escapedPattern(for: String(segment))
-            }
-        }
-        regexString += "$"
-
-        guard let regex = try? NSRegularExpression(pattern: regexString, options: [.caseInsensitive]) else {
-            BARouterLogger.error("路由 Pattern 编译失败: \(pattern)")
-            return nil
-        }
-        return (regex, paramNames)
-    }
-
     private func matchRoute(path: String, queryParams: [String: String]) -> BARouteMatchResult? {
         lock.lock()
         defer { lock.unlock() }
 
-        // 1. 精确匹配
-        if let config = routeMap[path] {
-            return BARouteMatchResult(config: config, params: queryParams)
+        guard let (config, pathParams) = trie.search(path) else { return nil }
+
+        // 合并参数：Query 参数为基底，路径参数同名时覆盖 Query。
+        var params: [String: Any] = queryParams
+        for (name, value) in pathParams {
+            params[name] = value
         }
-
-        // 2. 动态 Pattern 匹配
-        for (pattern, regex, paramNames) in dynamicPatterns {
-            let range = NSRange(location: 0, length: path.utf16.count)
-            guard let match = regex.firstMatch(in: path, options: [], range: range) else { continue }
-            guard let config = routeMap[pattern] else { continue }
-
-            var params: [String: Any] = queryParams
-            for (index, name) in paramNames.enumerated() {
-                let captureRange = match.range(at: index + 1)
-                if captureRange.location != NSNotFound,
-                   let range = Range(captureRange, in: path) {
-                    params[name] = String(path[range])
-                }
-            }
-            return BARouteMatchResult(config: config, params: params)
-        }
-
-        return nil
+        return BARouteMatchResult(config: config, params: params)
     }
 
     // MARK: - Private: Route Execution
 
+    /// 执行路由跳转，将控制权委托给 Handler。
+    ///
+    /// BARouter 不再直接创建 UIViewController，所有导航逻辑
+    /// 由 `BARouteConfig.handler` 全权负责。
     private func performRoute(
         matchResult: BARouteMatchResult,
         context: BARouteContext,
@@ -513,132 +520,65 @@ public final class BARouter {
     ) {
         let config = matchResult.config
 
-        switch config.targetType {
-        case .viewController(let vcType):
-            performViewControllerRoute(
-                vcType: vcType,
+        DispatchQueue.main.async {
+            config.handler.handle(
                 params: matchResult.params,
                 sourceType: config.sourceType,
                 animated: config.animated,
                 completion: completion
             )
-
-        case .action(let handler):
-            handler(matchResult.params, { completion(nil) })
         }
     }
+}
 
-    private func performViewControllerRoute(
-        vcType: UIViewController.Type,
-        params: [String: Any],
-        sourceType: BARouteSourceType,
-        animated: Bool,
-        completion: @escaping (BARouteError?) -> Void
-    ) {
-        let targetVC = vcType.init()
+// MARK: - Log Level
 
-        // 参数注入（通过 KVC 注入简单属性，若 VC 遵循 BARoutable 则走协议注入）
-        if let routable = targetVC as? BARoutable {
-            routable.receiveRouteParams(params)
-        }
+/// 路由日志级别。
+public enum BARouteLogLevel: String {
+    case info
+    case warning
+    case error
+}
 
-        DispatchQueue.main.async {
-            let topVC = self.topViewController()
-            let nav = topVC?.navigationController
+public extension BARouter {
 
-            switch sourceType {
-            case .auto:
-                if let nav = nav {
-                    nav.pushViewController(targetVC, animated: animated)
-                    BARouterLogger.info("跳转 → \(String(describing: vcType)) [push]")
-                } else {
-                    topVC?.present(targetVC, animated: animated)
-                    BARouterLogger.info("跳转 → \(String(describing: vcType)) [present]")
-                }
-
-            case .push:
-                guard let nav = nav else {
-                    let error = BARouteError.parameterError(
-                        url: "",
-                        reason: "Push 需要当前页面在 UINavigationController 栈中"
-                    )
-                    BARouterLogger.error(error.localizedDescription)
-                    completion(error)
-                    return
-                }
-                nav.pushViewController(targetVC, animated: animated)
-                BARouterLogger.info("跳转 → \(String(describing: vcType)) [push]")
-
-            case .present:
-                topVC?.present(targetVC, animated: animated)
-                BARouterLogger.info("跳转 → \(String(describing: vcType)) [present]")
-
-            case .root:
-                if let window = UIApplication.shared.connectedScenes
-                    .compactMap({ ($0 as? UIWindowScene)?.keyWindow })
-                    .first {
-                    window.rootViewController = targetVC
-                    window.makeKeyAndVisible()
-                }
-                BARouterLogger.info("跳转 → \(String(describing: vcType)) [root]")
-            }
-
-            completion(nil)
-        }
-    }
-
-    // MARK: - Private: ViewController Hierarchy
-
-    private func topViewController() -> UIViewController? {
-        guard let window = UIApplication.shared.connectedScenes
-            .compactMap({ ($0 as? UIWindowScene)?.keyWindow })
-            .first,
-            let root = window.rootViewController else { return nil }
-        return findTop(from: root)
-    }
-
-    private func findTop(from vc: UIViewController) -> UIViewController {
-        if let presented = vc.presentedViewController {
-            return findTop(from: presented)
-        }
-        if let nav = vc as? UINavigationController {
-            return findTop(from: nav.visibleViewController ?? nav)
-        }
-        if let tab = vc as? UITabBarController, let selected = tab.selectedViewController {
-            return findTop(from: selected)
-        }
-        return vc
+    /// 设置路由内部日志的输出钩子。
+    ///
+    /// 默认情况下路由日志仅在 DEBUG 下 `print`。接入方可借此把日志重定向到自有日志系统
+    /// （例如 BASwiftKit 的 `BALogManager`）：
+    ///
+    /// ```swift
+    /// BARouter.shared.setLogHandler { level, message in
+    ///     BALogManager.shared.log(level: level == .error ? .error : .info, message)
+    /// }
+    /// ```
+    ///
+    /// - Parameter handler: 输出闭包；传 `nil` 恢复默认（仅 DEBUG 下 print）。
+    /// - Note: 建议在 App 启动阶段一次性设置，避免与日志写入并发。
+    func setLogHandler(_ handler: ((BARouteLogLevel, String) -> Void)?) {
+        BARouterLogger.handler = handler
     }
 }
 
 // MARK: - Logger (Internal)
 
-/// 路由模块内部日志工具。
+/// 路由模块内部日志工具。可通过 `BARouter.shared.setLogHandler(_:)` 重定向输出。
 enum BARouterLogger {
-    static func info(_ message: String) {
+
+    /// 可插拔输出钩子。为 `nil` 时回落到 DEBUG 下的 `print`。
+    static var handler: ((BARouteLogLevel, String) -> Void)?
+
+    static func info(_ message: String)    { emit(.info, message) }
+    static func warning(_ message: String) { emit(.warning, message) }
+    static func error(_ message: String)   { emit(.error, message) }
+
+    private static func emit(_ level: BARouteLogLevel, _ message: String) {
+        if let handler = handler {
+            handler(level, message)
+            return
+        }
         #if DEBUG
-        print("[BARouter][INFO] \(message)")
+        print("[BARouter][\(level.rawValue.uppercased())] \(message)")
         #endif
-    }
-
-    static func warning(_ message: String) {
-        #if DEBUG
-        print("[BARouter][WARNING] \(message)")
-        #endif
-    }
-
-    static func error(_ message: String) {
-        #if DEBUG
-        print("[BARouter][ERROR] \(message)")
-        #endif
-    }
-}
-
-// MARK: - BAServiceContainer Debug Extension
-
-extension BAServiceContainer {
-    func debugAllKeys() -> [String] {
-        // 简单返回已注册服务类型名（供调试面板使用）
-        return []
     }
 }

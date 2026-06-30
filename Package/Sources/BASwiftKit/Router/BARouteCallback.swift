@@ -40,12 +40,22 @@ final class BARouteCallbackRegistry {
     private var store: [BARouteCallbackToken: BARouteCallback] = [:]
     private let lock = NSLock()
 
+    /// 回调最长存活时间（秒）。超时仍未被消费则自动清理，
+    /// 防止目标页**永不回传**（如用户直接返回、页面销毁）导致回调闭包及其捕获对象永久泄漏。
+    var timeout: TimeInterval = 300
+
     /// 注册一个回调，返回 token。
     func register(_ callback: @escaping BARouteCallback) -> BARouteCallbackToken {
         lock.lock()
-        defer { lock.unlock() }
         let token = UUID().uuidString
         store[token] = callback
+        lock.unlock()
+
+        // 安全网：超时后若仍未被消费则移除（已消费则为 no-op）。
+        let timeout = self.timeout
+        DispatchQueue.global().asyncAfter(deadline: .now() + timeout) { [weak self] in
+            self?.remove(token)
+        }
         return token
     }
 

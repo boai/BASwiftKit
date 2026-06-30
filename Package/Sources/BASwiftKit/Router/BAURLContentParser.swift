@@ -317,10 +317,10 @@ public enum BAURLParser {
         var params: [String: Any] = [:]
         if parts.count == 2 {
             let queryString = String(parts[1])
-            if let components = URLComponents(string: "app://app?\(queryString)") {
-                for item in components.queryItems ?? [] {
-                    params[item.name] = item.value ?? ""
-                }
+            var components = URLComponents()
+            components.query = queryString
+            for item in components.queryItems ?? [] {
+                params[item.name] = item.value ?? ""
             }
         }
 

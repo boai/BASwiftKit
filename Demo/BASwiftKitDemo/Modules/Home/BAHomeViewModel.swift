@@ -76,7 +76,7 @@ enum BADemoRootFactory {
 ///
 /// 每个 `BADemoItem` 持有一条 BARouter 路由路径，
 /// 点击卡片时通过 `BARouter.shared.open(route)` 跳转。
-/// 各 demo pod 的 VC 通过 `BADemoRouteRegistrar` 注册到路由表。
+/// 各 demo pod 的 VC 通过 `BARouteRegistrar` 协议自注册到路由表。
 enum BADemoCatalog {
 
     static func allItems() -> [BADemoItem] {

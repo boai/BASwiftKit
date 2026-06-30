@@ -86,9 +86,7 @@ public final class BAParamPassingDemoViewController: BABaseViewController, BARou
         if let msg = params["message"] as? String {
             messageTextField.text = msg
         }
-        if let token = params["_ba_callback_token"] as? String {
-            self.routeToken = token
-        }
+        // routeToken 已在 init(routeToken:) 中注入，此处不重复提取
     }
 
     // MARK: - Life Cycle
@@ -174,9 +172,12 @@ public final class BAParamPassingDemoViewController: BABaseViewController, BARou
     }
 
     private func populateReceivedParams() {
-        guard !routeParams.isEmpty else { return }
+        // 过滤内部 key（如 _ba_callback_token），避免路由机制细节暴露到 UI
+        let internalKeys: Set<String> = ["_ba_callback_token"]
+        let userParams = routeParams.filter { !internalKeys.contains($0.key) }
+        guard !userParams.isEmpty else { return }
 
-        displayItems = routeParams.map { key, value in
+        displayItems = userParams.map { key, value in
             DisplayItem(key: key, value: "\(value)")
         }.sorted { $0.key < $1.key }
     }

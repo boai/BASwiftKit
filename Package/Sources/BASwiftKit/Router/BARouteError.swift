@@ -34,6 +34,10 @@ public enum BARouteError: Error, LocalizedError, Equatable {
     ///   - interceptor: 拦截器名称。
     case blocked(url: String, interceptor: String)
 
+    /// 重定向次数超过上限（疑似循环重定向）。
+    /// - Parameter url: 触发超限的 URL。
+    case tooManyRedirects(String)
+
     // MARK: - Service Errors
 
     /// 未找到匹配的服务。
@@ -58,6 +62,8 @@ public enum BARouteError: Error, LocalizedError, Equatable {
             return "路由参数解析失败: \(url), 原因: \(reason)"
         case .blocked(let url, let interceptor):
             return "路由跳转被拦截: \(url), 拦截器: \(interceptor)"
+        case .tooManyRedirects(let url):
+            return "路由重定向次数超过上限（疑似循环重定向）: \(url)"
         case .serviceNotFound(let type):
             return "未找到注册的服务: \(type)"
         case .serviceCreationFailed(let type, let reason):

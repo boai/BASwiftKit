@@ -6,9 +6,6 @@
 //
 
 import Foundation
-#if canImport(UIKit)
-import UIKit
-#endif
 
 // MARK: - Interceptor Context
 
@@ -20,18 +17,20 @@ public struct BARouteContext {
     public let config: BARouteConfig
     /// URL 解析出的参数字典。
     public let params: [String: Any]
-    /// 当前最顶层的 ViewController（用于 push/present）。
-    public weak var topViewController: UIViewController?
-    /// 当前有效的 UINavigationController。
-    public weak var navigationController: UINavigationController?
+    /// 当前最顶层的 ViewController（UIKit 环境下为实际 VC，否则为 `nil`）。
+    ///
+    /// 拦截器/Handler 中可按需 `as? UIViewController` 转回具体类型。
+    public weak var topViewController: AnyObject?
+    /// 当前有效的 UINavigationController（UIKit 环境下为实际 NC，否则为 `nil`）。
+    public weak var navigationController: AnyObject?
 
     /// 创建拦截上下文。
     public init(
         url: String,
         config: BARouteConfig,
         params: [String: Any],
-        topViewController: UIViewController?,
-        navigationController: UINavigationController?
+        topViewController: AnyObject?,
+        navigationController: AnyObject?
     ) {
         self.url = url
         self.config = config
@@ -142,13 +141,14 @@ final class BARouteInterceptorChain {
     func execute(_ context: BARouteContext) -> (result: BARouteInterceptorResult, context: BARouteContext) {
         var currentContext = context
         for interceptor in interceptors {
-            switch interceptor.shouldOpen(currentContext) {
+            let result = interceptor.shouldOpen(currentContext)
+            switch result {
             case .continue:
                 continue
             case .continueWith(let newContext):
                 currentContext = newContext
             case .block, .redirect:
-                return (interceptor.shouldOpen(currentContext), currentContext)
+                return (result, currentContext)
             }
         }
         return (.continue, currentContext)
