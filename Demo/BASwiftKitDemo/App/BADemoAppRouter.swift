@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import DemoCommon
 
 /// 主 Demo App 路由注册器。
 ///
@@ -25,7 +26,7 @@ final class BADemoAppRouter: NSObject, BARouteModule {
 
     /// 跨模块传参 & 回调 Caller 页面
     private static func registerRouterCaller() {
-        BARouter.shared.register(BADemoRoutes.Foundation.routerCaller, title: "跨模块传参 & 回调", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.routerCaller, title: "跨模块传参 & 回调", sourceType: .push) { _ in
             BARouterCallerViewController()
         }
     }

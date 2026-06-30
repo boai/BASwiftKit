@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 设备信息 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BADeviceInfoDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/device-info", title: "设备信息 + 清缓存", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.deviceInfo, title: "设备信息 + 清缓存", sourceType: .push) { _ in
             BADeviceInfoDemoViewController(viewModel: BADeviceInfoDemoViewModel())
         }
     }

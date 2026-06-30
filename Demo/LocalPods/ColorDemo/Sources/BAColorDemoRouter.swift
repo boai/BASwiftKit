@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 颜色 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BAColorDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/ui/color", title: "颜色 / UIColor", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.UI.color, title: "颜色 / UIColor", sourceType: .push) { _ in
             BAColorDemoViewController(viewModel: BAColorDemoViewModel())
         }
     }

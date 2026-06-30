@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// UI 组件 Demo 路由注册器。
 ///
@@ -15,10 +16,10 @@ import BASwiftKit
 final class BAComponentsDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/ui/components", title: "UI 组件", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.UI.components, title: "UI 组件", sourceType: .push) { _ in
             BAComponentsDemoViewController(viewModel: BAComponentsDemoViewModel())
         }
-        BARouter.shared.register("/demo/ui/banner", title: "广告组件 / 跑马灯 · 轮播", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.UI.banner, title: "广告组件 / 跑马灯 · 轮播", sourceType: .push) { _ in
             BAAdDemoViewController()
         }
     }

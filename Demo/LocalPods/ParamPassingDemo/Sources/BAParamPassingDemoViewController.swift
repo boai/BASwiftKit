@@ -21,9 +21,9 @@ import DemoCommon
 ///
 /// 路由注册示例：
 /// ```swift
-/// BARouter.shared.register(demoRoute(pattern: BADemoRoutes.Foundation.paramPassing) {
+/// BARouter.shared.register(BADemoRoute.Foundation.paramPassing) {
 ///     BAParamPassingDemoViewController(routeToken: token)
-/// })
+/// }
 /// ```
 public final class BAParamPassingDemoViewController: BABaseViewController, BARoutable {
 
@@ -250,7 +250,7 @@ public final class BAParamPassingDemoViewController: BABaseViewController, BARou
         【外部调用示例】
         let req = BARouteRequest(
             urlString: "ba://demo/foundation/param-passing?name=张三",
-            path: BADemoRoutes.Foundation.paramPassing,
+            path: BADemoRoute.Foundation.paramPassing.pattern,
             params: ["name": "张三", "age": 28],
             source: .externalApp
         )

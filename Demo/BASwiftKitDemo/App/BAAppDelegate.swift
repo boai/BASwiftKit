@@ -7,6 +7,7 @@
 
 import UIKit
 import BASwiftKit
+import DemoCommon
 
 @main
 class BAAppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,7 +19,7 @@ class BAAppDelegate: UIResponder, UIApplicationDelegate {
         // 2. 启动自动埋点（页面浏览 + 按钮点击 Swizzling）
         BAAutoTracker.start()
         // 3. 注册 App URL Scheme
-        BAURLParser.registeredSchemes.insert(BADemoRoutes.scheme)
+        BAURLParser.registeredSchemes.insert(BADemoRoute.scheme)
         // 4. 初始化路由系统并一键自动发现注册所有组件路由（各 Pod 实现 BARouteModule，主工程永不改动）
         BARouter.shared.setup(autoRegister: true)
         let routeCount = BARouter.shared.debugAllRoutes().count

@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 动画 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BAAnimationDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/ui/animation", title: "动画 / Animation", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.UI.animation, title: "动画 / Animation", sourceType: .push) { _ in
             BAAnimationDemoViewController(viewModel: BAAnimationDemoViewModel())
         }
     }

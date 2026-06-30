@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 全局 Toast Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BAToastDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/feedback/toast", title: "全局 Toast", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Feedback.toast, title: "全局 Toast", sourceType: .push) { _ in
             BAToastDemoViewController(viewModel: BAToastDemoViewModel())
         }
     }

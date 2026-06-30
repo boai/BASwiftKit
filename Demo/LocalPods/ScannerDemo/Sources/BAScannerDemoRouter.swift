@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 扫一扫 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BAScannerDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/scanner", title: "扫一扫 / Scanner", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.scanner, title: "扫一扫 / Scanner", sourceType: .push) { _ in
             BAScannerDemoViewController()
         }
     }

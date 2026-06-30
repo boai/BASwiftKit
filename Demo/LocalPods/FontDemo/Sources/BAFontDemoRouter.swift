@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 字体 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BAFontDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/ui/font", title: "字体 / UIFont", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.UI.font, title: "字体 / UIFont", sourceType: .push) { _ in
             BAFontDemoViewController(viewModel: BAFontDemoViewModel())
         }
     }

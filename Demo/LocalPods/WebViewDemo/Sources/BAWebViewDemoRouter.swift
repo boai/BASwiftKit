@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// WebView 封装 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BAWebViewDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/webview", title: "WebView 封装", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.webView, title: "WebView 封装", sourceType: .push) { _ in
             BAWebViewDemoViewController()
         }
     }

@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 日志埋点 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BALoggerDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/logger", title: "日志埋点 / Logger", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.logger, title: "日志埋点 / Logger", sourceType: .push) { _ in
             BALoggerDemoViewController()
         }
     }

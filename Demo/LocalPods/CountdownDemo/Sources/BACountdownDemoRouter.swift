@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 倒计时 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BACountdownDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/countdown", title: "倒计时 / Countdown", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.countdown, title: "倒计时 / Countdown", sourceType: .push) { _ in
             BACountdownDemoViewController()
         }
     }

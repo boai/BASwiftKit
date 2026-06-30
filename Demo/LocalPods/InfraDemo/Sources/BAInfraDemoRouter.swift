@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 基础设施 Demo 路由注册器。
 ///
@@ -23,7 +24,7 @@ final class BAInfraDemoRouter: NSObject, BARouteModule {
     // MARK: - EmptyView / 空状态
 
     private static func registerEmptyViewPage() {
-        BARouter.shared.register("/demo/feedback/emptyview", title: "EmptyView / 空状态", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Feedback.emptyView, title: "EmptyView / 空状态", sourceType: .push) { _ in
             BAInfraDemoViewController(viewModel: BAInfraDemoViewModel())
         }
     }
@@ -31,7 +32,7 @@ final class BAInfraDemoRouter: NSObject, BARouteModule {
     // MARK: - 自定义 Alert / 表单
 
     private static func registerAlertPage() {
-        BARouter.shared.register("/demo/feedback/alert", title: "自定义 Alert / 表单", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Feedback.alert, title: "自定义 Alert / 表单", sourceType: .push) { _ in
             BAInfraDemoViewController(viewModel: BAInfraDemoViewModel())
         }
     }
@@ -39,7 +40,7 @@ final class BAInfraDemoRouter: NSObject, BARouteModule {
     // MARK: - 基础设施 / Codable · Network
 
     private static func registerInfraPage() {
-        BARouter.shared.register("/demo/foundation/infra", title: "基础设施 / Codable · Network", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.infra, title: "基础设施 / Codable · Network", sourceType: .push) { _ in
             BAInfraDemoViewController(viewModel: BAInfraDemoViewModel())
         }
     }

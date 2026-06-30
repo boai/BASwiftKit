@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// Network & Crypto Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BANetworkCryptoDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/network-crypto", title: "Network & Crypto", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.networkCrypto, title: "Network & Crypto", sourceType: .push) { _ in
             BANetworkCryptoDemoViewController(viewModel: BANetworkCryptoDemoViewModel())
         }
     }

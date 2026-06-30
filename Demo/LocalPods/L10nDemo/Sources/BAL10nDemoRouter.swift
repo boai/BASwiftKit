@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 多语言 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BAL10nDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/l10n", title: "多语言 / BALocalization", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.l10n, title: "多语言 / BALocalization", sourceType: .push) { _ in
             BAL10nDemoViewController(viewModel: BAL10nDemoViewModel())
         }
     }

@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 参数传递 & 回调 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BAParamPassingDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/param-passing", title: "参数传递 & 回调", sourceType: .push) { params in
+        BARouter.shared.register(BADemoRoute.Foundation.paramPassing, title: "参数传递 & 回调", sourceType: .push) { params in
             let token = params["_ba_callback_token"] as? BARouteCallbackToken
             return BAParamPassingDemoViewController(routeToken: token)
         }

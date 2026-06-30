@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// Cache 缓存 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BACacheDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/cache", title: "Cache 缓存框架", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.cache, title: "Cache 缓存框架", sourceType: .push) { _ in
             BACacheDemoViewController(viewModel: BACacheDemoViewModel())
         }
     }

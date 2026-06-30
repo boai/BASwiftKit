@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// Socket Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BASocketDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/socket", title: "Socket / WebSocket", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.socket, title: "Socket / WebSocket", sourceType: .push) { _ in
             BASocketDemoViewController()
         }
     }

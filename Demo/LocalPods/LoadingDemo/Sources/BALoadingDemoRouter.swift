@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 加载 HUD Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BALoadingDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/feedback/loading", title: "加载 HUD / Progress", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Feedback.loading, title: "加载 HUD / Progress", sourceType: .push) { _ in
             BALoadingDemoViewController(viewModel: BALoadingDemoViewModel())
         }
     }

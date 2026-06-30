@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 工具封装 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BAUtilitiesDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/utilities", title: "工具封装", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.utilities, title: "工具封装", sourceType: .push) { _ in
             BAUtilitiesDemoViewController()
         }
     }

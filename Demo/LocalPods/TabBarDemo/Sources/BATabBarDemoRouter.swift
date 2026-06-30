@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 自定义 TabBar Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BATabBarDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/ui/tabbar", title: "自定义 TabBar", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.UI.tabbar, title: "自定义 TabBar", sourceType: .push) { _ in
             BATabBarDemoLauncher.make()
         }
     }

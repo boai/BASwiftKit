@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// Storage 存储 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BAStorageDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/storage", title: "Storage 存储工具", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.storage, title: "Storage 存储工具", sourceType: .push) { _ in
             BAStorageDemoViewController(viewModel: BAStorageDemoViewModel())
         }
     }

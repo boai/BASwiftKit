@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import BASwiftKit
 
 /// Home 列表中的一个 Demo 卡片数据模型。
 ///
@@ -21,6 +22,7 @@ struct BADemoItem {
     let iconSystemName: String
     /// 渐变背景色数组
     let gradient: [UIColor]
-    /// BARouter 路由路径，如 "/demo/animation"
-    let route: String
+    /// BARouter 路由（类型安全，遵循 `BARoutePath`），如 `BADemoRoute.UI.animation`。
+    /// 点击卡片时通过 `BARouter.shared.open(route)` 跳转。
+    let route: any BARoutePath
 }

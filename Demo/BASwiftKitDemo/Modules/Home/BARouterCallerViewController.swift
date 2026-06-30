@@ -163,9 +163,10 @@ public final class BARouterCallerViewController: BABaseViewController {
             "source_module": "RouterCallerDemo"
         ]
 
+        let routePath = BADemoRoute.Foundation.paramPassing
         let request = BARouteRequest(
-            urlString: BADemoRoutes.fullURL(BADemoRoutes.Foundation.paramPassing),
-            path: BADemoRoutes.Foundation.paramPassing,
+            urlString: BADemoRoute.fullURL(routePath),
+            path: routePath.pattern,
             params: params,
             source: .internal
         )

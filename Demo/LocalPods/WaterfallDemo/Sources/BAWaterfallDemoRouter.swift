@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 瀑布流 Demo 路由注册器。
 ///
@@ -22,7 +23,7 @@ final class BAWaterfallDemoRouter: NSObject, BARouteModule {
     // MARK: - 瀑布流 FlowLayout
 
     private static func registerWaterfallPage() {
-        BARouter.shared.register("/demo/ui/waterfall", title: "瀑布流 FlowLayout", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.UI.waterfall, title: "瀑布流 FlowLayout", sourceType: .push) { _ in
             BAWaterfallDemoViewController()
         }
     }
@@ -30,7 +31,7 @@ final class BAWaterfallDemoRouter: NSObject, BARouteModule {
     // MARK: - 横向分页瀑布流
 
     private static func registerPagedWaterfallPage() {
-        BARouter.shared.register("/demo/ui/paged-waterfall", title: "横向分页瀑布流", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.UI.pagedWaterfall, title: "横向分页瀑布流", sourceType: .push) { _ in
             BAPagedWaterfallDemoViewController()
         }
     }

@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 字符串 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BAStringDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/string", title: "字符串 / String", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.string, title: "字符串 / String", sourceType: .push) { _ in
             BAStringDemoViewController(viewModel: BAStringDemoViewModel())
         }
     }

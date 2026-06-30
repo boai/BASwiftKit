@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 路由 Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BARouterDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/router", title: "路由 / Router", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.routerDemo, title: "路由 / Router", sourceType: .push) { _ in
             BARouterDemoViewController()
         }
     }

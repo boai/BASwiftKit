@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// 自定义 NavigationBar Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BANavBarDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/ui/navbar", title: "自定义 NavigationBar", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.UI.navbar, title: "自定义 NavigationBar", sourceType: .push) { _ in
             BANavBarDemoViewController(viewModel: BANavBarDemoViewModel())
         }
     }

@@ -6,6 +6,7 @@
 //
 
 import BASwiftKit
+import DemoCommon
 
 /// Data & Image Demo 路由注册器。
 ///
@@ -15,7 +16,7 @@ import BASwiftKit
 final class BAMediaDataDemoRouter: NSObject, BARouteModule {
 
     static func registerRoutes() {
-        BARouter.shared.register("/demo/foundation/media-data", title: "Data & Image", sourceType: .push) { _ in
+        BARouter.shared.register(BADemoRoute.Foundation.mediaData, title: "Data & Image", sourceType: .push) { _ in
             BAMediaDataDemoViewController()
         }
     }
