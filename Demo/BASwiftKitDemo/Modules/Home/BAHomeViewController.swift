@@ -32,6 +32,7 @@ final class BAHomeViewController: BABaseViewController {
         super.viewDidLoad()
         title = viewModel.title
 
+        setupThemeSwitcher()
         setupTable()
         bindViewModel()
         viewModel.loadData()
@@ -137,6 +138,42 @@ final class BAHomeViewController: BABaseViewController {
             self?.items = items
             self?.tableView.reloadData()
         }.disposed(by: disposeBag)
+    }
+
+    // MARK: - Theme Switcher（主题系统演示）
+
+    /// 当前在演示中循环的主题索引。
+    private var themeModeIndex = 0
+
+    /// 可循环切换的主题列表：跟随系统 / 浅色 / 深色 / 自定义品牌主题。
+    private var themeOptions: [(name: String, mode: BAThemeMode)] {
+        [
+            ("跟随系统", .system),
+            ("浅色", .light),
+            ("深色", .dark),
+            ("品牌·海洋", .custom(BABrandOceanPalette()))
+        ]
+    }
+
+    /// 在导航栏右侧放置一个主题切换按钮（演示 BAThemeManager 一键换肤）。
+    private func setupThemeSwitcher() {
+        let button = UIBarButtonItem(
+            image: UIImage(systemName: "circle.lefthalf.filled"),
+            style: .plain,
+            target: self,
+            action: #selector(cycleTheme)
+        )
+        button.accessibilityLabel = "切换主题"
+        navigationItem.rightBarButtonItem = button
+    }
+
+    /// 循环切换主题，并以 Toast 反馈当前主题。
+    @objc private func cycleTheme() {
+        themeModeIndex = (themeModeIndex + 1) % themeOptions.count
+        let option = themeOptions[themeModeIndex]
+        // 一行切换：自动持久化、驱动窗口外观、广播变更、平滑过渡。
+        BAThemeManager.shared.apply(option.mode, animated: true)
+        BAToast.ba_show("主题已切换：\(option.name)")
     }
 }
 
