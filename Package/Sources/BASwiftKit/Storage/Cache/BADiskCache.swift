@@ -64,7 +64,9 @@ public final class BADiskCache {
 
         let fileURL = fileURL(forKey: key)
         do {
-            try fileData.write(to: fileURL)
+            // 原子写入：先写临时文件再 rename，避免写入中断留下损坏文件，
+            // 否则后续读取解码失败会被静默删除，表现为缓存无故丢失（与 BAFileManager.ba_write 默认 atomic 保持一致）。
+            try fileData.write(to: fileURL, options: .atomic)
             checkSizeLimit()
         } catch {
             BALogger.shared.ba_error("BADiskCache write failed: \(error)")

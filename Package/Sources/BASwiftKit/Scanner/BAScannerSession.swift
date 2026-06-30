@@ -31,6 +31,13 @@ public final class BAScannerSession: NSObject {
     private let metadataQueue = DispatchQueue(label: "com.baswiftkit.scanner.metadata")
     private var videoDevice: AVCaptureDevice?
 
+    /// 非连续模式下是否已投递过结果。
+    ///
+    /// 非连续模式识别到首个结果后只能异步 stop()，会话真正停下前 metadataQueue 仍会连续回调，
+    /// 用该标志短路后续回调，确保 onResult 只触发一次。受 `deliveryLock` 保护。
+    private var hasDelivered = false
+    private let deliveryLock = NSLock()
+
     /// 创建扫码会话。
     ///
     /// - Parameter configuration: 扫码配置。
@@ -69,6 +76,11 @@ public final class BAScannerSession: NSObject {
     ///
     /// 可在 `prepare(in:completion:)` 成功后调用。方法内部会切到后台队列启动采集，避免阻塞主线程。
     public func start() {
+        // 每次启动重置投递标志，使非连续模式在重新 start 后可以再次投递结果。
+        deliveryLock.lock()
+        hasDelivered = false
+        deliveryLock.unlock()
+
         sessionQueue.async { [captureSession] in
             guard !captureSession.isRunning else { return }
             captureSession.startRunning()
@@ -173,7 +185,20 @@ extension BAScannerSession: AVCaptureMetadataOutputObjectsDelegate {
               let value = readableObject.stringValue else { return }
 
         let result = BAScannerResult(value: value, metadataObjectType: readableObject.type)
-        if !configuration.isContinuous { stop() }
+
+        if !configuration.isContinuous {
+            // 非连续模式：首个结果投递后置位 hasDelivered，后续回调（会话停下前 metadataQueue
+            // 仍会连续触发）在此短路，确保 onResult 只触发一次。
+            deliveryLock.lock()
+            if hasDelivered {
+                deliveryLock.unlock()
+                return
+            }
+            hasDelivered = true
+            deliveryLock.unlock()
+            stop()
+        }
+
         DispatchQueue.main.async { [onResult] in
             onResult?(result)
         }

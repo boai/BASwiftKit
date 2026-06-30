@@ -19,7 +19,24 @@ public enum BAUserDefaults {
     public static func ba_value<T>(forKey key: String,
                                    default defaultValue: T,
                                    store: UserDefaults = .standard) -> T {
-        store.object(forKey: key) as? T ?? defaultValue
+        // key 不存在时统一返回默认值（先取原始对象，避免 integer/bool 等类型化 API 在缺失时返回 0/false 覆盖默认值）。
+        guard let object = store.object(forKey: key) else { return defaultValue }
+
+        // 数值/Bool 修正：UserDefaults 把数值/Bool 桥接为 NSNumber，
+        // 直接 `object as? T` 在跨具体数值类型时可能失败而静默回退默认值（读不到刚写入的值）。
+        // 这里对数值/Bool 走 NSNumber 的类型化取值，确保正确转换。
+        // 其它类型（String / Data / Array / Dictionary 等）保持原有 `as? T` 行为不变。
+        if let number = object as? NSNumber {
+            switch T.self {
+            case is Bool.Type:   return (number.boolValue as? T) ?? defaultValue
+            case is Int.Type:    return (number.intValue as? T) ?? defaultValue
+            case is Double.Type: return (number.doubleValue as? T) ?? defaultValue
+            case is Float.Type:  return (number.floatValue as? T) ?? defaultValue
+            default: break
+            }
+        }
+
+        return object as? T ?? defaultValue
     }
 
     /// 写入基础类型值；传入 nil 时删除对应 key。

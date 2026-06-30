@@ -28,26 +28,51 @@ public final class BALocalization {
 
     private let storageKey = "BALocalization.currentLanguage"
     private var runtimeTables: [String: [String: String]] = [:]
+    /// `currentLanguage` 的底层存储；与 `runtimeTables` 一起受 `lock` 保护。
+    private var _currentLanguage: String
+    /// 保护 `runtimeTables` 与 `_currentLanguage` 的并发读写，避免 Dictionary 数据竞争。
+    private let lock = NSLock()
+
     /// 当前语言标识，例如 `zh-Hans`、`en`。
-    public private(set) var currentLanguage: String
+    public private(set) var currentLanguage: String {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return _currentLanguage
+        }
+        set {
+            lock.lock()
+            _currentLanguage = newValue
+            lock.unlock()
+        }
+    }
 
     private init() {
         let saved = UserDefaults.standard.string(forKey: storageKey)
-        self.currentLanguage = saved
+        self._currentLanguage = saved
             ?? Locale.preferredLanguages.first
             ?? "en"
     }
 
     /// 切换语言并发通知
     public func setLanguage(_ language: String) {
-        guard language != currentLanguage else { return }
-        currentLanguage = language
+        // 在锁内比较并更新语言，锁外再做 UserDefaults 写入与通知，避免锁内做 I/O 或重入。
+        lock.lock()
+        guard language != _currentLanguage else {
+            lock.unlock()
+            return
+        }
+        _currentLanguage = language
+        lock.unlock()
+
         UserDefaults.standard.set(language, forKey: storageKey)
         NotificationCenter.default.post(name: Self.languageDidChangeNotification, object: language)
     }
 
     /// 注册某种语言的翻译字典（会合并到已有字典）
     public func register(_ table: [String: String], for language: String) {
+        lock.lock()
+        defer { lock.unlock() }
         var existing = runtimeTables[language] ?? [:]
         existing.merge(table) { _, new in new }
         runtimeTables[language] = existing
@@ -58,12 +83,18 @@ public final class BALocalization {
                           fallback: String? = nil,
                           bundle: Bundle = .main,
                           table: String = "Localizable") -> String {
+        // 先在锁内取出当前语言与运行时翻译快照，锁外再做 .lproj 资源 I/O，避免锁内做文件访问。
+        lock.lock()
+        let language = _currentLanguage
+        let runtimeValue = runtimeTables[language]?[key]
+        lock.unlock()
+
         // 1. 优先运行时字典
-        if let value = runtimeTables[currentLanguage]?[key] {
+        if let value = runtimeValue {
             return value
         }
         // 2. 其次 .lproj 资源
-        if let path = bundle.path(forResource: currentLanguage, ofType: "lproj"),
+        if let path = bundle.path(forResource: language, ofType: "lproj"),
            let langBundle = Bundle(path: path) {
             let value = langBundle.localizedString(forKey: key, value: fallback ?? key, table: table)
             if value != key { return value }

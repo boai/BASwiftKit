@@ -89,8 +89,9 @@ public extension UINavigationController {
         navigationBar.scrollEdgeAppearance = appearance
         navigationBar.compactAppearance = appearance
         navigationBar.compactScrollEdgeAppearance = appearance
+        // 交互元素颜色由 tintColor 设置即可；删除原先误用的 barTintColor —— 它是"背景着色"
+        // 属性，被错误地设成了交互色，且背景已由上面的 appearance 统一控制。
         navigationBar.tintColor = style.tintColor
-        navigationBar.barTintColor = style.tintColor
     }
 
     private static func ba_gradientImage(colors: [UIColor],

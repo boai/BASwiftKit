@@ -159,7 +159,8 @@ public final class BAHybridCache {
     ///
     /// - Parameter completion: 清理完成后在主线程回调。
     public func ba_cleanExpired(completion: (() -> Void)? = nil) {
-        memoryCache.ba_clear()
+        // 仅清理过期项，避免误删未过期的有效内存缓存（此前误用 ba_clear() 会全量清空）。
+        memoryCache.ba_removeExpired()
         diskCache.ba_cleanExpired(completion: completion)
     }
 }

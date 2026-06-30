@@ -34,6 +34,16 @@ public final class BANetworkClient {
         self.interceptors = interceptors
     }
 
+    deinit {
+        // 自定义注入的 URLSession 若不 invalidate，其内部强引用的 delegate / operationQueue 会泄漏。
+        // 仅处理非 .shared 的 session —— 绝不能 invalidate 全局共享 session（会影响整个 App 的网络）。
+        // 用 finishTasksAndInvalidate 等在途任务正常结束后再释放，避免打断已发出的请求。
+        let session = configuration.session
+        if session !== URLSession.shared {
+            session.finishTasksAndInvalidate()
+        }
+    }
+
     /// Executes a request and returns raw response data.
     ///
     /// 执行流程：构建 URLRequest → 应用请求拦截器 → 发送请求 → 状态码校验 → 应用响应拦截器 → 回调。
@@ -52,10 +62,13 @@ public final class BANetworkClient {
                         self.finish(.failure(error), completion: completion)
                         return
                     }
-                    guard let http = response as? HTTPURLResponse, let data else {
+                    guard let http = response as? HTTPURLResponse else {
                         self.finish(.failure(BANetworkError.invalidResponse), completion: completion)
                         return
                     }
+                    // 204/304 等合法响应可能没有 body，data 为 nil 时用空 Data 兜底，
+                    // 不能因 data==nil 直接判失败，否则空响应会被误判为 invalidResponse。
+                    let data = data ?? Data()
                     guard 200..<300 ~= http.statusCode else {
                         self.finish(.failure(BANetworkError.statusCode(http.statusCode, data)), completion: completion)
                         return
@@ -165,8 +178,10 @@ public final class BANetworkClient {
         }
 
         if request.encoding == .query, !request.parameters.isEmpty {
-            components.queryItems = request.parameters.map { key, value in
-                URLQueryItem(name: key, value: String(describing: value))
+            // 用 flatMap 展开：数组值（如 [1,2,3]）需编码成 ids=1&ids=2&ids=3，
+            // 而不是 String(describing:) 得到的单个 "[1, 2, 3]"。
+            components.queryItems = request.parameters.flatMap { key, value -> [URLQueryItem] in
+                Self.queryItems(name: key, value: value)
             }
         }
         guard let url = components.url else { throw BANetworkError.invalidURL }
@@ -188,6 +203,29 @@ public final class BANetworkClient {
         return urlRequest
     }
 
+    /// 把单个参数键值对展开为一个或多个 `URLQueryItem`。
+    ///
+    /// - 数组值（`[Any]`）展开为多个同名 item，符合 `key=v1&key=v2` 约定；
+    ///   嵌套数组会进一步递归展开。
+    /// - 其余标量用 `ba_stringValue` 统一转字符串（`Bool` 转 "true"/"false"）。
+    private static func queryItems(name: String, value: Any) -> [URLQueryItem] {
+        if let array = value as? [Any] {
+            return array.flatMap { queryItems(name: name, value: $0) }
+        }
+        return [URLQueryItem(name: name, value: ba_stringValue(value))]
+    }
+
+    /// 把标量参数值转换为字符串。
+    ///
+    /// `Bool` 经 `String(describing:)` 在多数语境下虽是 "true"/"false"，但 NSNumber 包装的布尔值
+    /// 可能输出 "1"/"0"，故显式分支保证统一为 "true"/"false"；其余类型沿用 `String(describing:)`。
+    private static func ba_stringValue(_ value: Any) -> String {
+        if let bool = value as? Bool {
+            return bool ? "true" : "false"
+        }
+        return String(describing: value)
+    }
+
     private func encodeJSONBody(_ parameters: [String: Any], into request: inout URLRequest) throws {
         guard !parameters.isEmpty else { return }
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -198,8 +236,9 @@ public final class BANetworkClient {
     private func encodeFormBody(_ parameters: [String: Any], into request: inout URLRequest) {
         guard !parameters.isEmpty else { return }
         request.setValue("application/x-www-form-urlencoded; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        // key 与 value 都用严格转义；value 经 ba_stringValue 统一处理（Bool→"true"/"false"）。
         let body = parameters.map { key, value in
-            "\(key.ba_urlQueryEscaped)=\(String(describing: value).ba_urlQueryEscaped)"
+            "\(key.ba_formEscaped)=\(Self.ba_stringValue(value).ba_formEscaped)"
         }.joined(separator: "&")
         request.httpBody = body.data(using: .utf8)
     }
@@ -219,13 +258,16 @@ public final class BANetworkClient {
     }
 
     private func applyRequestInterceptors(_ request: URLRequest, completion: @escaping (URLRequest) -> Void) {
+        // interceptors 是 public var，可能在异步遍历期间被外部修改；
+        // 先取局部快照再按 index 遍历，避免并发改动导致越界或读到不一致状态。
+        let snapshot = interceptors
         var current = request
         func apply(at index: Int) {
-            guard index < interceptors.count else {
+            guard index < snapshot.count else {
                 completion(current)
                 return
             }
-            interceptors[index].intercept(current) { modified in
+            snapshot[index].intercept(current) { modified in
                 current = modified
                 apply(at: index + 1)
             }
@@ -234,14 +276,16 @@ public final class BANetworkClient {
     }
 
     private func applyResponseInterceptors(_ data: Data, response: URLResponse, for request: URLRequest, completion: @escaping (Data, URLResponse) -> Void) {
+        // 同 applyRequestInterceptors：先快照再遍历，规避并发修改 interceptors 的竞争。
+        let snapshot = interceptors
         var currentData = data
         var currentResponse = response
         func apply(at index: Int) {
-            guard index < interceptors.count else {
+            guard index < snapshot.count else {
                 completion(currentData, currentResponse)
                 return
             }
-            interceptors[index].intercept(currentData, response: currentResponse, for: request) { modifiedData, modifiedResponse in
+            snapshot[index].intercept(currentData, response: currentResponse, for: request) { modifiedData, modifiedResponse in
                 currentData = modifiedData
                 currentResponse = modifiedResponse
                 apply(at: index + 1)
@@ -252,7 +296,15 @@ public final class BANetworkClient {
 }
 
 private extension String {
-    var ba_urlQueryEscaped: String {
-        addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? self
+    /// 表单 body 专用的严格百分号编码。
+    ///
+    /// 不能直接用 `.urlQueryAllowed`：它把 `+ & = ? /` 等子分隔符视为合法、不转义，
+    /// 而在 `application/x-www-form-urlencoded` body 里这些字符会破坏键值结构
+    /// （例如 `+` 会被服务端解析成空格）。这里在 query 集合基础上移除这些危险字符，
+    /// 确保 `+`→`%2B`、`&`→`%26`、`=`→`%3D` 等被正确转义。
+    var ba_formEscaped: String {
+        var allowed = CharacterSet.urlQueryAllowed
+        allowed.remove(charactersIn: "+&=?/ ")
+        return addingPercentEncoding(withAllowedCharacters: allowed) ?? self
     }
 }

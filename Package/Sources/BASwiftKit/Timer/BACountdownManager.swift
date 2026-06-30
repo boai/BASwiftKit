@@ -79,12 +79,20 @@ public final class BACountdownManager {
     public static let shared = BACountdownManager()
 
     /// Timer 是否正在运行中。
-    public private(set) var isRunning: Bool = false
+    ///
+    /// 对外读取走与写入相同的锁，避免与持锁的 start/stopTimer 并发读写产生数据竞争。
+    public var isRunning: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return _isRunning
+    }
 
     /// 每次 tick 的时间间隔。
     public let tickInterval: TimeInterval
 
     private var timer: Timer?
+    /// `isRunning` 的底层存储；仅在已持有 `lock` 的上下文（start/stopTimer）内写入，避免锁重入。
+    private var _isRunning: Bool = false
     private let lock = NSLock()
     private var observers: [String: (endDate: Date, callback: (BACountdownStatus) -> Void)] = [:]
     private var isPaused: Bool = false
@@ -97,6 +105,15 @@ public final class BACountdownManager {
     ///   过短会浪费 CPU，过长会导致倒计时跳秒不流畅。
     public init(tickInterval: TimeInterval = 0.5) {
         self.tickInterval = tickInterval
+    }
+
+    /// 实例销毁时停止并清理 Timer。
+    ///
+    /// `startTimer` 会把 Timer 加入 `RunLoop.main` 而被其强持有，若不在 deinit 中 invalidate，
+    /// 实例释放后 Timer 仍会永久空转。这里直接调用底层清理，避免在 deinit 中加锁。
+    deinit {
+        timer?.invalidate()
+        timer = nil
     }
 
     // MARK: - Register / Unregister
@@ -180,13 +197,13 @@ public final class BACountdownManager {
         // 添加到 .common mode，确保滚动时也能正常刷新
         RunLoop.main.add(t, forMode: .common)
         timer = t
-        isRunning = true
+        _isRunning = true
     }
 
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
-        isRunning = false
+        _isRunning = false
     }
 
     private func tick() {

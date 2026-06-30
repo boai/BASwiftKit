@@ -86,7 +86,11 @@ public extension UITextView {
         if ba_maxLength > 0, markedTextRange == nil, text.count > ba_maxLength {
             text = String(text.prefix(ba_maxLength))
         }
-        ba_placeholderLabel.isHidden = !text.isEmpty
+        // 只读取已存在的 placeholder label（非惰性创建），避免仅设置 maxLength、
+        // 未设置 placeholder 时在文本变化中强行注入多余的空 label。
+        if let label = objc_getAssociatedObject(self, &kBATextViewPlaceholderLabelKey) as? UILabel {
+            label.isHidden = !text.isEmpty
+        }
     }
 }
 #endif

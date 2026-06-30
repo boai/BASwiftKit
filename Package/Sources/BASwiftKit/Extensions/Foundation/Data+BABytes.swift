@@ -80,7 +80,9 @@ public extension Data {
     ///   - length: 读取长度。
     /// - Returns: 范围有效时返回子数据，否则返回 `nil`。
     func ba_subdata(offset: Int, length: Int) -> Data? {
-        guard offset >= 0, length >= 0, offset + length <= count else { return nil }
+        // 用 `count - offset >= length` 替代 `offset + length <= count`，避免超大 length 时
+        // `offset + length` 整数溢出（变为负数）绕过越界检查触发 trap。
+        guard offset >= 0, length >= 0, offset <= count, count - offset >= length else { return nil }
         return subdata(in: offset..<(offset + length))
     }
 
@@ -255,7 +257,9 @@ public struct BADataReader {
     /// - Parameter count: 要跳过的字节数。
     /// - Throws: 超出数据范围时抛出 `BADataError.outOfBounds`。
     public mutating func skip(_ count: Int) throws {
-        guard count >= 0, offset + count <= data.count else { throw BADataError.outOfBounds }
+        // 用 `data.count - offset >= count` 替代 `offset + count <= data.count`，避免超大 count 时
+        // `offset + count` 整数溢出绕过越界检查。
+        guard count >= 0, offset <= data.count, data.count - offset >= count else { throw BADataError.outOfBounds }
         offset += count
     }
 

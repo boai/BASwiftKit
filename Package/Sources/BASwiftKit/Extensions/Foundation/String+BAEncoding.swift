@@ -18,7 +18,9 @@ public extension String {
 
     /// 将当前字符串作为 Base64 内容解码为 UTF-8 字符串。
     var ba_base64Decoded: String? {
-        guard let data = Data(base64Encoded: self) else { return nil }
+        // 使用 `.ignoreUnknownCharacters`，兼容含换行的 PEM 风格标准 Base64，
+        // 否则带换行的 Base64 会解码失败返回 nil。
+        guard let data = Data(base64Encoded: self, options: .ignoreUnknownCharacters) else { return nil }
         return String(data: data, encoding: .utf8)
     }
 

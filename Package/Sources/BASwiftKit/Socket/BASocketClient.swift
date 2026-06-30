@@ -40,6 +40,10 @@ public final class BASocketClient {
     private let lock = NSLock()
     private var reconnectCount = 0
     private var heartbeatTimer: Timer?
+    /// 重连代次计数（受 `lock` 保护）。
+    /// 每次用户主动 `disconnect()` 时自增，使此前已调度但尚未执行的在途重连作废，
+    /// 避免"主动断开后仍被自动重连"。调度重连前捕获当前值，重连 block 执行时校验未变才真正连接。
+    private var reconnectGeneration = 0
 
     /// 创建 Socket 客户端。
     ///
@@ -54,7 +58,18 @@ public final class BASocketClient {
     }
 
     deinit {
-        invalidateHeartbeat()
+        // 不能走 invalidateHeartbeat()：它内部 DispatchQueue.main.async { [weak self] ... }，
+        // deinit 时 self 即将为 nil，闭包成为 no-op，repeats 心跳 Timer 会被 RunLoop 强持有而泄漏空跑。
+        // 这里把 timer 取到局部强引用后派发到主线程同步 invalidate（捕获 timer 本身、不依赖 self 存活），
+        // 在主线程（即 timer 注册线程）上失效，断开 RunLoop 对 timer 的持有。
+        if let timer = heartbeatTimer {
+            heartbeatTimer = nil
+            if Thread.isMainThread {
+                timer.invalidate()
+            } else {
+                DispatchQueue.main.async { timer.invalidate() }
+            }
+        }
         socket?.disconnect()
         socket = nil
     }
@@ -94,6 +109,8 @@ public final class BASocketClient {
         socket?.disconnect()
         socket = nil
         reconnectCount = 0
+        // 自增重连代次，作废此前已调度的在途重连（见 attemptReconnect）。
+        reconnectGeneration += 1
         state.update(.disconnected(nil))
     }
 
@@ -106,7 +123,7 @@ public final class BASocketClient {
     ///   - completion: 写入完成回调（不代表对方已收到）。
     public func send(text: String, completion: (() -> Void)? = nil) {
         guard case .connected = state.value else {
-            onEvent?(.error(.notConnected))
+            emit(.error(.notConnected))
             completion?()
             return
         }
@@ -120,7 +137,7 @@ public final class BASocketClient {
     ///   - completion: 写入完成回调。
     public func send(data: Data, completion: (() -> Void)? = nil) {
         guard case .connected = state.value else {
-            onEvent?(.error(.notConnected))
+            emit(.error(.notConnected))
             completion?()
             return
         }
@@ -132,7 +149,7 @@ public final class BASocketClient {
     /// - Parameter completion: 写入完成回调。
     public func ping(completion: (() -> Void)? = nil) {
         guard case .connected = state.value else {
-            onEvent?(.error(.notConnected))
+            emit(.error(.notConnected))
             completion?()
             return
         }
@@ -147,33 +164,39 @@ public final class BASocketClient {
             reconnectCount = 0
             state.update(.connected)
             startHeartbeat()
-            onEvent?(.connected)
+            emit(.connected)
 
         case .disconnected(let reason, let code):
             invalidateHeartbeat()
+            clearSocket()
             state.update(.disconnected(BASocketError.underlying(NSError(domain: "BASocket", code: Int(code), userInfo: [NSLocalizedDescriptionKey: reason]))))
-            onEvent?(.disconnected(reason, code))
+            emit(.disconnected(reason, code))
             attemptReconnect()
 
         case .text(let text):
             if let message = parseText(text) {
-                onEvent?(.message(message))
+                emit(.message(message))
             }
 
         case .binary(let data):
             if let message = parseBinary(data) {
-                onEvent?(.message(message))
+                emit(.message(message))
             }
 
         case .ping:
-            onEvent?(.ping)
+            emit(.ping)
 
         case .pong:
-            onEvent?(.pong)
+            emit(.pong)
 
         case .viabilityChanged(let viable):
+            // 连接不可用等同于断开：停心跳、置空 socket 以便 connect() 可重连，并尝试自动重连。
+            // 否则心跳会持续 ping 死连接，且 connect() 的 `guard socket == nil` 永远失败。
             if !viable {
+                invalidateHeartbeat()
+                clearSocket()
                 state.update(.disconnected(nil))
+                attemptReconnect()
             }
 
         case .reconnectSuggested:
@@ -181,21 +204,46 @@ public final class BASocketClient {
 
         case .cancelled:
             invalidateHeartbeat()
+            clearSocket()
             state.update(.disconnected(nil))
-            lock.lock()
-            socket = nil
-            lock.unlock()
 
         case .error(let error):
+            // 出错时与 .disconnected 一致处理：停心跳、置空 socket、尝试重连，
+            // 避免心跳继续 ping 死连接、且 connect() 无法重连导致卡死。
+            invalidateHeartbeat()
+            clearSocket()
             if let error {
                 state.update(.disconnected(error))
-                onEvent?(.error(.underlying(error)))
+                emit(.error(.underlying(error)))
+            } else {
+                state.update(.disconnected(nil))
             }
+            attemptReconnect()
 
         case .peerClosed:
             invalidateHeartbeat()
+            clearSocket()
             state.update(.disconnected(nil))
             attemptReconnect()
+        }
+    }
+
+    /// 在锁内将 socket 置空，使 `connect()` 的 `guard socket == nil` 与 `attemptReconnect` 能正常工作。
+    private func clearSocket() {
+        lock.lock()
+        socket = nil
+        lock.unlock()
+    }
+
+    /// 统一在主线程触发事件回调，兑现"`onEvent` 默认在主线程触发"的承诺。
+    /// Starscream 的回调队列及重连路径都可能在子线程，这里集中切主线程，避免逐处处理。
+    private func emit(_ event: BASocketEvent) {
+        if Thread.isMainThread {
+            onEvent?(event)
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.onEvent?(event)
+            }
         }
     }
 
@@ -248,17 +296,20 @@ public final class BASocketClient {
         }
         reconnectCount += 1
         let count = reconnectCount
+        // 捕获当前重连代次，用于在 block 执行时检测用户是否已主动 disconnect。
+        let generation = reconnectGeneration
         lock.unlock()
 
         let delay = configuration.reconnectDelay * pow(2.0, Double(count - 1))
         DispatchQueue.global().asyncAfter(deadline: .now() + delay) { [weak self] in
             guard let self else { return }
             self.lock.lock()
-            guard self.socket == nil else {
+            // 代次已变化说明期间发生过主动 disconnect，作废本次在途重连；
+            // socket 非 nil 说明已另行连接，无需重复。
+            guard self.reconnectGeneration == generation, self.socket == nil else {
                 self.lock.unlock()
                 return
             }
-            self.socket = nil
             self.lock.unlock()
             self.connect()
         }

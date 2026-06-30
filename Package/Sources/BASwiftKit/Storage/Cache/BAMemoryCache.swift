@@ -39,6 +39,12 @@ public final class BAMemoryCache {
 
     private let cache = NSCache<NSString, CacheWrapper>()
     private let lock = NSLock()
+    /// 已写入的 key 集合（受 `lock` 保护）。
+    /// `NSCache` 不提供遍历全部条目的 API，故额外维护一份 key 集合，
+    /// 以支持"仅清理过期项"（`ba_removeExpired`）等需要遍历的操作。
+    /// 注意：`NSCache` 在内存压力下可能自行淘汰对象，此集合可能含已被淘汰的 key，
+    /// 遍历时以 `cache.object(forKey:)` 实际取值为准（取不到即跳过），不会误判。
+    private var keys = Set<String>()
 
     /// 创建内存缓存实例。
     ///
@@ -79,6 +85,7 @@ public final class BAMemoryCache {
         let wrapper = CacheWrapper(entry: entry)
         lock.lock()
         cache.setObject(wrapper, forKey: key as NSString, cost: entry.cost)
+        keys.insert(key)
         lock.unlock()
     }
 
@@ -95,6 +102,7 @@ public final class BAMemoryCache {
         var entry = wrapper.entry
         if entry.isExpired {
             cache.removeObject(forKey: key as NSString)
+            keys.remove(key)
             return nil
         }
         entry.touch()
@@ -130,6 +138,7 @@ public final class BAMemoryCache {
     public func ba_remove(forKey key: String) {
         lock.lock()
         cache.removeObject(forKey: key as NSString)
+        keys.remove(key)
         lock.unlock()
     }
 
@@ -137,7 +146,33 @@ public final class BAMemoryCache {
     public func ba_clear() {
         lock.lock()
         cache.removeAllObjects()
+        keys.removeAll()
         lock.unlock()
+    }
+
+    // MARK: - Internal
+
+    /// 仅移除已过期的条目（不影响未过期的有效缓存）。
+    ///
+    /// 供 `BAHybridCache` / `BACacheManager` 的 `ba_cleanExpired` 调用，
+    /// 使"清理过期"名实相符，避免原先误用 `ba_clear()` 导致的全量清空。
+    /// 遍历 key 集合逐条判断过期时间，删除已过期者；顺带剔除已被 `NSCache` 自行淘汰的 key。
+    func ba_removeExpired() {
+        lock.lock()
+        defer { lock.unlock() }
+        // 遍历 key 快照，避免在迭代过程中直接修改正在被遍历的 keys 集合。
+        let snapshot = keys
+        for key in snapshot {
+            guard let wrapper = cache.object(forKey: key as NSString) else {
+                // NSCache 已自行淘汰该对象，清理掉残留 key。
+                keys.remove(key)
+                continue
+            }
+            if wrapper.entry.isExpired {
+                cache.removeObject(forKey: key as NSString)
+                keys.remove(key)
+            }
+        }
     }
 
     /// 判断是否包含指定 key 的缓存（且未过期）。

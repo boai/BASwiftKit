@@ -234,7 +234,8 @@ public final class BACacheManager {
         case .hybrid:
             hybridCache?.ba_cleanExpired(completion: completion)
         case .memory:
-            memoryCache?.ba_clear()
+            // 仅清理过期项，避免误删未过期的有效内存缓存（此前误用 ba_clear() 会全量清空）。
+            memoryCache?.ba_removeExpired()
             completion?()
         case .disk:
             diskCache?.ba_cleanExpired(completion: completion)

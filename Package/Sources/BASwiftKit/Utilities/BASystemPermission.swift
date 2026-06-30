@@ -181,6 +181,9 @@ public final class BALocationPermissionRequest: NSObject, CLLocationManagerDeleg
     private let manager = CLLocationManager()
     private let type: BALocationPermissionType
     private let completion: (BAPermissionStatus) -> Void
+    /// 一次性标志：绑定 delegate 后系统会立即回调一次（通常为 notDetermined），
+    /// 该标志确保仅在状态变为确定态后触发一次 completion，避免多次回调。
+    private var hasCompleted = false
 
     /// 创建定位权限请求对象。
     ///
@@ -206,7 +209,18 @@ public final class BALocationPermissionRequest: NSObject, CLLocationManagerDeleg
     }
 
     /// 定位授权状态变化回调。
+    ///
+    /// 绑定 delegate 后系统会先以当前（通常 notDetermined）状态回调一次，再在用户响应后回调。
+    /// 这里仅在状态变为确定态、且尚未回调过时触发一次 completion，并断开 delegate 释放持有。
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        // 仍处于未决态：等待用户做出选择，先不回调。
+        guard manager.authorizationStatus != .notDetermined else { return }
+        // 一次性保护：避免确定态被多次回调时重复触发 completion。
+        guard !hasCompleted else { return }
+        hasCompleted = true
+
+        // 断开 delegate，结束对本对象的回调驱动（调用方持有的引用可随之释放）。
+        manager.delegate = nil
         ba_complete()
     }
 
