@@ -20,6 +20,8 @@ public final class BAAdDemoViewController: BABaseViewController {
 
     private let marquee = BAMarqueeView()
     private let carousel = BACarouselView()
+    private let noticeSingle = BANoticeView()
+    private let noticeDouble = BANoticeView()
 
     public init() {
         super.init(nibName: nil, bundle: nil)
@@ -32,6 +34,7 @@ public final class BAAdDemoViewController: BABaseViewController {
         setupLayout()
         configureMarquee()
         configureCarousel()
+        configureNotice()
     }
 
     // MARK: - Layout
@@ -64,6 +67,18 @@ public final class BAAdDemoViewController: BABaseViewController {
         carousel.layer.cornerRadius = 12
         carousel.clipsToBounds = true
         carousel.snp.makeConstraints { make in make.height.equalTo(180) }
+
+        content.addArrangedSubview(sectionTitle("垂直公告 / Notice（单行 · 每次滚 1 行）"))
+        noticeSingle.backgroundColor = UIColor.black.withAlphaComponent(0.04)
+        noticeSingle.layer.cornerRadius = 8
+        noticeSingle.clipsToBounds = true
+        content.addArrangedSubview(noticeSingle)
+
+        content.addArrangedSubview(sectionTitle("垂直公告 / Notice（双行 · 每次滚 1 行）"))
+        noticeDouble.backgroundColor = UIColor.black.withAlphaComponent(0.04)
+        noticeDouble.layer.cornerRadius = 8
+        noticeDouble.clipsToBounds = true
+        content.addArrangedSubview(noticeDouble)
     }
 
     private func sectionTitle(_ text: String) -> UILabel {
@@ -80,7 +95,7 @@ public final class BAAdDemoViewController: BABaseViewController {
         marquee.textColor = BAAppTheme.accent
         marquee.scrollSpeed = 60          // 点/秒
         marquee.isRepeatEnabled = true    // 自动重复
-        marquee.onTap = { BAToast.ba_show("点击了跑马灯广告") }
+        marquee.onTap = { index, text in BAToast.ba_show("点击了第 \(index + 1) 条：\(text)") }
     }
 
     // MARK: - Carousel
@@ -111,6 +126,40 @@ public final class BAAdDemoViewController: BABaseViewController {
             return BACarouselItem(url: url, caption: caption)
         }
         carousel.setItems(items)
+    }
+
+    // MARK: - Notice
+
+    private func configureNotice() {
+        let notices = ["🎉 恭喜张同学获得 100 元红包",
+                       "📦 您的订单已发货，请注意查收",
+                       "🔔 限时秒杀进行中，手慢无",
+                       "💎 会员日专属福利已到账",
+                       "🚀 新版本上线，体验更流畅"]
+        let font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        let tap: (Int, String) -> Void = { index, text in
+            BAToast.ba_show("点击了第 \(index + 1) 条：\(text)")
+        }
+
+        // 单行：显示 1 行，每次滚 1 行（经典公告轮播）。
+        noticeSingle.texts = notices
+        noticeSingle.font = font
+        noticeSingle.textColor = BAAppTheme.accent
+        noticeSingle.visibleLines = 1
+        noticeSingle.stepLines = 1
+        noticeSingle.autoScrollInterval = 2.5
+        noticeSingle.lineSpacing = 8
+        noticeSingle.onTap = tap
+
+        // 双行：显示 2 行，每次滚 1 行（错位上移，同屏显两条）。
+        noticeDouble.texts = notices
+        noticeDouble.font = font
+        noticeDouble.textColor = BAAppTheme.accent
+        noticeDouble.visibleLines = 2
+        noticeDouble.stepLines = 1
+        noticeDouble.autoScrollInterval = 2.5
+        noticeDouble.lineSpacing = 8
+        noticeDouble.onTap = tap
     }
 
     /// 生成纯色占位图。
