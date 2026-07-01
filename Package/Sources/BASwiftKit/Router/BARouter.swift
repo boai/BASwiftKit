@@ -531,6 +531,71 @@ public final class BARouter {
     }
 }
 
+// MARK: - Cross-Platform Convenience Registration
+
+public extension BARouter {
+
+    /// 跨平台便捷注册 —— 不依赖 UIKit 的极简注册 API。
+    ///
+    /// 适用于 SwiftUI / AppKit / CLI 等非 UIKit 平台。只需提供一个处理闭包，
+    /// 框架完成 URL 匹配后将参数和控制权交给你：
+    ///
+    /// ```swift
+    /// // SwiftUI 示例
+    /// BARouter.shared.register("/settings") { params, completion in
+    ///     // 更新导航状态、弹出 Sheet 等，由你自行处理
+    ///     NotificationCenter.default.post(name: .navigateToSettings, object: params)
+    ///     completion(nil)
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - pattern: URL 匹配模式，支持 `:param` 路径参数与 `*` 通配。
+    ///   - sourceType: 导航方式提示，默认 `.auto`（跨平台推荐）。
+    ///   - animated: 是否带过渡动画，默认 `true`。
+    ///   - interceptors: 该路由专属拦截器，默认空。
+    ///   - handler: 路由处理闭包。参数：
+    ///     - `params`: URL 解析出的参数字典（路径参数 + Query 参数合并）。
+    ///     - `completion`: 处理完成后必须调用，传 `nil` 表示成功，传 `BARouteError` 表示失败。
+    func register(
+        _ pattern: String,
+        sourceType: BARouteSourceType = .auto,
+        animated: Bool = true,
+        interceptors: [BARouteInterceptor] = [],
+        handler: @escaping ([String: Any], @escaping (BARouteError?) -> Void) -> Void
+    ) {
+        let routeHandler = BACrossPlatformRouteHandler(handler: handler)
+        register(
+            BARouteConfig(
+                pattern: pattern,
+                handler: routeHandler,
+                sourceType: sourceType,
+                animated: animated,
+                interceptors: interceptors
+            )
+        )
+    }
+}
+
+/// 跨平台路由处理器 —— 将闭包适配为 `BARouteHandler` 协议。
+/// 供 `BARouter.register(_:handler:)` 内部使用。
+private final class BACrossPlatformRouteHandler: BARouteHandler {
+    private let handler: ([String: Any], @escaping (BARouteError?) -> Void) -> Void
+
+    init(handler: @escaping ([String: Any], @escaping (BARouteError?) -> Void) -> Void) {
+        self.handler = handler
+    }
+
+    func handle(
+        params: [String: Any],
+        sourceType: BARouteSourceType,
+        animated: Bool,
+        completion: @escaping (BARouteError?) -> Void
+    ) {
+        handler(params, completion)
+    }
+}
+
 // MARK: - Log Level
 
 /// 路由日志级别。

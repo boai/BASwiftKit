@@ -11,11 +11,21 @@ import Foundation
 
 /// 可路由页面协议。
 ///
-/// 遵循该协议的 UIViewController 可以接收路由参数的注入。
-/// 路由跳转时，框架会自动调用 `receiveRouteParams(_:)` 将 URL 参数传入目标页面。
+/// 遵循该协议的类型可以接收路由参数的注入。
+/// 在 UIKit 中通常是 UIViewController，在 SwiftUI / AppKit 中
+/// 可以是 ViewModel 或任意对象。路由跳转时框架将 URL 参数传入。
 ///
 /// ```swift
+/// // UIKit
 /// class UserDetailViewController: UIViewController, BARoutable {
+///     func receiveRouteParams(_ params: [String : Any]) {
+///         self.userId = params["userId"] as? String ?? ""
+///     }
+/// }
+///
+/// // SwiftUI
+/// class UserDetailViewModel: ObservableObject, BARoutable {
+///     @Published var userId: String = ""
 ///     func receiveRouteParams(_ params: [String : Any]) {
 ///         self.userId = params["userId"] as? String ?? ""
 ///     }

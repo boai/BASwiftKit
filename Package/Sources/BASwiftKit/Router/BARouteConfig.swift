@@ -10,17 +10,22 @@ import Foundation
 // MARK: - Route Source Type
 
 /// 路由来源类型，用于区分导航方式。
+///
+/// - `.auto`: 跨平台，由 Handler 自行决定导航方式（推荐用于 SwiftUI / AppKit）。
+/// - `.push`: UIKit 专用，Push 进入 UINavigationController 栈。
+/// - `.present`: UIKit 专用，Modal 弹出。
+/// - `.root`: UIKit 专用，设为 Window 根控制器。
 public enum BARouteSourceType {
-    /// 由 Handler 自行决定导航方式。
+    /// 跨平台，由 Handler 自行决定导航方式（推荐用于 SwiftUI / AppKit）。
     case auto
 
-    /// Push 进入导航栈（需要调用方有 UINavigationController）。
+    /// UIKit 专用，Push 进入导航栈（需要调用方有 UINavigationController）。
     case push
 
-    /// Modal 弹出。
+    /// UIKit 专用，Modal 弹出。
     case present
 
-    /// 设为 Window 根控制器。
+    /// UIKit 专用，设为 Window 根控制器。
     case root
 }
 
