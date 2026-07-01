@@ -4,7 +4,8 @@ import PackageDescription
 let package = Package(
     name: "BASwiftKit",
     platforms: [
-        .iOS(.v15)
+        .iOS(.v15),
+        .macOS(.v12)
     ],
     products: [
         .library(
