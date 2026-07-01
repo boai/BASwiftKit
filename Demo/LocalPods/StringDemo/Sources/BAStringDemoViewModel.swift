@@ -18,7 +18,7 @@ public final class BAStringDemoViewModel {
 
     public init() {}
 
-    let input: BAObservable<String> = BAObservable("hello@baswiftkit.dev")
+    let input: BAObservable<String> = BAObservable("hello@example.com")
     let results: BAObservable<[BAStringDemoResult]> = BAObservable([])
 
     func update(_ text: String) {

@@ -59,3 +59,4 @@ fastlane/test_output
 # 仓库根目录下的临时截图（调试 / 沟通用），不进版本库
 /*.png
 
+.claude/

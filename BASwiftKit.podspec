@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
   # ──────────────────────────────────────────────
   s.homepage         = 'https://github.com/boai/BASwiftKit'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'boai' => '13014692+boai@users.noreply.github.com' }
+  s.author           = { 'boai' => 'boai@users.noreply.github.com' }
   s.source           = { :git => 'https://github.com/boai/BASwiftKit.git', :tag => s.version.to_s }
 
   # ──────────────────────────────────────────────
